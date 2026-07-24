@@ -2,10 +2,18 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { ResponsibleGamingBanner } from './ResponsibleGamingBanner'
 import { ShieldCheck, HeartHandshake, FileText, Scale } from 'lucide-react'
 
 export function Footer() {
+  const pathname = usePathname()
+
+  // Ne pas afficher le footer public sur l'application Dashboard et Admin
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {
+    return null
+  }
+
   return (
     <footer className="w-full bg-surface border-t border-surface-border text-slate-400 mt-20">
       

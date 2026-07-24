@@ -9,6 +9,11 @@ export function Header() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
+  // Ne pas afficher le header du site public sur l'application Dashboard et Admin
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {
+    return null
+  }
+
   const navLinks = [
     { name: 'Accueil', href: '/' },
     { name: 'Bonus sans dépôt', href: '/bonus-sans-depot', animated: true },
