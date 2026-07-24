@@ -132,7 +132,7 @@ export function Footer() {
             <strong>Avertissement Légal :</strong> FrenchCasino est un site d&apos;information et de comparaison indépendant. Les jeux d&apos;argent sont strictement interdits aux mineurs de moins de 18 ans. Les bonus et offres présentés sont soumis aux termes et conditions de chaque opérateur respectif (licences Malte MGA, Curaçao eGaming, Anjouan, etc.). FrenchCasino ne constitue pas un opérateur de jeux en ligne direct. Vérifiez toujours la législation en vigueur dans votre juridiction avant d&apos;effectuer un dépôt.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-4 text-xs text-slate-400">
-            <span>© {new Date().getFullYear()} FrenchCasino V2. Tous droits réservés.</span>
+            <span>© {new Date().getFullYear()} FrenchCasino <Link href="/admin" className="hover:text-slate-300 transition-colors">V2</Link>. Tous droits réservés.</span>
             <span className="font-mono text-[10px] bg-slate-900 border border-slate-800 px-2 py-1 rounded text-slate-400">
               Développé avec Next.js 14 & Supabase
             </span>
