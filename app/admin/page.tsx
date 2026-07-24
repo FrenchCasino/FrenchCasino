@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   ShieldAlert,
   Users,
@@ -15,38 +15,160 @@ import {
   Activity,
   Save,
   Trash2,
-  Download
+  Download,
+  Loader2,
+  MessageSquare
 } from 'lucide-react'
-import { CASINOS_MOCK } from '@/lib/data/casinos'
+import { createClient } from '@/lib/supabase/client'
 
 export default function AdminDashboardPage() {
-  const [adminTab, setAdminTab] = useState<'kpi' | 'affiliates' | 'casinos' | 'payouts' | 'support' | 'blog' | 'logs'>('kpi')
+  const [adminTab, setAdminTab] = useState<'kpi' | 'affiliates' | 'casinos' | 'payouts' | 'support' | 'logs'>('kpi')
+  const [loading, setLoading] = useState(true)
+  const supabase = createClient()
 
-  // Mock list Affiliés
-  const [affiliates, setAffiliates] = useState([
-    { id: '1', name: 'Gabin (Master)', email: 'gabin@frenchcasino.net', code: 'AFF_GABIN', status: 'active', rate: 0.35, earned: 12450 },
-    { id: '2', name: 'Alexandre Streamer', email: 'alex@twitch.tv', code: 'AFF_ALEX', status: 'pending', rate: 0.30, earned: 850 },
-    { id: '3', name: 'CasinoClub FR', email: 'contact@casinoclub.fr', code: 'AFF_CLUB', status: 'active', rate: 0.40, earned: 34200 },
-  ])
+  // State
+  const [affiliates, setAffiliates] = useState<any[]>([])
+  const [payouts, setPayouts] = useState<any[]>([])
+  const [casinos, setCasinos] = useState<any[]>([])
+  
+  // KPI state
+  const [kpi, setKpi] = useState({
+    activeAffiliates: 0,
+    pendingAffiliates: 0,
+    totalCommissions: 0,
+    pendingPayouts: 0,
+    pendingPayoutsAmount: 0,
+  })
 
-  // Mock Payout Requests
-  const [payouts, setPayouts] = useState([
-    { id: 'p1', affiliateName: 'Gabin (Master)', amount: 1420, date: '24/07/2026', method: 'IBAN (FR76 •••• 1234)', status: 'pending' },
-    { id: 'p2', affiliateName: 'CasinoClub FR', amount: 4500, date: '20/07/2026', method: 'USDT (TRX...9x)', status: 'paid' },
-  ])
+  const loadData = useCallback(async () => {
+    setLoading(true)
+    try {
+      // Load Affiliates with Profiles
+      const { data: affData, error: affErr } = await supabase
+        .from('affiliates')
+        .select(`
+          *,
+          profiles:id (
+            full_name,
+            email
+          )
+        `)
+      
+      if (affErr) console.error("Error loading affiliates:", affErr)
+      else setAffiliates(affData || [])
 
-  // Mock Activity Logs
-  const [logs] = useState([
-    { id: 'l1', action: 'Modification Taux Commission AFF_GABIN à 35%', admin: 'SuperAdmin', timestamp: '24/07/2026 21:40' },
-    { id: 'l2', action: 'Validation Demande Payout p2 (4500€)', admin: 'SuperAdmin', timestamp: '20/07/2026 14:15' },
-  ])
+      // Load Payouts with Affiliate Profile Info
+      const { data: payData, error: payErr } = await supabase
+        .from('payout_requests')
+        .select(`
+          *,
+          affiliates (
+            iban,
+            profiles:id (
+              full_name,
+              email
+            )
+          )
+        `)
+        .order('created_at', { ascending: false })
+      
+      if (payErr) console.error("Error loading payouts:", payErr)
+      else setPayouts(payData || [])
 
-  const handleUpdateStatus = (id: string, newStatus: string) => {
-    setAffiliates(affiliates.map(a => a.id === id ? { ...a, status: newStatus } : a))
+      // Load Casinos
+      const { data: casData, error: casErr } = await supabase
+        .from('casinos')
+        .select('*')
+        .order('ordre_classement', { ascending: true })
+      
+      if (casErr) console.error("Error loading casinos:", casErr)
+      else setCasinos(casData || [])
+
+      // Calculate KPIs
+      if (affData && payData) {
+        setKpi({
+          activeAffiliates: affData.filter(a => a.status === 'active').length,
+          pendingAffiliates: affData.filter(a => a.status === 'pending').length,
+          totalCommissions: affData.reduce((acc, a) => acc + (Number(a.total_earned) || 0), 0),
+          pendingPayouts: payData.filter(p => p.statut === 'pending').length,
+          pendingPayoutsAmount: payData.filter(p => p.statut === 'pending').reduce((acc, p) => acc + (Number(p.montant_demande) || 0), 0)
+        })
+      }
+
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }, [supabase])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+
+  // Actions Affiliés
+  const handleUpdateAffiliateStatus = async (id: string, newStatus: string) => {
+    const { error } = await supabase.from('affiliates').update({ status: newStatus }).eq('id', id)
+    if (!error) {
+      setAffiliates(affiliates.map(a => a.id === id ? { ...a, status: newStatus } : a))
+      // Mettre à jour les KPIs locaux si besoin
+      setKpi(prev => ({
+        ...prev,
+        activeAffiliates: newStatus === 'active' ? prev.activeAffiliates + 1 : prev.activeAffiliates - 1,
+        pendingAffiliates: newStatus === 'pending' ? prev.pendingAffiliates + 1 : prev.pendingAffiliates - 1
+      }))
+    } else {
+      alert("Erreur lors de la mise à jour du statut")
+    }
   }
 
-  const handleApprovePayout = (id: string) => {
-    setPayouts(payouts.map(p => p.id === id ? { ...p, status: 'paid' } : p))
+  const handleUpdateCommissionRate = async (id: string, currentRate: number) => {
+    const newRateStr = prompt("Nouveau taux de commission (ex: 0.35 pour 35%)", currentRate.toString())
+    if (!newRateStr) return
+    const newRate = parseFloat(newRateStr)
+    if (isNaN(newRate) || newRate < 0 || newRate > 1) {
+      alert("Taux invalide. Doit être entre 0 et 1.")
+      return
+    }
+    const { error } = await supabase.from('affiliates').update({ commission_rate: newRate }).eq('id', id)
+    if (!error) {
+      setAffiliates(affiliates.map(a => a.id === id ? { ...a, commission_rate: newRate } : a))
+    } else {
+      alert("Erreur lors de la mise à jour du taux")
+    }
+  }
+
+  // Actions Payouts
+  const handleUpdatePayoutStatus = async (payoutId: string, affiliateEmail: string, affiliateName: string, amount: number, newStatus: string) => {
+    if (!confirm(`Confirmez-vous le passage au statut '${newStatus}' pour ce virement de ${amount}€ ?`)) return
+
+    const { error } = await supabase.from('payout_requests').update({ 
+      statut: newStatus,
+      processed_at: new Date().toISOString()
+    }).eq('id', payoutId)
+
+    if (!error) {
+      setPayouts(payouts.map(p => p.id === payoutId ? { ...p, statut: newStatus } : p))
+      
+      // Trigger notification email via notre route API
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'payout',
+            email: affiliateEmail,
+            name: affiliateName,
+            amount: amount,
+            status: newStatus
+          })
+        })
+      } catch (err) {
+        console.error("Email API Error:", err)
+      }
+    } else {
+      alert("Erreur lors de la mise à jour du paiement")
+    }
   }
 
   return (
@@ -57,23 +179,27 @@ export default function AdminDashboardPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-red-400 uppercase tracking-wider">
             <ShieldAlert className="w-4 h-4" />
-            <span>Panneau de Contrôle Administrateur Restreint</span>
+            <span>Panneau de Contrôle Administrateur Supabase</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white mt-1">
             Administration FrenchCasino V2
           </h1>
         </div>
+        <button onClick={loadData} className="px-4 py-2 bg-slate-900 border border-slate-700 hover:bg-slate-800 rounded-xl text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors">
+          <Activity className="w-4 h-4" />
+          Rafraîchir les données
+        </button>
       </div>
 
       {/* Tabs Navigation Admin */}
-      <div className="flex overflow-x-auto gap-2 border-b border-surface-border pb-2">
+      <div className="flex overflow-x-auto gap-2 border-b border-surface-border pb-2 scrollbar-hide">
         {[
           { id: 'kpi', label: 'KPIs Globaux', icon: Activity },
           { id: 'affiliates', label: 'Gestion Affiliés', icon: Users },
-          { id: 'casinos', label: 'Gestion Casinos (CRUD)', icon: Plus },
+          { id: 'casinos', label: 'Gestion Casinos', icon: Plus },
           { id: 'payouts', label: 'Paiements & Exports', icon: CreditCard },
-          { id: 'support', label: 'Support & Moderation', icon: Clock },
-          { id: 'logs', label: 'Logs d\'Activité', icon: FileText },
+          { id: 'support', label: 'Tickets Support', icon: Clock },
+          { id: 'logs', label: 'Logs & Alertes', icon: FileText },
         ].map(tab => {
           const Icon = tab.icon
           const active = adminTab === tab.id
@@ -84,7 +210,7 @@ export default function AdminDashboardPage() {
               className={`px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
                 active
                   ? 'bg-red-600 text-white shadow-lg'
-                  : 'text-slate-400 hover:text-white hover:bg-surface-card'
+                  : 'text-slate-400 hover:text-white hover:bg-surface-card border border-transparent hover:border-slate-800'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -94,194 +220,277 @@ export default function AdminDashboardPage() {
         })}
       </div>
 
-      {/* ADMIN TABS CONTENT */}
-
-      {/* 1. KPIS GLOBAUX */}
-      {adminTab === 'kpi' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
-            <span className="text-slate-400 text-xs block">Affiliés Actifs</span>
-            <span className="text-3xl font-bold font-mono text-white">48</span>
-            <span className="text-[11px] text-emerald block">+3 en attente de validation</span>
-          </div>
-
-          <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
-            <span className="text-slate-400 text-xs block">Clics Globaux (Mois)</span>
-            <span className="text-3xl font-bold font-mono text-purple-400">142 800</span>
-            <span className="text-[11px] text-slate-400 block">Sur tous les liens affiliés</span>
-          </div>
-
-          <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
-            <span className="text-slate-400 text-xs block">Commissions Dues (Mois)</span>
-            <span className="text-3xl font-bold font-mono text-gold">28 450.00 €</span>
-            <span className="text-[11px] text-gold block">À distribuer aux affiliés</span>
-          </div>
-
-          <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
-            <span className="text-slate-400 text-xs block">Payouts en Attente</span>
-            <span className="text-3xl font-bold font-mono text-red-400">1</span>
-            <span className="text-[11px] text-red-400 block">Montant : 1 420.00 €</span>
-          </div>
+      {/* Loading State */}
+      {loading ? (
+        <div className="flex items-center justify-center p-20">
+          <Loader2 className="w-10 h-10 animate-spin text-red-500" />
         </div>
-      )}
+      ) : (
+        <>
+          {/* 1. KPIS GLOBAUX */}
+          {adminTab === 'kpi' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <Users className="w-12 h-12 text-white" />
+                </div>
+                <span className="text-slate-400 text-xs block relative z-10">Affiliés Actifs</span>
+                <span className="text-3xl font-bold font-mono text-white relative z-10">{kpi.activeAffiliates}</span>
+                <span className="text-[11px] text-emerald block relative z-10">
+                  {kpi.pendingAffiliates > 0 ? `+${kpi.pendingAffiliates} en attente de validation` : 'Tous validés'}
+                </span>
+              </div>
 
-      {/* 2. GESTION DES AFFILIÉS */}
-      {adminTab === 'affiliates' && (
-        <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-          <h3 className="font-display font-bold text-lg text-white">Gestion des Inscriptions & Taux Commission</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-surface uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
-                <tr>
-                  <th className="p-3">Affilié</th>
-                  <th className="p-3">Email</th>
-                  <th className="p-3">Code Referral</th>
-                  <th className="p-3">Taux RevShare</th>
-                  <th className="p-3">Gains Totaux</th>
-                  <th className="p-3">Statut</th>
-                  <th className="p-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {affiliates.map((aff) => (
-                  <tr key={aff.id}>
-                    <td className="p-3 font-bold text-white">{aff.name}</td>
-                    <td className="p-3 font-mono">{aff.email}</td>
-                    <td className="p-3 font-mono text-gold">{aff.code}</td>
-                    <td className="p-3 font-mono font-bold">{(aff.rate * 100).toFixed(0)}%</td>
-                    <td className="p-3 font-mono text-emerald">{aff.earned.toLocaleString()} €</td>
-                    <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
-                        aff.status === 'active' ? 'bg-emerald/20 text-emerald' : 'bg-gold/20 text-gold'
-                      }`}>
-                        {aff.status}
-                      </span>
-                    </td>
-                    <td className="p-3 flex items-center gap-2">
-                      {aff.status === 'pending' && (
-                        <button
-                          onClick={() => handleUpdateStatus(aff.id, 'active')}
-                          className="p-1 rounded bg-emerald/20 text-emerald hover:bg-emerald/30 text-[11px] px-2 font-bold"
-                        >
-                          Valider
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleUpdateStatus(aff.id, aff.status === 'suspended' ? 'active' : 'suspended')}
-                        className="p-1 rounded bg-red-950 text-red-400 hover:bg-red-900 text-[11px] px-2 font-bold"
-                      >
-                        {aff.status === 'suspended' ? 'Réactiver' : 'Suspendre'}
+              <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <DollarSign className="w-12 h-12 text-gold" />
+                </div>
+                <span className="text-slate-400 text-xs block relative z-10">Gains Distribués / Dus</span>
+                <span className="text-3xl font-bold font-mono text-gold relative z-10">{kpi.totalCommissions.toLocaleString()} €</span>
+                <span className="text-[11px] text-gold block relative z-10">Global historique</span>
+              </div>
+
+              <div className="glass-panel p-5 rounded-2xl border border-red-900/50 bg-red-950/10 space-y-2 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <CreditCard className="w-12 h-12 text-red-400" />
+                </div>
+                <span className="text-slate-400 text-xs block relative z-10">Payouts en Attente</span>
+                <span className="text-3xl font-bold font-mono text-red-400 relative z-10">{kpi.pendingPayouts}</span>
+                <span className="text-[11px] text-red-400 block relative z-10">Montant total : {kpi.pendingPayoutsAmount.toLocaleString()} €</span>
+              </div>
+            </div>
+          )}
+
+          {/* 2. GESTION DES AFFILIÉS */}
+          {adminTab === 'affiliates' && (
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <h3 className="font-display font-bold text-lg text-white">Gestion des Inscriptions & Taux Commission</h3>
+              <div className="overflow-x-auto rounded-xl border border-slate-800/50">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-surface/50 uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
+                    <tr>
+                      <th className="p-4">Affilié & Email</th>
+                      <th className="p-4">Code / Lien</th>
+                      <th className="p-4 text-center">Taux RevShare</th>
+                      <th className="p-4 text-right">Gains Totaux</th>
+                      <th className="p-4 text-center">Statut</th>
+                      <th className="p-4">Actions Admin</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/40">
+                    {affiliates.length === 0 ? (
+                      <tr><td colSpan={6} className="p-4 text-center text-slate-500 font-mono">Aucun affilié trouvé.</td></tr>
+                    ) : affiliates.map((aff) => (
+                      <tr key={aff.id} className="hover:bg-surface/30 transition-colors">
+                        <td className="p-4">
+                          <div className="font-bold text-white text-sm">{aff.profiles?.full_name || 'Sans Nom'}</div>
+                          <div className="font-mono text-[10px] text-slate-400">{aff.profiles?.email || 'N/A'}</div>
+                        </td>
+                        <td className="p-4">
+                          <span className="px-2 py-1 bg-purple-900/30 text-purple-300 font-mono text-[11px] rounded border border-purple-800/50">
+                            {aff.referral_code}
+                          </span>
+                        </td>
+                        <td className="p-4 text-center">
+                          <button 
+                            onClick={() => handleUpdateCommissionRate(aff.id, aff.commission_rate)}
+                            className="font-mono font-bold text-emerald hover:text-emerald-300 hover:underline cursor-pointer px-2 py-1 rounded bg-emerald/10 border border-emerald/20 transition-all"
+                            title="Modifier le taux"
+                          >
+                            {(aff.commission_rate * 100).toFixed(0)}%
+                          </button>
+                        </td>
+                        <td className="p-4 font-mono text-gold font-bold text-right">{(Number(aff.total_earned) || 0).toLocaleString()} €</td>
+                        <td className="p-4 text-center">
+                          <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            aff.status === 'active' ? 'bg-emerald/20 text-emerald border border-emerald/30' : 
+                            aff.status === 'pending' ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30' : 
+                            'bg-red-500/20 text-red-500 border border-red-500/30'
+                          }`}>
+                            {aff.status}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            {aff.status === 'pending' && (
+                              <button
+                                onClick={() => handleUpdateAffiliateStatus(aff.id, 'active')}
+                                className="p-1.5 rounded-lg bg-emerald/20 text-emerald hover:bg-emerald/30 text-[11px] px-3 font-bold transition-colors border border-emerald/30"
+                              >
+                                Valider
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleUpdateAffiliateStatus(aff.id, aff.status === 'suspended' ? 'active' : 'suspended')}
+                              className="p-1.5 rounded-lg bg-red-950/50 text-red-400 hover:bg-red-900 text-[11px] px-3 font-bold transition-colors border border-red-900/50"
+                            >
+                              {aff.status === 'suspended' ? 'Réactiver' : 'Suspendre'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* 3. GESTION DES CASINOS (CRUD) */}
+          {adminTab === 'casinos' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center glass-panel p-4 rounded-xl border border-slate-800">
+                <h3 className="font-display font-bold text-lg text-white">Casinos Référencés sur la Vitrine</h3>
+                <button className="px-4 py-2 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-primary-hover shadow-purple-glow">
+                  <Plus className="w-4 h-4" />
+                  <span>Ajouter un Casino (Base de données)</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {casinos.length === 0 ? (
+                  <p className="text-slate-400 font-mono text-sm p-4">Aucun casino trouvé dans la base.</p>
+                ) : casinos.map((casino) => (
+                  <div key={casino.id} className="glass-panel p-5 rounded-xl border border-slate-800 space-y-3 relative overflow-hidden group">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-bold text-white text-base flex items-center gap-2">
+                          {casino.name}
+                          {!casino.is_active && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-500/20 text-red-500">Inactif</span>}
+                        </h4>
+                        <span className="text-[10px] text-slate-500 font-mono">{casino.slug}</span>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-gold bg-gold/10 border border-gold/20 px-2 py-1 rounded">Ordre: #{casino.ordre_classement}</span>
+                    </div>
+                    
+                    <div className="space-y-1.5 text-[11px]">
+                      <p className="text-slate-300"><span className="text-slate-500">Licence:</span> {casino.licence}</p>
+                      <p className="text-emerald font-semibold"><span className="text-slate-500 font-normal">Sans dépôt:</span> {casino.bonus_sans_depot}</p>
+                      <p className="text-purple-300 font-semibold"><span className="text-slate-500 font-normal">Dépôt:</span> {casino.bonus_depot}</p>
+                    </div>
+
+                    <div className="flex gap-2 pt-3 border-t border-slate-800/60 mt-4 opacity-60 group-hover:opacity-100 transition-opacity">
+                      <button className="flex-1 px-3 py-1.5 rounded-lg bg-surface border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 flex items-center justify-center gap-1.5 transition-colors">
+                        <Edit className="w-3 h-3" /> Éditer
                       </button>
-                    </td>
-                  </tr>
+                      <button className="flex-1 px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-900/50 text-xs font-semibold text-red-400 hover:bg-red-900 flex items-center justify-center gap-1.5 transition-colors">
+                        <Trash2 className="w-3 h-3" /> {casino.is_active ? 'Désactiver' : 'Activer'}
+                      </button>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* 3. GESTION DES CASINOS (CRUD) */}
-      {adminTab === 'casinos' && (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center glass-panel p-4 rounded-xl border border-slate-800">
-            <h3 className="font-display font-bold text-lg text-white">Casinos Référencés sur la Vitrine</h3>
-            <button className="px-4 py-2 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-primary-hover">
-              <Plus className="w-4 h-4" />
-              <span>Ajouter un Casino</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {CASINOS_MOCK.map((casino) => (
-              <div key={casino.id} className="glass-panel p-5 rounded-xl border border-slate-800 space-y-2">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-bold text-white text-base">{casino.name}</h4>
-                  <span className="text-xs font-mono text-gold">Ordre : #{casino.ordreClassement}</span>
-                </div>
-                <p className="text-xs text-slate-400 truncate">{casino.bonusDepot}</p>
-                <div className="flex gap-2 pt-2 border-t border-slate-800">
-                  <button className="px-3 py-1 rounded bg-surface border border-slate-700 text-xs text-slate-300 hover:text-white flex items-center gap-1">
-                    <Edit className="w-3 h-3" /> Édition
-                  </button>
-                  <button className="px-3 py-1 rounded bg-red-950 border border-red-900 text-xs text-red-400 hover:bg-red-900 flex items-center gap-1">
-                    <Trash2 className="w-3 h-3" /> Désactiver
-                  </button>
-                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* 4. GESTION DES PAIEMENTS */}
-      {adminTab === 'payouts' && (
-        <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="font-display font-bold text-lg text-white">Demandes de Retrait à Approuver</h3>
-            <button className="px-3 py-1.5 rounded-lg bg-surface border border-slate-700 text-xs text-slate-300 flex items-center gap-1.5 hover:text-white">
-              <Download className="w-4 h-4 text-gold" />
-              <span>Export CSV Comptabilité</span>
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-surface uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
-                <tr>
-                  <th className="p-3">Affilié</th>
-                  <th className="p-3">Montant</th>
-                  <th className="p-3">Moyen & Coordonnées</th>
-                  <th className="p-3">Date</th>
-                  <th className="p-3">Statut</th>
-                  <th className="p-3">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {payouts.map((p) => (
-                  <tr key={p.id}>
-                    <td className="p-3 font-bold text-white">{p.affiliateName}</td>
-                    <td className="p-3 font-mono font-bold text-gold">{p.amount.toLocaleString()} €</td>
-                    <td className="p-3 font-mono text-slate-400">{p.method}</td>
-                    <td className="p-3 font-mono text-slate-400">{p.date}</td>
-                    <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
-                        p.status === 'paid' ? 'bg-emerald/20 text-emerald' : 'bg-gold/20 text-gold'
-                      }`}>
-                        {p.status === 'paid' ? 'Payé' : 'En attente'}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      {p.status === 'pending' && (
-                        <button
-                          onClick={() => handleApprovePayout(p.id)}
-                          className="px-3 py-1 rounded bg-emerald hover:bg-emerald-600 text-white font-bold text-xs"
-                        >
-                          Marquer Payé
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* 5. LOGS D'ACTIVITÉ */}
-      {adminTab === 'logs' && (
-        <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-          <h3 className="font-display font-bold text-lg text-white">Logs d&apos;Activité Admin & Audit Trail</h3>
-          <div className="space-y-2 font-mono text-xs">
-            {logs.map(log => (
-              <div key={log.id} className="p-3 rounded-lg bg-surface border border-slate-800 flex justify-between items-center text-slate-300">
-                <span>[{log.timestamp}] <strong>{log.admin}</strong> : {log.action}</span>
-                <span className="text-[10px] text-slate-400">ID: {log.id}</span>
+          {/* 4. GESTION DES PAIEMENTS */}
+          {adminTab === 'payouts' && (
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="font-display font-bold text-lg text-white">Demandes de Retrait & Paiements</h3>
+                <button className="px-3 py-1.5 rounded-lg bg-surface border border-slate-700 text-xs text-slate-300 flex items-center gap-1.5 hover:text-white transition-colors">
+                  <Download className="w-4 h-4 text-gold" />
+                  <span>Export CSV Comptabilité</span>
+                </button>
               </div>
-            ))}
-          </div>
-        </div>
+
+              <div className="overflow-x-auto rounded-xl border border-slate-800/50">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-surface/50 uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
+                    <tr>
+                      <th className="p-4">Date Demande</th>
+                      <th className="p-4">Affilié</th>
+                      <th className="p-4 text-right">Montant</th>
+                      <th className="p-4">Coordonnées (IBAN)</th>
+                      <th className="p-4 text-center">Statut</th>
+                      <th className="p-4">Action Sécurisée</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/40">
+                    {payouts.length === 0 ? (
+                      <tr><td colSpan={6} className="p-4 text-center text-slate-500 font-mono">Aucune demande de paiement.</td></tr>
+                    ) : payouts.map((p) => (
+                      <tr key={p.id} className="hover:bg-surface/30 transition-colors">
+                        <td className="p-4 font-mono text-slate-400">
+                          {new Date(p.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' })}
+                        </td>
+                        <td className="p-4">
+                          <div className="font-bold text-white text-sm">{p.affiliates?.profiles?.full_name || 'Inconnu'}</div>
+                          <div className="font-mono text-[10px] text-slate-500">{p.affiliates?.profiles?.email}</div>
+                        </td>
+                        <td className="p-4 font-mono font-bold text-gold text-right text-sm">
+                          {(Number(p.montant_demande) || 0).toLocaleString()} €
+                        </td>
+                        <td className="p-4">
+                          {p.affiliates?.iban ? (
+                            <span className="font-mono text-[11px] text-slate-300 bg-slate-900 px-2 py-1 rounded border border-slate-800">
+                              {p.affiliates.iban}
+                            </span>
+                          ) : (
+                            <span className="text-red-400 text-[10px] italic">Non renseigné</span>
+                          )}
+                        </td>
+                        <td className="p-4 text-center">
+                          <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            p.statut === 'paid' ? 'bg-emerald/20 text-emerald border border-emerald/30' : 
+                            p.statut === 'pending' ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30' : 
+                            'bg-red-500/20 text-red-500 border border-red-500/30'
+                          }`}>
+                            {p.statut}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          {p.statut === 'pending' && (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleUpdatePayoutStatus(p.id, p.affiliates?.profiles?.email, p.affiliates?.profiles?.full_name, p.montant_demande, 'paid')}
+                                className="px-3 py-1.5 rounded bg-emerald/90 hover:bg-emerald text-white font-bold text-[11px] transition-colors shadow-lg shadow-emerald/20"
+                              >
+                                Marquer Payé (Envoie Email)
+                              </button>
+                              <button
+                                onClick={() => handleUpdatePayoutStatus(p.id, p.affiliates?.profiles?.email, p.affiliates?.profiles?.full_name, p.montant_demande, 'rejected')}
+                                className="px-3 py-1.5 rounded bg-red-900/80 hover:bg-red-900 text-white font-bold text-[11px] transition-colors"
+                              >
+                                Refuser
+                              </button>
+                            </div>
+                          )}
+                          {p.statut === 'paid' && p.processed_at && (
+                            <span className="text-[10px] text-emerald font-mono">Traité le {new Date(p.processed_at).toLocaleDateString('fr-FR')}</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* 5. Tchat & Support */}
+          {adminTab === 'support' && (
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col items-center justify-center py-20 text-center space-y-4">
+              <MessageSquare className="w-12 h-12 text-slate-600 mb-2" />
+              <h3 className="font-display font-bold text-xl text-white">Tickets Support & Messagerie</h3>
+              <p className="text-sm text-slate-400 max-w-md mx-auto">
+                Interface de gestion des tickets en cours de construction. Bientôt, vous pourrez lier cette messagerie directement à un bot Telegram pour répondre depuis votre smartphone.
+              </p>
+            </div>
+          )}
+
+          {/* 6. LOGS D'ACTIVITÉ */}
+          {adminTab === 'logs' && (
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col items-center justify-center py-20 text-center space-y-4">
+              <ShieldAlert className="w-12 h-12 text-red-900 mb-2" />
+              <h3 className="font-display font-bold text-xl text-white">Audit Logs d&apos;Administration</h3>
+              <p className="text-sm text-slate-400 max-w-md mx-auto">
+                Historique des actions critiques (changements de RIB, validations de paiements, suspensions) avec archivage sécurisé. Module en cours d&apos;activation.
+              </p>
+            </div>
+          )}
+
+        </>
       )}
 
     </div>
