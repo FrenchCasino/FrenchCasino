@@ -78,19 +78,49 @@ export default function DashboardPage() {
     setTimeout(() => setIbanSaved(false), 3000)
   }
 
-  const handleRequestPayout = (e: React.FormEvent) => {
+  const handleRequestPayout = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Notification Telegram Admin
+    try {
+      await fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'payout_request',
+          message: `Montant demandé : <b>${payoutAmount} €</b>\n\nConnectez-vous à l'espace Admin pour valider le virement.`
+        })
+      })
+    } catch (err) {
+      console.error(err)
+    }
+
     setPayoutSuccess(true)
     setTimeout(() => setPayoutSuccess(false), 4000)
   }
 
-  const handleCreateTicket = (e: React.FormEvent) => {
+  const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!ticketSubject || !ticketMessage) return
     setTickets([
       { id: `t${Date.now()}`, subject: ticketSubject, status: 'Ouvert', date: 'Aujourd\'hui', messages: 1 },
       ...tickets
     ])
+    
+    // Notification Telegram Admin
+    try {
+      await fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'new_ticket',
+          message: `Sujet : <b>${ticketSubject}</b>\nMessage : <i>${ticketMessage}</i>\n\nConnectez-vous à l'espace Admin pour répondre.`
+        })
+      })
+    } catch (err) {
+      console.error(err)
+    }
+
     setTicketSubject('')
     setTicketMessage('')
   }

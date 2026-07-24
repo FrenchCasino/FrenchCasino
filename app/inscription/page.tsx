@@ -39,6 +39,20 @@ export default function InscriptionPage() {
       return
     }
 
+    // Notification Telegram Admin
+    try {
+      await fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'new_affiliate',
+          message: `Email : <b>${email}</b>\nNom : <b>${fullName}</b>\n\nConnectez-vous à l'espace Admin pour valider ce compte.`
+        })
+      })
+    } catch (e) {
+      console.error("Telegram error:", e)
+    }
+
     setSuccessMsg('Compte affilié créé avec succès ! Un e-mail de confirmation vous a été envoyé.')
     setLoading(false)
     setTimeout(() => {
