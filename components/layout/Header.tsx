@@ -11,7 +11,7 @@ export function Header() {
 
   const navLinks = [
     { name: 'Accueil', href: '/' },
-    { name: 'Bonus sans dépôt', href: '/bonus-sans-depot', badge: 'Populaire' },
+    { name: 'Bonus sans dépôt', href: '/bonus-sans-depot', animated: true },
     { name: 'Bonus dépôt', href: '/bonus-depot' },
     { name: 'Top Casinos', href: '/top-casino' },
     { name: 'Actus & Guide', href: '/actus' },
@@ -28,11 +28,10 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
-          {/* Logo Minimaliste Élégan */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <span className="text-2xl filter drop-shadow">🎰</span>
+          {/* Logo Minimaliste Sans Icone Machine à sous */}
+          <Link href="/" className="flex items-center gap-2 group">
             <div className="flex flex-col">
-              <span className="font-display font-extrabold text-xl tracking-tight text-white">
+              <span className="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-white">
                 French<span className="text-gradient-gold">Casino</span>
               </span>
               <span className="text-[10px] text-slate-400 font-medium tracking-wider uppercase">
@@ -49,25 +48,29 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative text-sm font-medium transition-all duration-200 py-1.5 flex items-center gap-1.5 ${
+                  className={`relative text-sm font-medium transition-all duration-200 py-1.5 flex items-center gap-2 ${
                     active
                       ? 'text-white font-semibold'
+                      : link.animated
+                      ? 'text-purple-300 hover:text-white font-semibold'
                       : link.highlight
                       ? 'text-gold hover:text-gold-light'
                       : 'text-slate-300 hover:text-white'
                   }`}
                 >
+                  {/* Puce Animée Lumineuse pour Bonus sans dépôt */}
+                  {link.animated && (
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                    </span>
+                  )}
+
                   <span>{link.name}</span>
 
                   {/* Underline indicateur actif */}
                   {active && (
                     <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-gradient-to-r from-primary to-gold shadow-sm" />
-                  )}
-
-                  {link.badge && (
-                    <span className="text-[9px] bg-primary/20 border border-primary/40 text-primary-light px-1.5 py-0.2 rounded-full font-semibold uppercase tracking-wider">
-                      {link.badge}
-                    </span>
                   )}
                 </Link>
               )
@@ -108,15 +111,20 @@ export function Header() {
               className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium ${
                 isActive(link.href)
                   ? 'bg-primary/20 text-white font-semibold'
+                  : link.animated
+                  ? 'text-purple-300 font-semibold'
                   : 'text-slate-300 hover:bg-surface'
               }`}
             >
-              <span>{link.name}</span>
-              {link.badge && (
-                <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold">
-                  {link.badge}
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {link.animated && (
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                  </span>
+                )}
+                <span>{link.name}</span>
+              </div>
             </Link>
           ))}
           <div className="pt-3 border-t border-slate-800">
