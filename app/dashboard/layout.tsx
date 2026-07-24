@@ -4,21 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import {
-  LayoutDashboard,
-  Link as LinkIcon,
-  BarChart3,
-  DollarSign,
-  CreditCard,
-  Lock,
-  MessageSquare,
-  Users,
-  LogOut,
-  Globe,
-  Bell,
-  ChevronDown,
-  ShieldCheck
-} from 'lucide-react'
+import { LogOut, Globe } from 'lucide-react'
 
 export default function DashboardLayout({
   children,
@@ -40,12 +26,9 @@ export default function DashboardLayout({
       {/* SaaS Application Top Navigation Bar */}
       <header className="h-16 border-b border-surface-border/80 bg-surface/90 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 flex items-center justify-between">
         
-        {/* App Logo & Status */}
+        {/* App Logo & Status (Icone supprimée) */}
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-900 border border-primary-light/40 flex items-center justify-center shadow-purple-glow">
-              <span className="text-base">🎰</span>
-            </div>
             <div className="flex flex-col">
               <span className="font-display font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
                 French<span className="text-gradient-gold">Casino</span>

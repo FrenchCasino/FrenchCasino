@@ -4,7 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { ShieldAlert, LogOut, Globe } from 'lucide-react'
+import { LogOut, Globe } from 'lucide-react'
 
 export default function AdminLayout({
   children,
@@ -27,9 +27,6 @@ export default function AdminLayout({
         
         <div className="flex items-center gap-4">
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-red-900/60 border border-red-500/40 flex items-center justify-center text-red-400 font-bold text-sm">
-              👑
-            </div>
             <span className="font-display font-extrabold text-base text-white">
               French<span className="text-gradient-gold">Casino</span>
               <span className="text-[10px] uppercase font-mono text-red-400 bg-red-950 border border-red-800 px-1.5 py-0.2 rounded ml-1.5">
