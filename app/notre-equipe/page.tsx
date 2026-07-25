@@ -25,7 +25,7 @@ export default function NotreEquipePage() {
           </>
         }
       />
-      <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-8">
+      <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-8">
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">

@@ -59,7 +59,7 @@ export default function ActusPage() {
         }
       />
 
-      <div className="max-w-6xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-10">
+      <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-10">
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {ARTICLES_MOCK.map((article) => (

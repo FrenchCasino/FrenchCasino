@@ -45,7 +45,7 @@ export default function TopCasinoPage() {
         </div>
       </PageHero>
 
-      <div className="max-w-7xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-12">
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-12">
 
       {/* Grille de Méthodologie */}
       <div className="space-y-6">

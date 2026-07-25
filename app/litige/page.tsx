@@ -38,7 +38,7 @@ export default function LitigePage() {
           </>
         }
       />
-      <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-8">
+      <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-8">
 
       {submitted ? (
         <div className="glass-panel p-8 rounded-2xl border border-emerald/40 text-center space-y-4">

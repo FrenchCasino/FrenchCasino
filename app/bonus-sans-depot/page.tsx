@@ -39,7 +39,7 @@ export default function BonusSansDepotPage() {
         </div>
       </PageHero>
 
-      <div className="max-w-7xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-10">
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-10">
 
       {/* Liste des Casinos avec Bonus Sans Dépôt */}
       <div className="space-y-6">

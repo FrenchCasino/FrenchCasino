@@ -18,7 +18,7 @@ export default function MentionsLegalesPage() {
           </>
         }
       />
-      <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-6 text-slate-300 text-sm leading-relaxed">
+      <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-6 text-slate-300 text-sm leading-relaxed">
       
       <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
         <h2 className="font-bold text-white text-lg">1. Éditeur du site</h2>

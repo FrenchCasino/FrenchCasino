@@ -27,7 +27,7 @@ export default function JeuResponsablePage() {
           </>
         }
       />
-      <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-8">
+      <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-8">
 
       {/* Numéro d'urgence Joueurs Info Service */}
       <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-red-500/30 bg-red-950/20 space-y-4">
