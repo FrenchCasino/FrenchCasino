@@ -186,6 +186,11 @@ export default function DashboardPage() {
   const [newChatMessage, setNewChatMessage] = useState('')
   const [isSendingMessage, setIsSendingMessage] = useState(false)
 
+  // Deposit Declaration Modal State
+  const [depositModalOpen, setDepositModalOpen] = useState(false)
+  const [depositForm, setDepositForm] = useState({ casinoId: '', amount: '' })
+  const [isSubmittingDeposit, setIsSubmittingDeposit] = useState(false)
+
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text)
     setCopiedCode(id)
@@ -326,6 +331,33 @@ export default function DashboardPage() {
     setIsSendingMessage(false)
   }
 
+  const handleDeclareDeposit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!depositForm.casinoId || !depositForm.amount || !affiliateId) return
+    setIsSubmittingDeposit(true)
+
+    const casino = casinosList.find(c => c.id === depositForm.casinoId)
+    const casinoName = casino ? casino.name : depositForm.casinoId
+
+    try {
+      await fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'deposit_declaration',
+          message: `Nouveau dépôt déclaré par l'affilié ${affiliateCode}\n\nCasino : <b>${casinoName}</b>\nMontant : <b>${depositForm.amount} €</b>`
+        })
+      })
+      alert('Déclaration de dépôt envoyée avec succès.')
+      setDepositModalOpen(false)
+      setDepositForm({ casinoId: '', amount: '' })
+    } catch (err) {
+      alert("Erreur lors de l'envoi de la déclaration.")
+    }
+
+    setIsSubmittingDeposit(false)
+  }
+
   const maskedIban = ibanForm.iban ? `${ibanForm.iban.slice(0, 4)} •••• •••• •••• •••• ${ibanForm.iban.slice(-4)}` : ''
 
   return (
@@ -343,11 +375,17 @@ export default function DashboardPage() {
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="bg-surface p-3 rounded-xl border border-slate-800 text-right">
             <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Solde Disponible</span>
             <span className="text-xl font-bold font-mono text-gradient-gold">1 420.00 €</span>
           </div>
+          <button
+            onClick={() => setDepositModalOpen(true)}
+            className="px-5 py-3 rounded-xl font-display font-bold text-xs uppercase tracking-wider text-white bg-primary hover:bg-primary-hover shadow-purple-glow transition-all"
+          >
+            Dépôt Membre Effectué
+          </button>
           <button
             onClick={() => setActiveTab('payout')}
             className="px-5 py-3 rounded-xl font-display font-bold text-xs uppercase tracking-wider text-black bg-gold hover:bg-gold-light shadow-gold-glow transition-all"
@@ -870,6 +908,65 @@ export default function DashboardPage() {
                 </button>
               </form>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Deposit Modal */}
+      {depositModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border border-slate-800 p-6 rounded-2xl max-w-md w-full shadow-2xl relative">
+            <button 
+              onClick={() => setDepositModalOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+            
+            <h3 className="text-xl font-display font-bold text-white mb-2 flex items-center gap-2">
+              <DollarSign className="text-emerald w-5 h-5" /> Déclarer un Dépôt
+            </h3>
+            <p className="text-sm text-slate-400 mb-6">
+              Indiquez le casino et le montant du dépôt effectué par votre membre. Cette information sera transmise directement à l'administrateur pour vérification.
+            </p>
+
+            <form onSubmit={handleDeclareDeposit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Sélectionnez le Casino</label>
+                <select 
+                  required
+                  value={depositForm.casinoId}
+                  onChange={(e) => setDepositForm({...depositForm, casinoId: e.target.value})}
+                  className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary"
+                >
+                  <option value="" disabled>-- Choisir un casino --</option>
+                  {casinosList.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Montant du Dépôt (€)</label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  placeholder="Ex: 50"
+                  value={depositForm.amount}
+                  onChange={(e) => setDepositForm({...depositForm, amount: e.target.value})}
+                  className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmittingDeposit}
+                className="w-full py-3.5 mt-2 rounded-xl font-display font-bold text-sm uppercase tracking-wider text-black bg-gold hover:bg-gold-light shadow-gold-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isSubmittingDeposit ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Envoyer la Déclaration'}
+              </button>
+            </form>
           </div>
         </div>
       )}

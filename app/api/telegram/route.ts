@@ -17,6 +17,8 @@ export async function POST(request: Request) {
       prefix = '💰 <b>Nouvelle Demande de Paiement</b>\n\n'
     } else if (type === 'new_ticket') {
       prefix = '🎫 <b>Nouveau Ticket Support</b>\n\n'
+    } else if (type === 'deposit_declaration') {
+      prefix = '💵 <b>Nouveau Dépôt Déclaré</b>\n\n'
     }
 
     const fullMessage = `${prefix}${message}`
