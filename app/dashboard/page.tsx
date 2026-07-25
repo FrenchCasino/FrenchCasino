@@ -70,7 +70,7 @@ export default function DashboardPage() {
         // Load Casinos
         const { data: casData } = await supabase
           .from('casinos')
-          .select('id, name, slug, remboursement_depot, commission_conditions')
+          .select('id, name, slug, remboursement_depot, commission_conditions, bonus_depot')
           .eq('is_active', true)
         
         if (casData) setCasinosList(casData)
@@ -337,8 +337,14 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   
-                  {(casino.commission_conditions || casino.remboursement_depot) && (
-                    <div className="flex gap-2 mb-2">
+                  {(casino.commission_conditions || casino.remboursement_depot || casino.bonus_depot) && (
+                    <div className="flex gap-2 mb-2 flex-wrap">
+                      {casino.bonus_depot && (
+                        <span className="text-[10px] bg-gold/20 text-gold px-2 py-0.5 rounded font-mono border border-gold/30 flex items-center gap-1">
+                          <DollarSign className="w-3 h-3" />
+                          {casino.bonus_depot}
+                        </span>
+                      )}
                       {casino.remboursement_depot && (
                         <span className="text-[10px] bg-emerald/20 text-emerald px-2 py-0.5 rounded font-mono border border-emerald/30">
                           Remboursement Dépôt: Oui
