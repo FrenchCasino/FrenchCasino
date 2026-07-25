@@ -310,42 +310,46 @@ export default function AdminDashboardPage() {
         </button>
       </div>
 
-      {/* Tabs Navigation Admin */}
-      <div className="flex overflow-x-auto gap-2 border-b border-surface-border pb-2 scrollbar-hide">
-        {[
-          { id: 'kpi', label: 'KPIs Globaux', icon: Activity },
-          { id: 'affiliates', label: 'Gestion Affiliés', icon: Users },
-          { id: 'casinos', label: 'Gestion Casinos', icon: Plus },
-          { id: 'payouts', label: 'Paiements & Exports', icon: CreditCard },
-          { id: 'support', label: 'Tickets Support', icon: Clock },
-          { id: 'logs', label: 'Logs & Alertes', icon: FileText },
-        ].map(tab => {
-          const Icon = tab.icon
-          const active = adminTab === tab.id
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setAdminTab(tab.id as any)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 relative ${
-                active
-                  ? 'bg-red-600 text-white shadow-lg'
-                  : tab.id === 'support' && kpi.openTickets > 0
-                    ? 'text-red-400 hover:text-red-300 hover:bg-red-950/30 border border-red-900/50'
-                    : 'text-slate-400 hover:text-white hover:bg-surface-card border border-transparent hover:border-slate-800'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-              {tab.id === 'support' && kpi.openTickets > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+        {/* Menu Latéral Admin (Sidebar) */}
+        <div className="w-full lg:w-64 flex-shrink-0 flex flex-col gap-2 lg:sticky lg:top-24">
+          {[
+            { id: 'kpi', label: 'KPIs Globaux', icon: Activity },
+            { id: 'affiliates', label: 'Gestion Affiliés', icon: Users },
+            { id: 'casinos', label: 'Gestion Casinos', icon: Plus },
+            { id: 'payouts', label: 'Paiements & Exports', icon: CreditCard },
+            { id: 'support', label: 'Tickets Support', icon: Clock },
+            { id: 'logs', label: 'Logs & Alertes', icon: FileText },
+          ].map(tab => {
+            const Icon = tab.icon
+            const active = adminTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setAdminTab(tab.id as any)}
+                className={`px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-3 w-full text-left relative ${
+                  active
+                    ? 'bg-red-600 text-white shadow-lg'
+                    : tab.id === 'support' && kpi.openTickets > 0
+                      ? 'text-red-400 hover:text-red-300 hover:bg-red-950/30 border border-red-900/50'
+                      : 'text-slate-400 hover:text-white hover:bg-surface-card border border-transparent hover:border-slate-800'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span>{tab.label}</span>
+                {tab.id === 'support' && kpi.openTickets > 0 && (
+                  <span className="absolute right-4 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* CONTENU PRINCIPAL */}
+        <div className="flex-1 w-full min-w-0">
 
       {/* Loading State */}
       {loading ? (
@@ -696,6 +700,8 @@ export default function AdminDashboardPage() {
 
         </>
       )}
+        </div>
+      </div>
 
       {/* Commission Modal */}
       {commissionModal.isOpen && (
