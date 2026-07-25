@@ -295,38 +295,40 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Navigation Onglets */}
-      <div className="flex overflow-x-auto gap-2 border-b border-surface-border pb-2">
-        {[
-          { id: 'overview', label: 'Vue d\'ensemble', icon: TrendingUp },
-          { id: 'links', label: 'Mes Liens & QR', icon: Copy },
-          { id: 'stats', label: 'Statistiques Recharts', icon: MousePointerClick },
-          { id: 'commissions', label: 'Commissions', icon: DollarSign },
-          { id: 'payout', label: 'Demandes de Paiement', icon: CreditCard },
-          { id: 'iban', label: 'Mon IBAN', icon: Lock },
-          { id: 'support', label: 'Support & Tchat', icon: MessageSquare },
-          { id: 'recruitment', label: 'Recruter (Filleuls)', icon: Users },
-        ].map(tab => {
-          const Icon = tab.icon
-          const active = activeTab === tab.id
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
-                active
-                  ? 'bg-primary text-white shadow-purple-glow'
-                  : 'text-slate-400 hover:text-white hover:bg-surface-card'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-            </button>
-          )
-        })}
-      </div>
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+        {/* Menu Latéral (Sidebar) */}
+        <div className="w-full lg:w-64 flex-shrink-0 flex flex-col gap-2 lg:sticky lg:top-24">
+          {[
+            { id: 'overview', label: 'Vue d\'ensemble', icon: TrendingUp },
+            { id: 'links', label: 'Mes Liens & QR', icon: Copy },
+            { id: 'stats', label: 'Statistiques', icon: MousePointerClick },
+            { id: 'commissions', label: 'Commissions', icon: DollarSign },
+            { id: 'payout', label: 'Paiements', icon: CreditCard },
+            { id: 'iban', label: 'Mon IBAN', icon: Lock },
+            { id: 'support', label: 'Support & Tchat', icon: MessageSquare },
+            { id: 'recruitment', label: 'Recrutement', icon: Users },
+          ].map(tab => {
+            const Icon = tab.icon
+            const active = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-3 w-full text-left ${
+                  active
+                    ? 'bg-primary text-white shadow-purple-glow'
+                    : 'text-slate-400 hover:text-white hover:bg-surface-card border border-transparent hover:border-slate-800'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span>{tab.label}</span>
+              </button>
+            )
+          })}
+        </div>
 
-      {/* TABS CONTENT */}
+        {/* TABS CONTENT */}
+        <div className="flex-1 w-full min-w-0">
 
       {/* 1. VUE D'ENSEMBLE */}
       {activeTab === 'overview' && (
@@ -727,6 +729,9 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+        </div>
+      </div>
 
     </div>
   )
