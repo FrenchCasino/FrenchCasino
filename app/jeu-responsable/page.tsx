@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function JeuResponsablePage() {
   return (
-    <div className="flex flex-col items-center">
+    <>
       <PageHero
         badgeIcon={<ShieldAlert className="w-4 h-4 text-gold" />}
         badgeText="Protection des joueurs & Interdiction aux mineurs (-18)"
@@ -54,5 +54,6 @@ export default function JeuResponsablePage() {
         </div>
       </div>
     </div>
+    </>
   )
 }

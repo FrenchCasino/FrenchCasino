@@ -21,7 +21,7 @@ export default function LitigePage() {
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <>
       <PageHero
         badgeIcon={<Scale className="w-4 h-4 text-amber-400" />}
         badgeText="Une assistance gratuite pour les joueurs FrenchCasino"
@@ -132,5 +132,6 @@ export default function LitigePage() {
         </form>
       )}
     </div>
+    </>
   )
 }

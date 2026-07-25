@@ -13,7 +13,7 @@ export const metadata = {
 
 export default function TopCasinoPage() {
   return (
-    <div className="flex flex-col items-center">
+    <>
       <PageHero
         badgeIcon={<Award className="w-4 h-4 text-gold" />}
         badgeText="Sélection exclusive & indépendante"
@@ -170,5 +170,6 @@ export default function TopCasinoPage() {
       </div>
 
     </div>
+    </>
   )
 }

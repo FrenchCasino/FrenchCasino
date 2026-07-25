@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function BonusDepotPage() {
   return (
-    <div className="flex flex-col items-center">
+    <>
       <PageHero
         badgeIcon={<Zap className="w-4 h-4 text-gold" />}
         badgeText="Offres de Bienvenue Négociées"
@@ -58,5 +58,6 @@ export default function BonusDepotPage() {
       </div>
 
     </div>
+    </>
   )
 }

@@ -41,7 +41,7 @@ const ARTICLES_MOCK = [
 
 export default function ActusPage() {
   return (
-    <div className="flex flex-col items-center">
+    <>
       <PageHero
         badgeIcon={<Newspaper className="w-4 h-4 text-gold" />}
         badgeText="La Voix du Casino"
@@ -90,5 +90,6 @@ export default function ActusPage() {
         ))}
       </div>
     </div>
+    </>
   )
 }

@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function MentionsLegalesPage() {
   return (
-    <div className="flex flex-col items-center">
+    <>
       <PageHero
         title="Mentions Légales"
         description={
@@ -36,5 +36,6 @@ export default function MentionsLegalesPage() {
         </p>
       </div>
     </div>
+    </>
   )
 }

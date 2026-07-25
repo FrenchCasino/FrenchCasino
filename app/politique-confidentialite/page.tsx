@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function PolitiqueConfidentialitePage() {
   return (
-    <div className="flex flex-col items-center">
+    <>
       <PageHero
         title="Politique de Confidentialité"
         description={
@@ -25,5 +25,6 @@ export default function PolitiqueConfidentialitePage() {
         </p>
       </div>
     </div>
+    </>
   )
 }

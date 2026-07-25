@@ -15,7 +15,7 @@ export default function BonusSansDepotPage() {
   const casinosBonusSansDepot = CASINOS_MOCK.filter(c => c.bonusSansDepot !== null)
 
   return (
-    <div className="flex flex-col items-center">
+    <>
       <PageHero
         badgeIcon={<Gift className="w-4 h-4 text-purple-400" />}
         badgeText="Offres Gratuites Sans Dépôt 2026"
@@ -85,5 +85,6 @@ export default function BonusSansDepotPage() {
       </div>
 
     </div>
+    </>
   )
 }

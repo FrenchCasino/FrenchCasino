@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function NotreEquipePage() {
   return (
-    <div className="flex flex-col items-center">
+    <>
       <PageHero
         title={
           <>
@@ -45,5 +45,6 @@ export default function NotreEquipePage() {
         </div>
       </div>
     </div>
+    </>
   )
 }
