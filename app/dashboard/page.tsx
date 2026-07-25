@@ -31,16 +31,6 @@ import {
 } from 'recharts'
 import { createClient } from '@/lib/supabase/client'
 
-const GRAPH_DATA = [
-  { day: 'Lun', clics: 120, conversions: 8, commissions: 320 },
-  { day: 'Mar', clics: 190, conversions: 14, commissions: 560 },
-  { day: 'Mer', clics: 240, conversions: 18, commissions: 720 },
-  { day: 'Jeu', clics: 310, conversions: 22, commissions: 880 },
-  { day: 'Ven', clics: 450, conversions: 35, commissions: 1400 },
-  { day: 'Sam', clics: 680, conversions: 52, commissions: 2100 },
-  { day: 'Dim', clics: 540, conversions: 41, commissions: 1650 },
-]
-
 export default function DashboardPage() {
   const supabase = createClient()
   const [activeTab, setActiveTab] = useState<'overview' | 'links' | 'stats' | 'commissions' | 'payout' | 'iban' | 'support' | 'recruitment'>('overview')
@@ -51,6 +41,13 @@ export default function DashboardPage() {
   const [affiliateId, setAffiliateId] = useState<string | null>(null)
   const [casinosList, setCasinosList] = useState<any[]>([])
   const [clicksData, setClicksData] = useState<Record<string, number>>({})
+  
+  const [totalClicks, setTotalClicks] = useState(0)
+  const [commissionsList, setCommissionsList] = useState<any[]>([])
+  const [monthlyCommissions, setMonthlyCommissions] = useState(0)
+  const [soldeDisponible, setSoldeDisponible] = useState(0)
+  const [chartData, setChartData] = useState<any[]>([])
+  const [ticketsList, setTicketsList] = useState<any[]>([])
 
   React.useEffect(() => {
     async function loadAffiliateData() {
@@ -78,16 +75,87 @@ export default function DashboardPage() {
         // Load Clicks
         const { data: clicks } = await supabase
           .from('casino_clicks')
-          .select('casino_id')
+          .select('casino_id, created_at')
           .eq('affiliate_id', aff.id)
         
+        // Load Commissions
+        const { data: comms } = await supabase
+          .from('commissions')
+          .select('*')
+          .eq('affiliate_id', aff.id)
+          .order('created_at', { ascending: false })
+
+        // Load Payouts
+        const { data: payouts } = await supabase
+          .from('payout_requests')
+          .select('*')
+          .eq('affiliate_id', aff.id)
+
+        // Load Tickets
+        const { data: tks } = await supabase
+          .from('tickets')
+          .select('*')
+          .eq('affiliate_id', aff.id)
+          .order('created_at', { ascending: false })
+
+        if (tks) setTicketsList(tks)
+
+        // Process Clicks
+        let currentClicks = 0
+        const counts: Record<string, number> = {}
+        const clicksByDay: Record<string, number> = {}
+
         if (clicks) {
-          const counts: Record<string, number> = {}
+          currentClicks = clicks.length
           clicks.forEach(c => {
             counts[c.casino_id] = (counts[c.casino_id] || 0) + 1
+            const date = new Date(c.created_at)
+            const day = date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
+            clicksByDay[day] = (clicksByDay[day] || 0) + 1
           })
           setClicksData(counts)
+          setTotalClicks(currentClicks)
         }
+
+        // Process Commissions
+        let currentMonthly = 0
+        let totalValid = 0
+        const commsByDay: Record<string, number> = {}
+
+        if (comms) {
+          setCommissionsList(comms)
+          comms.forEach(c => {
+            if (c.statut === 'validated' || c.statut === 'paid') {
+              totalValid += Number(c.montant)
+              currentMonthly += Number(c.montant)
+              const date = new Date(c.created_at)
+              const day = date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
+              commsByDay[day] = (commsByDay[day] || 0) + Number(c.montant)
+            }
+          })
+          setMonthlyCommissions(currentMonthly)
+        }
+
+        // Process Payouts
+        let totalPaidOrPending = 0
+        if (payouts) {
+          payouts.forEach(p => {
+            if (p.statut !== 'rejected') {
+              totalPaidOrPending += Number(p.montant_demande)
+            }
+          })
+        }
+
+        setSoldeDisponible(Math.max(0, totalValid - totalPaidOrPending))
+
+        // Build Chart Data (Last 7 days roughly based on weekday)
+        const days = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim']
+        const finalChart = days.map(d => ({
+          day: d.charAt(0).toUpperCase() + d.slice(1, 3),
+          clics: clicksByDay[d] || 0,
+          commissions: commsByDay[d] || 0
+        }))
+        setChartData(finalChart)
       }
     }
     loadAffiliateData()
@@ -103,16 +171,12 @@ export default function DashboardPage() {
   const [ibanSaved, setIbanSaved] = useState(false)
 
   // State Payout Form
-  const [payoutAmount, setPayoutAmount] = useState('500')
+  const [payoutAmount, setPayoutAmount] = useState('250')
   const [payoutSuccess, setPayoutSuccess] = useState(false)
 
   // State Support Chat
   const [ticketSubject, setTicketSubject] = useState('')
   const [ticketMessage, setTicketMessage] = useState('')
-  const [tickets, setTickets] = useState([
-    { id: 't1', subject: 'Ajustement Taux RevShare', status: 'Répondu', date: '22/07/2026', messages: 3 },
-    { id: 't2', subject: 'Validation Retrait Juillet', status: 'Ouvert', date: '24/07/2026', messages: 1 },
-  ])
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text)
@@ -129,6 +193,24 @@ export default function DashboardPage() {
   const handleRequestPayout = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    const amount = Number(payoutAmount)
+    if (amount < 250) {
+      alert("Le montant minimum de retrait est de 250 €.")
+      return
+    }
+    if (amount > soldeDisponible) {
+      alert("Fonds insuffisants.")
+      return
+    }
+    if (!affiliateId) return
+
+    // Insert payout request
+    await supabase.from('payout_requests').insert([{
+      affiliate_id: affiliateId,
+      montant_demande: amount,
+      statut: 'pending'
+    }])
+    
     // Notification Telegram Admin
     try {
       await fetch('/api/telegram', {
@@ -136,24 +218,33 @@ export default function DashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'payout_request',
-          message: `Montant demandé : <b>${payoutAmount} €</b>\n\nConnectez-vous à l'espace Admin pour valider le virement.`
+          message: `Montant demandé : <b>${amount} €</b>\n\nConnectez-vous à l'espace Admin pour valider le virement.`
         })
       })
     } catch (err) {
       console.error(err)
     }
 
+    setSoldeDisponible(prev => prev - amount)
     setPayoutSuccess(true)
     setTimeout(() => setPayoutSuccess(false), 4000)
   }
 
   const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!ticketSubject || !ticketMessage) return
-    setTickets([
-      { id: `t${Date.now()}`, subject: ticketSubject, status: 'Ouvert', date: 'Aujourd\'hui', messages: 1 },
-      ...tickets
-    ])
+    if (!ticketSubject || !ticketMessage || !affiliateId) return
+    
+    const newTicketData = {
+      affiliate_id: affiliateId,
+      sujet: ticketSubject,
+      statut: 'open'
+    }
+    
+    const { data: newTicket } = await supabase.from('tickets').insert([newTicketData]).select().single()
+    
+    if (newTicket) {
+      setTicketsList([newTicket, ...ticketsList])
+    }
     
     // Notification Telegram Admin
     try {
@@ -244,31 +335,27 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
               <div className="flex justify-between text-slate-400 text-xs">
-                <span>Clics Totaux (Mois)</span>
+                <span>Clics Totaux</span>
                 <MousePointerClick className="w-4 h-4 text-purple-400" />
               </div>
-              <span className="text-2xl font-bold font-mono text-white">2 530</span>
-              <span className="text-[11px] text-emerald flex items-center gap-1">
-                <ArrowUpRight className="w-3 h-3" /> +18.4% ce mois
-              </span>
+              <span className="text-2xl font-bold font-mono text-white">{totalClicks}</span>
             </div>
 
             <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
               <div className="flex justify-between text-slate-400 text-xs">
-                <span>Conversions Joueurs</span>
+                <span>Commissions (Total)</span>
                 <Zap className="w-4 h-4 text-gold" />
               </div>
-              <span className="text-2xl font-bold font-mono text-gradient-gold">190</span>
-              <span className="text-[11px] text-slate-400">Taux conv. 7.5%</span>
+              <span className="text-2xl font-bold font-mono text-gradient-gold">{commissionsList.length}</span>
             </div>
 
             <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
               <div className="flex justify-between text-slate-400 text-xs">
-                <span>Commissions du Mois</span>
+                <span>Gains Générés</span>
                 <DollarSign className="w-4 h-4 text-emerald" />
               </div>
-              <span className="text-2xl font-bold font-mono text-emerald">7 630.00 €</span>
-              <span className="text-[11px] text-slate-400">30% RevShare fixe</span>
+              <span className="text-2xl font-bold font-mono text-emerald">{monthlyCommissions.toFixed(2)} €</span>
+              <span className="text-[11px] text-slate-400">Total Validé</span>
             </div>
 
             <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
@@ -276,8 +363,8 @@ export default function DashboardPage() {
                 <span>Solde Prêt à Retirer</span>
                 <CreditCard className="w-4 h-4 text-gold" />
               </div>
-              <span className="text-2xl font-bold font-mono text-gradient-gold">1 420.00 €</span>
-              <span className="text-[11px] text-emerald">Min 100€ (Atteint)</span>
+              <span className="text-2xl font-bold font-mono text-gradient-gold">{soldeDisponible.toFixed(2)} €</span>
+              <span className="text-[11px] text-emerald">Min 250€</span>
             </div>
           </div>
 
@@ -286,7 +373,7 @@ export default function DashboardPage() {
             <h3 className="font-display font-bold text-lg text-white">Performance 7 Derniers Jours</h3>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={GRAPH_DATA}>
+                <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="colorComm" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.8}/>
@@ -409,18 +496,29 @@ export default function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
-                <tr>
-                  <td className="p-3 font-mono">Juillet 2026</td>
-                  <td className="p-3 font-bold text-white">MonteCryptos Royal</td>
-                  <td className="p-3 font-mono font-bold text-gold">450.00 €</td>
-                  <td className="p-3"><span className="px-2 py-0.5 rounded bg-emerald/20 text-emerald">Validé</span></td>
-                </tr>
-                <tr>
-                  <td className="p-3 font-mono">Juillet 2026</td>
-                  <td className="p-3 font-bold text-white">Cresus Elite</td>
-                  <td className="p-3 font-mono font-bold text-gold">970.00 €</td>
-                  <td className="p-3"><span className="px-2 py-0.5 rounded bg-emerald/20 text-emerald">Validé</span></td>
-                </tr>
+                {commissionsList.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="p-3 text-center text-slate-500">Aucune commission enregistrée.</td>
+                  </tr>
+                ) : commissionsList.map(c => {
+                  const isPaid = c.statut === 'paid'
+                  const isValid = c.statut === 'validated'
+                  return (
+                    <tr key={c.id}>
+                      <td className="p-3 font-mono">{new Date(c.created_at).toLocaleDateString()}</td>
+                      <td className="p-3 font-bold text-white">{c.periode || 'N/A'}</td>
+                      <td className="p-3 font-mono font-bold text-gold">{c.montant} €</td>
+                      <td className="p-3">
+                        <span className={`px-2 py-0.5 rounded ${
+                          isPaid ? 'bg-purple-900/40 text-purple-400' :
+                          isValid ? 'bg-emerald/20 text-emerald' : 'bg-orange-500/20 text-orange-400'
+                        }`}>
+                          {isPaid ? 'Payé' : isValid ? 'Validé' : 'En attente'}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
@@ -447,8 +545,8 @@ export default function DashboardPage() {
               <label className="text-xs font-semibold text-slate-300">Montant à retirer (€)</label>
               <input
                 type="number"
-                min="100"
-                max="1420"
+                min="250"
+                max={soldeDisponible}
                 required
                 value={payoutAmount}
                 onChange={e => setPayoutAmount(e.target.value)}
@@ -581,16 +679,18 @@ export default function DashboardPage() {
           <div className="lg:col-span-7 glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
             <h3 className="font-display font-bold text-lg text-white">Vos Tickets en Cours</h3>
             <div className="space-y-3">
-              {tickets.map(t => (
+              {ticketsList.length === 0 ? (
+                <p className="text-slate-500 text-sm">Aucun ticket pour le moment.</p>
+              ) : ticketsList.map(t => (
                 <div key={t.id} className="bg-surface p-4 rounded-xl border border-slate-700 flex items-center justify-between">
                   <div>
-                    <h4 className="font-bold text-white text-sm">{t.subject}</h4>
-                    <span className="text-[11px] text-slate-400">Créé le {t.date} • {t.messages} message(s)</span>
+                    <h4 className="font-bold text-white text-sm">{t.sujet}</h4>
+                    <span className="text-[11px] text-slate-400">Créé le {new Date(t.created_at).toLocaleDateString()}</span>
                   </div>
                   <span className={`px-2.5 py-1 rounded text-xs font-semibold ${
-                    t.status === 'Répondu' ? 'bg-emerald/20 text-emerald' : 'bg-gold/20 text-gold'
+                    t.statut === 'answered' || t.statut === 'closed' ? 'bg-emerald/20 text-emerald' : 'bg-gold/20 text-gold'
                   }`}>
-                    {t.status}
+                    {t.statut === 'open' ? 'Ouvert' : t.statut === 'closed' ? 'Fermé' : 'Répondu'}
                   </span>
                 </div>
               ))}
@@ -611,10 +711,10 @@ export default function DashboardPage() {
 
           <div className="bg-surface p-4 rounded-xl border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
             <span className="text-xs font-mono text-gold truncate">
-              https://frenchcasino.net/devenir-affilie?parent=AFF_GABIN_MASTER
+              {window.location.origin}/devenir-affilie?parent={affiliateCode}
             </span>
             <button
-              onClick={() => copyToClipboard('https://frenchcasino.net/devenir-affilie?parent=AFF_GABIN_MASTER', 'parent')}
+              onClick={() => copyToClipboard(`${window.location.origin}/devenir-affilie?parent=${affiliateCode}`, 'parent')}
               className="px-4 py-2 rounded-lg bg-gold text-black font-bold text-xs uppercase tracking-wider hover:bg-gold-light transition-colors"
             >
               {copiedCode === 'parent' ? 'Copié !' : 'Copier Mon Lien'}
