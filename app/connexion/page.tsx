@@ -31,12 +31,19 @@ export default function ConnexionPage() {
     }
 
     // Récupération rôle utilisateur
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('role')
-      .eq('id', data.user.id)
+      .eq('id', data.user?.id)
       .single()
 
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.error("Profile error:", profileError)
+    }
+
+    setLoading(false)
+
+    router.refresh()
     if (profile?.role === 'admin') {
       router.push('/admin')
     } else {
