@@ -55,6 +55,8 @@ export default function AdminDashboardPage() {
     bonus_depot: '100% jusqu\'à 500€',
     bonus_sans_depot: 'Aucun',
     licence: 'Curaçao',
+    remboursement_depot: false,
+    commission_conditions: 'Nouveau inscrit seulement',
     ordre_classement: 1
   })
   const [isSubmittingCasino, setIsSubmittingCasino] = useState(false)
@@ -210,7 +212,7 @@ export default function AdminDashboardPage() {
       } else {
         alert("Casino ajouté avec succès ! Vos affiliés le voient maintenant.")
         setCasinoModal(false)
-        setNewCasino({ name: '', slug: '', lien_affilie: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', ordre_classement: 1 })
+        setNewCasino({ name: '', slug: '', lien_affilie: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', ordre_classement: 1 })
         loadData()
       }
     } catch (err) {
@@ -715,6 +717,30 @@ export default function AdminDashboardPage() {
                     type="text"
                     value={newCasino.bonus_sans_depot}
                     onChange={e => setNewCasino({ ...newCasino, bonus_sans_depot: e.target.value })}
+                    className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5 flex flex-col justify-center">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newCasino.remboursement_depot}
+                      onChange={e => setNewCasino({ ...newCasino, remboursement_depot: e.target.checked })}
+                      className="rounded border-slate-700 text-gold focus:ring-gold bg-[#0a0a0f]"
+                    />
+                    Remboursement Dépôt (Oui/Non)
+                  </label>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Conditions de Commission</label>
+                  <input
+                    type="text"
+                    value={newCasino.commission_conditions}
+                    onChange={e => setNewCasino({ ...newCasino, commission_conditions: e.target.value })}
+                    placeholder="Ex: Par dépôt nouveau inscrit"
                     className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
                   />
                 </div>

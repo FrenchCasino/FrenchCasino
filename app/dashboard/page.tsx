@@ -70,7 +70,7 @@ export default function DashboardPage() {
         // Load Casinos
         const { data: casData } = await supabase
           .from('casinos')
-          .select('id, name, slug')
+          .select('id, name, slug, remboursement_depot, commission_conditions')
           .eq('is_active', true)
         
         if (casData) setCasinosList(casData)
@@ -336,6 +336,21 @@ export default function DashboardPage() {
                       </span>
                     </div>
                   </div>
+                  
+                  {(casino.commission_conditions || casino.remboursement_depot) && (
+                    <div className="flex gap-2 mb-2">
+                      {casino.remboursement_depot && (
+                        <span className="text-[10px] bg-emerald/20 text-emerald px-2 py-0.5 rounded font-mono border border-emerald/30">
+                          Remboursement Dépôt: Oui
+                        </span>
+                      )}
+                      {casino.commission_conditions && (
+                        <span className="text-[10px] bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded font-mono border border-purple-800/50">
+                          {casino.commission_conditions}
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   <div className="bg-surface p-2.5 rounded-lg border border-slate-700 flex items-center justify-between text-xs text-slate-300 font-mono">
                     <span className="truncate max-w-[260px] text-[10px] text-primary-light">{linkUrl}</span>
