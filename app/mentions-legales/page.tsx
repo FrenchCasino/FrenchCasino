@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { PageHero } from '@/components/ui/PageHero'
+
 export const metadata = {
   title: 'Mentions Légales — FrenchCasino',
   description: 'Informations légales, éditeur du site, hébergement Vercel et termes d\'utilisation du service FrenchCasino.',
@@ -7,8 +9,16 @@ export const metadata = {
 
 export default function MentionsLegalesPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6 text-slate-300 text-sm leading-relaxed">
-      <h1 className="font-display text-3xl font-extrabold text-white">Mentions Légales</h1>
+    <div className="flex flex-col items-center">
+      <PageHero
+        title="Mentions Légales"
+        description={
+          <>
+            <p>Informations légales, éditeur du site, hébergement et termes d&apos;utilisation du service FrenchCasino.</p>
+          </>
+        }
+      />
+      <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-6 text-slate-300 text-sm leading-relaxed">
       
       <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
         <h2 className="font-bold text-white text-lg">1. Éditeur du site</h2>

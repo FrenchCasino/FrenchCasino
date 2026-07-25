@@ -3,6 +3,8 @@
 import React, { useState } from 'react'
 import { Scale, Send, CheckCircle2, AlertCircle } from 'lucide-react'
 
+import { PageHero } from '@/components/ui/PageHero'
+
 export default function LitigePage() {
   const [submitted, setSubmitted] = useState(false)
   const [formData, setFormData] = useState({
@@ -19,25 +21,24 @@ export default function LitigePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-      <div className="rounded-3xl glass-panel p-8 sm:p-10 border border-amber-500/30 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
-            <Scale className="w-8 h-8" />
-          </div>
-          <div>
-            <h1 className="font-display text-3xl font-extrabold text-white">
-              Service de Médiation & Litige Casino
-            </h1>
-            <p className="text-xs text-amber-400 font-semibold uppercase tracking-wider">
-              Une assistance gratuite pour les joueurs FrenchCasino
+    <div className="flex flex-col items-center">
+      <PageHero
+        badgeIcon={<Scale className="w-4 h-4 text-amber-400" />}
+        badgeText="Une assistance gratuite pour les joueurs FrenchCasino"
+        title={
+          <>
+            Service de <span className="text-amber-400">Médiation & Litige Casino</span>
+          </>
+        }
+        description={
+          <>
+            <p>
+              Un problème avec la validation d&apos;un retrait ou un blocage injustifié sur un casino partenaire ? Grâce à nos contacts directs auprès de la direction des établissements référencés, nous intervenons pour vous aider à résoudre votre litige dans les plus brefs délais.
             </p>
-          </div>
-        </div>
-        <p className="text-slate-300 text-sm leading-relaxed">
-          Un problème avec la validation d&apos;un retrait ou un blocage injustifié sur un casino partenaire ? Grâce à nos contacts directs auprès de la direction des établissements référencés, nous intervenons pour vous aider à résoudre votre litige dans les plus brefs délais.
-        </p>
-      </div>
+          </>
+        }
+      />
+      <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-8">
 
       {submitted ? (
         <div className="glass-panel p-8 rounded-2xl border border-emerald/40 text-center space-y-4">

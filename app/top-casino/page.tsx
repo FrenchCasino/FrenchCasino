@@ -4,6 +4,8 @@ import { CASINOS_MOCK, METHODOLOGIE_NOTATION } from '@/lib/data/casinos'
 import { CasinoCard } from '@/components/ui/CasinoCard'
 import { Award, ShieldCheck, Check, Star, Lock, Zap } from 'lucide-react'
 
+import { PageHero } from '@/components/ui/PageHero'
+
 export const metadata = {
   title: 'Classement des Casinos en Ligne les Plus Fiables (2026) — FrenchCasino',
   description: 'Classement de fiabilité des casinos en ligne en France. Analyse des licences officielles, rapidité des retraits et transparence de la grille de notation.',
@@ -11,23 +13,39 @@ export const metadata = {
 
 export default function TopCasinoPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-      
-      {/* Header Banner */}
-      <div className="rounded-3xl glass-panel p-8 sm:p-12 border border-gold/30 bg-gradient-hero space-y-4 text-center max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-semibold uppercase tracking-wider">
-          <Award className="w-4 h-4 text-gold" />
-          Indice de Fiabilité & Certifications 2026
+    <div className="flex flex-col items-center">
+      <PageHero
+        badgeIcon={<Award className="w-4 h-4 text-gold" />}
+        badgeText="Sélection exclusive & indépendante"
+        title={
+          <>
+            French Casino · Top Casinos <span className="text-gradient-gold">2026</span>
+          </>
+        }
+        description={
+          <>
+            <p className="text-sm uppercase tracking-wider text-gold mb-6 font-bold">Sélection premium · Joueurs FR · Indépendant</p>
+            <p>
+              Chaque année, French Casino analyse des dizaines de plateformes pour établir un classement fiable, transparent et 100 % indépendant des meilleurs casinos en ligne pour les joueurs français.
+            </p>
+            <p>
+              Pour figurer dans notre Top 2026, chaque site répond à des critères stricts : bonus attractifs, retraits rapides, support réactif, sécurité renforcée — basé sur des tests réels.
+            </p>
+          </>
+        }
+      >
+        <div className="flex flex-wrap justify-center gap-4 mt-8">
+          <span className="flex items-center gap-2 text-sm text-slate-200 bg-surface-card px-4 py-2 rounded-full border border-slate-700">🎁 Bonus attractifs</span>
+          <span className="flex items-center gap-2 text-sm text-slate-200 bg-surface-card px-4 py-2 rounded-full border border-slate-700">⚡ Retraits rapides</span>
+          <span className="flex items-center gap-2 text-sm text-slate-200 bg-surface-card px-4 py-2 rounded-full border border-slate-700">🔒 Sécurité renforcée</span>
+          <span className="flex items-center gap-2 text-sm text-slate-200 bg-surface-card px-4 py-2 rounded-full border border-slate-700">📱 Mobile first</span>
+          <span className="flex items-center gap-2 text-sm text-slate-200 bg-surface-card px-4 py-2 rounded-full border border-slate-700">⭐ Tests réels</span>
+          <span className="flex items-center gap-2 text-sm text-slate-200 bg-surface-card px-4 py-2 rounded-full border border-slate-700">🛡️ Sites vérifiés</span>
+          <span className="flex items-center gap-2 text-sm text-slate-200 bg-surface-card px-4 py-2 rounded-full border border-slate-700">🇫🇷 FR acceptés</span>
         </div>
+      </PageHero>
 
-        <h1 className="font-display text-3xl sm:text-5xl font-extrabold text-white leading-tight">
-          Classement Officiel des <span className="text-gradient-gold">Casinos en Ligne les Plus Fiables</span>
-        </h1>
-
-        <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-          Chaque établissement présent dans notre palmarès est soumis à une évaluation rigoureuse : validité des licences de jeu, audits des taux de retour aux joueurs (RTP) et retraits validés en moins de 24h.
-        </p>
-      </div>
+      <div className="max-w-7xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-12">
 
       {/* Grille de Méthodologie */}
       <div className="space-y-6">

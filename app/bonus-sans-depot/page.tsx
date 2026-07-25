@@ -4,6 +4,8 @@ import { CASINOS_MOCK } from '@/lib/data/casinos'
 import { CasinoCard } from '@/components/ui/CasinoCard'
 import { Gift, ShieldCheck, Sparkles, Filter } from 'lucide-react'
 
+import { PageHero } from '@/components/ui/PageHero'
+
 export const metadata = {
   title: 'Bonus Sans Dépôt Casino (2026) — Spins Gratuits & Cash Offert',
   description: 'Liste exclusive et vérifiée des meilleurs bonus casino sans dépôt en France pour 2026. Free spins, jetons gratuits et bonus cash sans carte bancaire.',
@@ -13,32 +15,31 @@ export default function BonusSansDepotPage() {
   const casinosBonusSansDepot = CASINOS_MOCK.filter(c => c.bonusSansDepot !== null)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
-      
-      {/* Header Banner */}
-      <div className="rounded-3xl glass-panel p-8 sm:p-12 border border-purple-500/30 bg-gradient-to-r from-purple-950/40 via-surface-card to-slate-900 space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold uppercase tracking-wider">
-          <Gift className="w-4 h-4 text-purple-400" />
-          Offres Gratuites Sans Dépôt 2026
+    <div className="flex flex-col items-center">
+      <PageHero
+        badgeIcon={<Gift className="w-4 h-4 text-purple-400" />}
+        badgeText="Offres Gratuites Sans Dépôt 2026"
+        title={
+          <>
+            Bonus Casino <span className="text-gradient-purple">Sans Dépôt Exclusifs</span>
+          </>
+        }
+        description={
+          <>
+            <p>
+              Découvrez notre sélection rigoureusement testée de bonus gratuits attribués dès l&apos;inscription. Jouez aux machines à sous ou aux jeux de table sans risquer votre propre argent.
+            </p>
+          </>
+        }
+      >
+        <div className="flex flex-wrap justify-center gap-4 mt-8">
+          <span className="flex items-center gap-2 text-sm text-slate-200 bg-surface-card px-4 py-2 rounded-full border border-slate-700"><ShieldCheck className="w-4 h-4 text-emerald" /> Vérifié par notre équipe</span>
+          <span className="flex items-center gap-2 text-sm text-slate-200 bg-surface-card px-4 py-2 rounded-full border border-slate-700">• 100% Gratuits & Sans Engagement</span>
+          <span className="flex items-center gap-2 text-sm text-slate-200 bg-surface-card px-4 py-2 rounded-full border border-slate-700">• Retrait des gains selon conditions de wager</span>
         </div>
+      </PageHero>
 
-        <h1 className="font-display text-3xl sm:text-5xl font-extrabold text-white leading-tight">
-          Bonus Casino <span className="text-gradient-purple">Sans Dépôt Exclusifs</span>
-        </h1>
-
-        <p className="text-slate-300 text-sm sm:text-base max-w-3xl leading-relaxed">
-          Découvrez notre sélection rigoureusement testée de bonus gratuits attribués dès l&apos;inscription. Jouez aux machines à sous ou aux jeux de table sans risquer votre propre argent.
-        </p>
-
-        <div className="flex flex-wrap gap-4 text-xs text-slate-400 pt-2 border-t border-surface-border">
-          <span className="flex items-center gap-1.5 text-emerald">
-            <ShieldCheck className="w-4 h-4" />
-            Vérifié par notre équipe
-          </span>
-          <span>• 100% Gratuits & Sans Engagement</span>
-          <span>• Retrait des gains selon conditions de wager</span>
-        </div>
-      </div>
+      <div className="max-w-7xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-10">
 
       {/* Liste des Casinos avec Bonus Sans Dépôt */}
       <div className="space-y-6">

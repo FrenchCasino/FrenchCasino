@@ -1,6 +1,8 @@
 import React from 'react'
 import { ShieldCheck, Award, Heart } from 'lucide-react'
 
+import { PageHero } from '@/components/ui/PageHero'
+
 export const metadata = {
   title: 'À Propos de Notre Équipe — FrenchCasino',
   description: 'Découvrez qui se cache derrière FrenchCasino. Notre équipe d\'experts comparateurs passionnés d\'iGaming et de transparence.',
@@ -8,15 +10,22 @@ export const metadata = {
 
 export default function NotreEquipePage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-      <div className="rounded-3xl glass-panel p-8 sm:p-10 border border-purple-500/30 text-center space-y-4">
-        <h1 className="font-display text-4xl font-extrabold text-white">
-          À Propos de <span className="text-gradient-gold">FrenchCasino</span>
-        </h1>
-        <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-          Depuis plusieurs années, FrenchCasino s&apos;est imposé comme le portail d&apos;information et d&apos;affiliation référence pour la communauté des joueurs francophones.
-        </p>
-      </div>
+    <div className="flex flex-col items-center">
+      <PageHero
+        title={
+          <>
+            À Propos de <span className="text-gradient-gold">FrenchCasino</span>
+          </>
+        }
+        description={
+          <>
+            <p>
+              Depuis plusieurs années, FrenchCasino s&apos;est imposé comme le portail d&apos;information et d&apos;affiliation référence pour la communauté des joueurs francophones.
+            </p>
+          </>
+        }
+      />
+      <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-8">
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">

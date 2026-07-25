@@ -1,6 +1,8 @@
 import React from 'react'
 import { ShieldAlert, PhoneCall, HeartHandshake, AlertTriangle, CheckCircle2 } from 'lucide-react'
 
+import { PageHero } from '@/components/ui/PageHero'
+
 export const metadata = {
   title: 'Jeu Responsable & Aide aux Joueurs — FrenchCasino',
   description: 'Charte d\'engagement pour le jeu responsable. Prévention de la dépendance, numéros d\'aide gratuits et conseils pour garder le contrôle.',
@@ -8,25 +10,24 @@ export const metadata = {
 
 export default function JeuResponsablePage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-      <div className="rounded-3xl glass-panel p-8 sm:p-10 border border-gold/30 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-gold/10 text-gold border border-gold/30">
-            <ShieldAlert className="w-8 h-8" />
-          </div>
-          <div>
-            <h1 className="font-display text-3xl font-extrabold text-white">
-              Charte de Jeu Responsable
-            </h1>
-            <p className="text-xs text-gold uppercase tracking-wider font-semibold">
-              Protection des joueurs & Interdiction aux mineurs (-18)
+    <div className="flex flex-col items-center">
+      <PageHero
+        badgeIcon={<ShieldAlert className="w-4 h-4 text-gold" />}
+        badgeText="Protection des joueurs & Interdiction aux mineurs (-18)"
+        title={
+          <>
+            Charte de <span className="text-gradient-gold">Jeu Responsable</span>
+          </>
+        }
+        description={
+          <>
+            <p>
+              Chez FrenchCasino, nous considérons que le jeu en ligne doit impérativement rester un divertissement récréatif. Les jeux d&apos;argent et de hasard comportent des risques réels d&apos;endettement, de dépendance psychologique et d&apos;isolement social.
             </p>
-          </div>
-        </div>
-        <p className="text-slate-300 text-sm leading-relaxed">
-          Chez FrenchCasino, nous considérons que le jeu en ligne doit impérativement rester un divertissement récréatif. Les jeux d&apos;argent et de hasard comportent des risques réels d&apos;endettement, de dépendance psychologique et d&apos;isolement social.
-        </p>
-      </div>
+          </>
+        }
+      />
+      <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-8">
 
       {/* Numéro d'urgence Joueurs Info Service */}
       <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-red-500/30 bg-red-950/20 space-y-4">

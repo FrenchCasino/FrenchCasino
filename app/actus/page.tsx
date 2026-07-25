@@ -2,6 +2,8 @@ import React from 'react'
 import Link from 'next/link'
 import { Newspaper, Calendar, Clock, ArrowRight } from 'lucide-react'
 
+import { PageHero } from '@/components/ui/PageHero'
+
 export const metadata = {
   title: 'La Voix du Casino — Actualités iGaming & Guides Stratégiques (2026)',
   description: 'Blog officiel de FrenchCasino : analyses des nouvelles machines à sous, conseils wager, guides crypto et stratégies de jeu.',
@@ -39,19 +41,25 @@ const ARTICLES_MOCK = [
 
 export default function ActusPage() {
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
-      <div className="rounded-3xl glass-panel p-8 sm:p-12 border border-surface-border text-center max-w-3xl mx-auto space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary-light text-xs font-semibold uppercase tracking-wider">
-          <Newspaper className="w-4 h-4" />
-          La Voix du Casino
-        </div>
-        <h1 className="font-display text-3xl sm:text-5xl font-extrabold text-white">
-          Actualités & Guides iGaming
-        </h1>
-        <p className="text-slate-300 text-sm sm:text-base">
-          Analyses de stratégies, nouveautés réglementaires et astuces pour optimiser vos sessions de jeu.
-        </p>
-      </div>
+    <div className="flex flex-col items-center">
+      <PageHero
+        badgeIcon={<Newspaper className="w-4 h-4 text-gold" />}
+        badgeText="La Voix du Casino"
+        title={
+          <>
+            Actualités & <span className="text-gradient-gold">Guides iGaming</span>
+          </>
+        }
+        description={
+          <>
+            <p>
+              Analyses de stratégies, nouveautés réglementaires et astuces pour optimiser vos sessions de jeu.
+            </p>
+          </>
+        }
+      />
+
+      <div className="max-w-6xl w-full px-4 sm:px-6 lg:px-8 pb-12 space-y-10">
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {ARTICLES_MOCK.map((article) => (
