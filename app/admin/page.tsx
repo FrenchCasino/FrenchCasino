@@ -40,6 +40,12 @@ export default function AdminDashboardPage() {
     pendingPayoutsAmount: 0,
   })
 
+  // Commission Modal state
+  const [commissionModal, setCommissionModal] = useState<{isOpen: boolean, affiliateId: string, affiliateName: string}>({ isOpen: false, affiliateId: '', affiliateName: '' })
+  const [commissionAmount, setCommissionAmount] = useState('')
+  const [commissionNote, setCommissionNote] = useState('Dépôt Joueur')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
@@ -135,6 +141,38 @@ export default function AdminDashboardPage() {
       setAffiliates(affiliates.map(a => a.id === id ? { ...a, commission_rate: newRate } : a))
     } else {
       alert("Erreur lors de la mise à jour du taux")
+    }
+  }
+
+  // Handle Manual Commission Submission
+  const handleAddCommission = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!commissionAmount) return
+    
+    setIsSubmitting(true)
+    try {
+      const res = await fetch('/api/admin/commissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          affiliateId: commissionModal.affiliateId,
+          amount: parseFloat(commissionAmount),
+          periode: commissionNote
+        })
+      })
+      const data = await res.json()
+      if (data.success) {
+        alert("Commission ajoutée avec succès !")
+        setCommissionModal({ isOpen: false, affiliateId: '', affiliateName: '' })
+        setCommissionAmount('')
+        loadData() // Recharge les KPIs et Affiliés
+      } else {
+        alert("Erreur: " + data.error)
+      }
+    } catch (err) {
+      alert("Erreur réseau")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -320,6 +358,14 @@ export default function AdminDashboardPage() {
                                 Valider
                               </button>
                             )}
+                            {aff.status === 'active' && (
+                              <button
+                                onClick={() => setCommissionModal({ isOpen: true, affiliateId: aff.id, affiliateName: aff.profiles?.full_name || 'Inconnu' })}
+                                className="p-1.5 rounded-lg bg-gold/20 text-gold hover:bg-gold/30 text-[11px] px-3 font-bold transition-colors border border-gold/30 flex items-center gap-1"
+                              >
+                                <DollarSign className="w-3 h-3" /> Commission
+                              </button>
+                            )}
                             <button
                               onClick={() => handleUpdateAffiliateStatus(aff.id, aff.status === 'suspended' ? 'active' : 'suspended')}
                               className="p-1.5 rounded-lg bg-red-950/50 text-red-400 hover:bg-red-900 text-[11px] px-3 font-bold transition-colors border border-red-900/50"
@@ -491,6 +537,61 @@ export default function AdminDashboardPage() {
           )}
 
         </>
+      )}
+
+      {/* Commission Modal */}
+      {commissionModal.isOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border border-slate-800 p-6 rounded-2xl max-w-md w-full shadow-2xl relative">
+            <button 
+              onClick={() => setCommissionModal({ ...commissionModal, isOpen: false })}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+            <h3 className="text-xl font-bold text-white mb-2 font-display flex items-center gap-2">
+              <DollarSign className="text-gold w-6 h-6" /> Ajouter Commission
+            </h3>
+            <p className="text-xs text-slate-400 mb-6">
+              Créditez manuellement le solde de l&apos;affilié <strong className="text-white">{commissionModal.affiliateName}</strong> suite à un dépôt vérifié.
+            </p>
+            
+            <form onSubmit={handleAddCommission} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Montant de la Commission (€)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  required
+                  value={commissionAmount}
+                  onChange={e => setCommissionAmount(e.target.value)}
+                  placeholder="Ex: 50.00"
+                  className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-gold"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Note / Référence du Dépôt</label>
+                <input
+                  type="text"
+                  required
+                  value={commissionNote}
+                  onChange={e => setCommissionNote(e.target.value)}
+                  placeholder="Ex: Dépôt 100€ Joueur X (Cresus)"
+                  className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-gold"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3.5 mt-2 rounded-xl font-bold text-sm uppercase tracking-wider text-black bg-gold hover:bg-gold-light shadow-gold-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Créditer l\'Affilié'}
+              </button>
+            </form>
+          </div>
+        </div>
       )}
 
     </div>

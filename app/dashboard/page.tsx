@@ -29,7 +29,7 @@ import {
   Tooltip,
   CartesianGrid
 } from 'recharts'
-import { CASINOS_MOCK } from '@/lib/data/casinos'
+import { createClient } from '@/lib/supabase/client'
 
 const GRAPH_DATA = [
   { day: 'Lun', clics: 120, conversions: 8, commissions: 320 },
@@ -42,8 +42,56 @@ const GRAPH_DATA = [
 ]
 
 export default function DashboardPage() {
+  const supabase = createClient()
   const [activeTab, setActiveTab] = useState<'overview' | 'links' | 'stats' | 'commissions' | 'payout' | 'iban' | 'support' | 'recruitment'>('overview')
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  
+  // Real data state
+  const [affiliateCode, setAffiliateCode] = useState<string>('EN_ATTENTE')
+  const [affiliateId, setAffiliateId] = useState<string | null>(null)
+  const [casinosList, setCasinosList] = useState<any[]>([])
+  const [clicksData, setClicksData] = useState<Record<string, number>>({})
+
+  React.useEffect(() => {
+    async function loadAffiliateData() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: aff } = await supabase
+        .from('affiliates')
+        .select('id, referral_code')
+        .eq('id', user.id)
+        .single()
+      
+      if (aff) {
+        setAffiliateCode(aff.referral_code)
+        setAffiliateId(aff.id)
+
+        // Load Casinos
+        const { data: casData } = await supabase
+          .from('casinos')
+          .select('id, name, slug')
+          .eq('is_active', true)
+        
+        if (casData) setCasinosList(casData)
+
+        // Load Clicks
+        const { data: clicks } = await supabase
+          .from('casino_clicks')
+          .select('casino_id')
+          .eq('affiliate_id', aff.id)
+        
+        if (clicks) {
+          const counts: Record<string, number> = {}
+          clicks.forEach(c => {
+            counts[c.casino_id] = (counts[c.casino_id] || 0) + 1
+          })
+          setClicksData(counts)
+        }
+      }
+    }
+    loadAffiliateData()
+  }, [])
   
   // State IBAN Masqué
   const [showFullIban, setShowFullIban] = useState(false)
@@ -268,25 +316,35 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {CASINOS_MOCK.map((casino) => {
-              const linkUrl = `https://frenchcasino.net/api/track?ref=AFF_GABIN_${casino.slug}`
+            {casinosList.length === 0 ? (
+              <p className="text-slate-400 text-sm">Chargement de vos liens ou aucun casino disponible...</p>
+            ) : casinosList.map((casino) => {
+              // URL Tracking interne (Redirection dynamique)
+              const linkUrl = `${window.location.origin}/go/${casino.slug}?ref=${affiliateCode}`
+              const clickCount = clicksData[casino.id] || 0
+
               return (
                 <div key={casino.id} className="glass-panel p-5 rounded-xl border border-slate-800 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-white text-sm">{casino.name}</span>
-                    <span className="text-[10px] bg-primary/20 text-primary-light px-2 py-0.5 rounded font-mono">
-                      Code: AFF_GABIN
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] bg-primary/20 text-primary-light px-2 py-0.5 rounded font-mono">
+                        {clickCount} Clic{clickCount > 1 ? 's' : ''}
+                      </span>
+                      <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">
+                        Code: {affiliateCode}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="bg-surface p-2.5 rounded-lg border border-slate-700 flex items-center justify-between text-xs text-slate-300 font-mono">
-                    <span className="truncate max-w-[260px]">{linkUrl}</span>
+                    <span className="truncate max-w-[260px] text-[10px] text-primary-light">{linkUrl}</span>
                     <button
                       onClick={() => copyToClipboard(linkUrl, casino.id)}
                       className="px-2.5 py-1 rounded bg-primary text-white text-[11px] font-sans hover:bg-primary-hover transition-colors flex items-center gap-1"
                     >
                       <Copy className="w-3 h-3" />
-                      {copiedCode === casino.id ? 'Copie !' : 'Copier'}
+                      {copiedCode === casino.id ? 'Copié !' : 'Copier'}
                     </button>
                   </div>
                 </div>
