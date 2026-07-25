@@ -468,7 +468,7 @@ export default function DashboardPage() {
           <h3 className="font-display font-bold text-lg text-white">Statistiques Détaillées (Clics vs Conversions)</h3>
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={GRAPH_DATA}>
+              <AreaChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#2c2845" />
                 <XAxis dataKey="day" stroke="#94A3B8" />
                 <YAxis stroke="#94A3B8" />
