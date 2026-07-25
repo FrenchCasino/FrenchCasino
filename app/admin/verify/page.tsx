@@ -58,8 +58,7 @@ export default function Verify2FAPage() {
       
       if (data.success) {
         setStatusMsg('Vérification réussie ! Redirection...')
-        router.push('/admin')
-        router.refresh()
+        window.location.href = '/admin'
       } else {
         setErrorMsg(data.error || 'Code incorrect')
         setLoading(false)
