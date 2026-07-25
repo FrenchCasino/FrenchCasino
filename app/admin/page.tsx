@@ -46,6 +46,19 @@ export default function AdminDashboardPage() {
   const [commissionNote, setCommissionNote] = useState('Dépôt Joueur')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Casino Modal state
+  const [casinoModal, setCasinoModal] = useState(false)
+  const [newCasino, setNewCasino] = useState({
+    name: '',
+    slug: '',
+    lien_affilie: '',
+    bonus_depot: '100% jusqu\'à 500€',
+    bonus_sans_depot: 'Aucun',
+    licence: 'Curaçao',
+    ordre_classement: 1
+  })
+  const [isSubmittingCasino, setIsSubmittingCasino] = useState(false)
+
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
@@ -173,6 +186,37 @@ export default function AdminDashboardPage() {
       alert("Erreur réseau")
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  // Handle Add Casino
+  const handleAddCasino = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newCasino.name || !newCasino.slug || !newCasino.lien_affilie) {
+      alert("Veuillez remplir les champs obligatoires (Nom, Slug, Lien)")
+      return
+    }
+
+    setIsSubmittingCasino(true)
+    try {
+      const { error } = await supabase.from('casinos').insert([{
+        ...newCasino,
+        is_active: true
+      }])
+
+      if (error) {
+        if (error.code === '23505') alert("Erreur : Ce Slug existe déjà !")
+        else alert("Erreur d'ajout : " + error.message)
+      } else {
+        alert("Casino ajouté avec succès ! Vos affiliés le voient maintenant.")
+        setCasinoModal(false)
+        setNewCasino({ name: '', slug: '', lien_affilie: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', ordre_classement: 1 })
+        loadData()
+      }
+    } catch (err) {
+      alert("Erreur réseau")
+    } finally {
+      setIsSubmittingCasino(false)
     }
   }
 
@@ -387,9 +431,12 @@ export default function AdminDashboardPage() {
             <div className="space-y-6">
               <div className="flex justify-between items-center glass-panel p-4 rounded-xl border border-slate-800">
                 <h3 className="font-display font-bold text-lg text-white">Casinos Référencés sur la Vitrine</h3>
-                <button className="px-4 py-2 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-primary-hover shadow-purple-glow">
+                <button 
+                  onClick={() => setCasinoModal(true)}
+                  className="px-4 py-2 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-primary-hover shadow-purple-glow"
+                >
                   <Plus className="w-4 h-4" />
-                  <span>Ajouter un Casino (Base de données)</span>
+                  <span>Ajouter un Casino</span>
                 </button>
               </div>
 
@@ -588,6 +635,97 @@ export default function AdminDashboardPage() {
                 className="w-full py-3.5 mt-2 rounded-xl font-bold text-sm uppercase tracking-wider text-black bg-gold hover:bg-gold-light shadow-gold-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Créditer l\'Affilié'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Casino Modal */}
+      {casinoModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border border-slate-800 p-6 rounded-2xl max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button 
+              onClick={() => setCasinoModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+            <h3 className="text-xl font-bold text-white mb-2 font-display flex items-center gap-2">
+              <Plus className="text-primary w-6 h-6" /> Nouveau Casino Partenaire
+            </h3>
+            <p className="text-xs text-slate-400 mb-6">
+              Ce casino sera instantanément visible sur la plateforme et les affiliés auront leur lien généré.
+            </p>
+            
+            <form onSubmit={handleAddCasino} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Nom du Casino *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newCasino.name}
+                    onChange={e => {
+                      const name = e.target.value
+                      setNewCasino({ ...newCasino, name, slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-') })
+                    }}
+                    placeholder="Ex: Cresus Casino"
+                    className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Slug (Automatique) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newCasino.slug}
+                    onChange={e => setNewCasino({ ...newCasino, slug: e.target.value })}
+                    className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-400 focus:outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Votre Lien d&apos;Affiliation Maître *</label>
+                <input
+                  type="url"
+                  required
+                  value={newCasino.lien_affilie}
+                  onChange={e => setNewCasino({ ...newCasino, lien_affilie: e.target.value })}
+                  placeholder="https://tracker-casino.com/ref?id=VOTRE_CODE_ADMIN"
+                  className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-gold font-mono focus:outline-none focus:border-gold"
+                />
+                <p className="text-[10px] text-slate-500">C'est ce lien qui recevra les clics finaux avec le sous-id affilié.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Bonus de Dépôt</label>
+                  <input
+                    type="text"
+                    value={newCasino.bonus_depot}
+                    onChange={e => setNewCasino({ ...newCasino, bonus_depot: e.target.value })}
+                    className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Bonus Sans Dépôt</label>
+                  <input
+                    type="text"
+                    value={newCasino.bonus_sans_depot}
+                    onChange={e => setNewCasino({ ...newCasino, bonus_sans_depot: e.target.value })}
+                    className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmittingCasino}
+                className="w-full py-3.5 mt-4 rounded-xl font-bold text-sm uppercase tracking-wider text-white bg-primary hover:bg-primary-hover shadow-purple-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isSubmittingCasino ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Ajouter le Casino'}
               </button>
             </form>
           </div>
