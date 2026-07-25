@@ -750,9 +750,10 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Montant Minimum de Dépôt</label>
+                <label className="text-xs font-semibold text-slate-300">Montant Minimum de Dépôt *</label>
                 <input
                   type="text"
+                  required
                   value={newCasino.minimum_depot}
                   onChange={e => setNewCasino({ ...newCasino, minimum_depot: e.target.value })}
                   placeholder="Ex: 20€"
