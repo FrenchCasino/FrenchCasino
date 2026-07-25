@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Casino Modal state
-  const [casinoModal, setCasinoModal] = useState(false)
+  const [casinoModal, setCasinoModal] = useState<{isOpen: boolean, editingId: string | null}>({isOpen: false, editingId: null})
   const [newCasino, setNewCasino] = useState({
     name: '',
     slug: '',
@@ -223,7 +223,7 @@ export default function AdminDashboardPage() {
     }
   }
 
-  // Handle Add Casino
+  // Handle Add / Edit Casino
   const handleAddCasino = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newCasino.name || !newCasino.slug || !newCasino.lien_affilie) {
@@ -233,17 +233,26 @@ export default function AdminDashboardPage() {
 
     setIsSubmittingCasino(true)
     try {
-      const { error } = await supabase.from('casinos').insert([{
-        ...newCasino,
-        is_active: true
-      }])
+      let error;
+      if (casinoModal.editingId) {
+         const { error: updateError } = await supabase.from('casinos').update({
+           ...newCasino
+         }).eq('id', casinoModal.editingId)
+         error = updateError;
+      } else {
+         const { error: insertError } = await supabase.from('casinos').insert([{
+           ...newCasino,
+           is_active: true
+         }])
+         error = insertError;
+      }
 
       if (error) {
         if (error.code === '23505') alert("Erreur : Ce Slug existe déjà !")
-        else alert("Erreur d'ajout : " + error.message)
+        else alert("Erreur : " + error.message)
       } else {
-        alert("Casino ajouté avec succès ! Vos affiliés le voient maintenant.")
-        setCasinoModal(false)
+        alert(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès !`)
+        setCasinoModal({isOpen: false, editingId: null})
         setNewCasino({ name: '', slug: '', lien_affilie: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1 })
         loadData()
       }
@@ -251,6 +260,31 @@ export default function AdminDashboardPage() {
       alert("Erreur réseau")
     } finally {
       setIsSubmittingCasino(false)
+    }
+  }
+
+  const openEditCasinoModal = (casino: any) => {
+    setNewCasino({
+      name: casino.name,
+      slug: casino.slug,
+      lien_affilie: casino.lien_affilie,
+      bonus_depot: casino.bonus_depot || '',
+      bonus_sans_depot: casino.bonus_sans_depot || '',
+      licence: casino.licence || '',
+      remboursement_depot: casino.remboursement_depot || false,
+      commission_conditions: casino.commission_conditions || '',
+      minimum_depot: casino.minimum_depot || '',
+      ordre_classement: casino.ordre_classement || 1
+    })
+    setCasinoModal({isOpen: true, editingId: casino.id})
+  }
+
+  const handleToggleCasinoActive = async (id: string, currentStatus: boolean) => {
+    const { error } = await supabase.from('casinos').update({ is_active: !currentStatus }).eq('id', id)
+    if (!error) {
+      setCasinos(casinos.map(c => c.id === id ? { ...c, is_active: !currentStatus } : c))
+    } else {
+      alert("Erreur lors de la modification du statut du casino")
     }
   }
 
@@ -537,7 +571,10 @@ export default function AdminDashboardPage() {
               <div className="flex justify-between items-center glass-panel p-4 rounded-xl border border-slate-800">
                 <h3 className="font-display font-bold text-lg text-white">Casinos Référencés sur la Vitrine</h3>
                 <button 
-                  onClick={() => setCasinoModal(true)}
+                  onClick={() => {
+                    setNewCasino({ name: '', slug: '', lien_affilie: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1 })
+                    setCasinoModal({isOpen: true, editingId: null})
+                  }}
                   className="px-4 py-2 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-primary-hover shadow-purple-glow"
                 >
                   <Plus className="w-4 h-4" />
@@ -569,10 +606,16 @@ export default function AdminDashboardPage() {
                     </div>
 
                     <div className="flex gap-2 pt-3 border-t border-slate-800/60 mt-4 opacity-60 group-hover:opacity-100 transition-opacity">
-                      <button className="flex-1 px-3 py-1.5 rounded-lg bg-surface border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 flex items-center justify-center gap-1.5 transition-colors">
+                      <button 
+                        onClick={() => openEditCasinoModal(casino)}
+                        className="flex-1 px-3 py-1.5 rounded-lg bg-surface border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 flex items-center justify-center gap-1.5 transition-colors"
+                      >
                         <Edit className="w-3 h-3" /> Éditer
                       </button>
-                      <button className="flex-1 px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-900/50 text-xs font-semibold text-red-400 hover:bg-red-900 flex items-center justify-center gap-1.5 transition-colors">
+                      <button 
+                        onClick={() => handleToggleCasinoActive(casino.id, casino.is_active)}
+                        className="flex-1 px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-900/50 text-xs font-semibold text-red-400 hover:bg-red-900 flex items-center justify-center gap-1.5 transition-colors"
+                      >
                         <Trash2 className="w-3 h-3" /> {casino.is_active ? 'Désactiver' : 'Activer'}
                       </button>
                     </div>
@@ -813,17 +856,17 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Add Casino Modal */}
-      {casinoModal && (
+      {casinoModal.isOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-surface border border-slate-800 p-6 rounded-2xl max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button 
-              onClick={() => setCasinoModal(false)}
+              onClick={() => setCasinoModal({isOpen: false, editingId: null})}
               className="absolute top-4 right-4 text-slate-400 hover:text-white"
             >
               <XCircle className="w-6 h-6" />
             </button>
             <h3 className="text-xl font-bold text-white mb-2 font-display flex items-center gap-2">
-              <Plus className="text-primary w-6 h-6" /> Nouveau Casino Partenaire
+              <Plus className="text-primary w-6 h-6" /> {casinoModal.editingId ? 'Modifier le Casino' : 'Nouveau Casino Partenaire'}
             </h3>
             <p className="text-xs text-slate-400 mb-6">
               Ce casino sera instantanément visible sur la plateforme et les affiliés auront leur lien généré.
@@ -933,7 +976,7 @@ export default function AdminDashboardPage() {
                 disabled={isSubmittingCasino}
                 className="w-full py-3.5 mt-4 rounded-xl font-bold text-sm uppercase tracking-wider text-white bg-primary hover:bg-primary-hover shadow-purple-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {isSubmittingCasino ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Ajouter le Casino'}
+                {isSubmittingCasino ? <Loader2 className="w-5 h-5 animate-spin" /> : casinoModal.editingId ? 'Enregistrer les Modifications' : 'Ajouter le Casino'}
               </button>
             </form>
           </div>
