@@ -51,8 +51,18 @@ export async function middleware(request: NextRequest) {
         .eq('id', user.id)
         .single()
 
-      if (path.startsWith('/admin') && profile?.role !== 'admin') {
-        return NextResponse.redirect(new URL('/dashboard', request.url))
+      if (path.startsWith('/admin')) {
+        if (profile?.role !== 'admin') {
+          return NextResponse.redirect(new URL('/dashboard', request.url))
+        }
+        
+        // Vérification du 2FA pour les administrateurs
+        if (path !== '/admin/verify') {
+          const is2FAVerified = request.cookies.get('admin_2fa_verified')?.value === 'true'
+          if (!is2FAVerified) {
+            return NextResponse.redirect(new URL('/admin/verify', request.url))
+          }
+        }
       }
     }
   } catch (err) {
