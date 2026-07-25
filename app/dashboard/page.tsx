@@ -18,7 +18,9 @@ import {
   Zap,
   HelpCircle,
   Eye,
-  EyeOff
+  EyeOff,
+  XCircle,
+  Loader2
 } from 'lucide-react'
 import {
   ResponsiveContainer,
@@ -178,6 +180,12 @@ export default function DashboardPage() {
   const [ticketSubject, setTicketSubject] = useState('')
   const [ticketMessage, setTicketMessage] = useState('')
 
+  // Chat Modal State
+  const [chatModal, setChatModal] = useState<{isOpen: boolean, ticketId: string, ticketSubject: string}>({ isOpen: false, ticketId: '', ticketSubject: '' })
+  const [chatMessages, setChatMessages] = useState<any[]>([])
+  const [newChatMessage, setNewChatMessage] = useState('')
+  const [isSendingMessage, setIsSendingMessage] = useState(false)
+
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text)
     setCopiedCode(id)
@@ -262,6 +270,60 @@ export default function DashboardPage() {
 
     setTicketSubject('')
     setTicketMessage('')
+  }
+
+  const openChatModal = async (ticket: any) => {
+    setChatModal({ isOpen: true, ticketId: ticket.id, ticketSubject: ticket.sujet })
+    setChatMessages([])
+    
+    const { data: messages } = await supabase
+      .from('ticket_messages')
+      .select('*, profiles(full_name, role)')
+      .eq('ticket_id', ticket.id)
+      .order('created_at', { ascending: true })
+      
+    if (messages) setChatMessages(messages)
+  }
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newChatMessage.trim() || !affiliateId) return
+    setIsSendingMessage(true)
+    
+    const { error } = await supabase.from('ticket_messages').insert([{
+      ticket_id: chatModal.ticketId,
+      sender_id: affiliateId,
+      message: newChatMessage
+    }])
+    
+    if (!error) {
+      const { data: messages } = await supabase
+        .from('ticket_messages')
+        .select('*, profiles(full_name, role)')
+        .eq('ticket_id', chatModal.ticketId)
+        .order('created_at', { ascending: true })
+        
+      if (messages) setChatMessages(messages)
+      setNewChatMessage('')
+      
+      await supabase.from('tickets').update({ statut: 'open' }).eq('id', chatModal.ticketId)
+      setTicketsList(ticketsList.map(t => t.id === chatModal.ticketId ? { ...t, statut: 'open' } : t))
+      
+      try {
+        await fetch('/api/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'new_ticket',
+            message: `Nouvelle réponse sur le ticket : <b>${chatModal.ticketSubject}</b>\n\nConnectez-vous à l'espace Admin pour répondre.`
+          })
+        })
+      } catch (err) {}
+    } else {
+      alert("Erreur lors de l'envoi du message")
+    }
+    
+    setIsSendingMessage(false)
   }
 
   const maskedIban = ibanForm.iban ? `${ibanForm.iban.slice(0, 4)} •••• •••• •••• •••• ${ibanForm.iban.slice(-4)}` : ''
@@ -689,16 +751,24 @@ export default function DashboardPage() {
               {ticketsList.length === 0 ? (
                 <p className="text-slate-500 text-sm">Aucun ticket pour le moment.</p>
               ) : ticketsList.map(t => (
-                <div key={t.id} className="bg-surface p-4 rounded-xl border border-slate-700 flex items-center justify-between">
+                <div key={t.id} className="bg-surface p-4 rounded-xl border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h4 className="font-bold text-white text-sm">{t.sujet}</h4>
                     <span className="text-[11px] text-slate-400">Créé le {new Date(t.created_at).toLocaleDateString()}</span>
                   </div>
-                  <span className={`px-2.5 py-1 rounded text-xs font-semibold ${
-                    t.statut === 'answered' || t.statut === 'closed' ? 'bg-emerald/20 text-emerald' : 'bg-gold/20 text-gold'
-                  }`}>
-                    {t.statut === 'open' ? 'Ouvert' : t.statut === 'closed' ? 'Fermé' : 'Répondu'}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className={`px-2.5 py-1 rounded text-xs font-semibold ${
+                      t.statut === 'answered' || t.statut === 'closed' ? 'bg-emerald/20 text-emerald' : 'bg-gold/20 text-gold'
+                    }`}>
+                      {t.statut === 'open' ? 'Ouvert' : t.statut === 'closed' ? 'Fermé' : 'Répondu'}
+                    </span>
+                    <button
+                      onClick={() => openChatModal(t)}
+                      className="px-3 py-1.5 rounded bg-primary hover:bg-primary-hover text-white text-[11px] font-bold transition-colors flex items-center gap-1"
+                    >
+                      <MessageSquare className="w-3 h-3" /> Tchat
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -732,6 +802,77 @@ export default function DashboardPage() {
 
         </div>
       </div>
+
+      {/* Chat Modal */}
+      {chatModal.isOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border border-slate-800 p-0 rounded-2xl max-w-2xl w-full shadow-2xl relative flex flex-col h-[80vh] overflow-hidden">
+            {/* Chat Header */}
+            <div className="p-4 border-b border-slate-800 bg-surface/50 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <MessageSquare className="text-primary w-5 h-5" /> {chatModal.ticketSubject}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setChatModal({ ...chatModal, isOpen: false })}
+                className="text-slate-400 hover:text-white"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0a0a0f]">
+              {chatMessages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-slate-500 text-sm font-mono">Aucun message pour le moment.</p>
+                </div>
+              ) : (
+                chatMessages.map(msg => {
+                  const isAffiliate = msg.sender_id === affiliateId
+                  return (
+                    <div key={msg.id} className={`flex flex-col ${isAffiliate ? 'items-end' : 'items-start'}`}>
+                      <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                        isAffiliate 
+                          ? 'bg-primary/20 border border-primary/30 text-white rounded-br-sm' 
+                          : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-sm'
+                      }`}>
+                        <div className="text-[10px] opacity-50 font-bold mb-1 flex justify-between gap-4">
+                          <span>{isAffiliate ? 'Vous' : 'Support (Admin)'}</span>
+                          <span>{new Date(msg.created_at).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</span>
+                        </div>
+                        <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+
+            {/* Chat Input */}
+            <div className="p-4 border-t border-slate-800 bg-surface/50">
+              <form onSubmit={handleSendMessage} className="flex gap-2">
+                <input
+                  type="text"
+                  required
+                  placeholder="Écrivez votre réponse..."
+                  value={newChatMessage}
+                  onChange={e => setNewChatMessage(e.target.value)}
+                  className="flex-1 bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary"
+                />
+                <button
+                  type="submit"
+                  disabled={isSendingMessage}
+                  className="px-6 py-3 rounded-xl font-bold text-sm text-white bg-primary hover:bg-primary-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isSendingMessage ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-4 h-4" />}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )

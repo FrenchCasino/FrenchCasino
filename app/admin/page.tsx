@@ -17,7 +17,9 @@ import {
   Trash2,
   Download,
   Loader2,
-  MessageSquare
+  MessageSquare,
+  Send,
+  CornerDownRight
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -63,9 +65,19 @@ export default function AdminDashboardPage() {
   })
   const [isSubmittingCasino, setIsSubmittingCasino] = useState(false)
 
+  // Chat Modal state
+  const [chatModal, setChatModal] = useState<{isOpen: boolean, ticketId: string, ticketSubject: string, affiliateName: string}>({ isOpen: false, ticketId: '', ticketSubject: '', affiliateName: '' })
+  const [chatMessages, setChatMessages] = useState<any[]>([])
+  const [newChatMessage, setNewChatMessage] = useState('')
+  const [isSendingMessage, setIsSendingMessage] = useState(false)
+  const [adminId, setAdminId] = useState<string | null>(null)
+
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) setAdminId(user.id)
+
       // Load Affiliates with Profiles
       const { data: affData, error: affErr } = await supabase
         .from('affiliates')
@@ -288,6 +300,50 @@ export default function AdminDashboardPage() {
     } else {
       alert("Erreur lors de la mise à jour du ticket")
     }
+  }
+
+  const openChatModal = async (ticket: any) => {
+    setChatModal({ isOpen: true, ticketId: ticket.id, ticketSubject: ticket.sujet, affiliateName: ticket.affiliates?.profiles?.full_name || 'Inconnu' })
+    setChatMessages([])
+    
+    const { data: messages } = await supabase
+      .from('ticket_messages')
+      .select('*, profiles(full_name, role)')
+      .eq('ticket_id', ticket.id)
+      .order('created_at', { ascending: true })
+      
+    if (messages) setChatMessages(messages)
+  }
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newChatMessage.trim() || !adminId) return
+    setIsSendingMessage(true)
+    
+    const { error } = await supabase.from('ticket_messages').insert([{
+      ticket_id: chatModal.ticketId,
+      sender_id: adminId,
+      message: newChatMessage
+    }])
+    
+    if (!error) {
+      const { data: messages } = await supabase
+        .from('ticket_messages')
+        .select('*, profiles(full_name, role)')
+        .eq('ticket_id', chatModal.ticketId)
+        .order('created_at', { ascending: true })
+      
+      if (messages) setChatMessages(messages)
+      setNewChatMessage('')
+      
+      if (tickets.find(t => t.id === chatModal.ticketId)?.statut === 'open') {
+        handleUpdateTicketStatus(chatModal.ticketId, 'answered')
+      }
+    } else {
+      alert("Erreur lors de l'envoi du message")
+    }
+    
+    setIsSendingMessage(false)
   }
 
   return (
@@ -653,14 +709,12 @@ export default function AdminDashboardPage() {
                         </td>
                         <td className="p-4">
                           <div className="flex gap-2">
-                            {t.statut === 'open' && (
-                              <button
-                                onClick={() => handleUpdateTicketStatus(t.id, 'answered')}
-                                className="px-3 py-1.5 rounded bg-emerald/90 hover:bg-emerald text-white font-bold text-[11px] transition-colors"
-                              >
-                                Marquer Répondu
-                              </button>
-                            )}
+                            <button
+                              onClick={() => openChatModal(t)}
+                              className="px-3 py-1.5 rounded bg-blue-600/90 hover:bg-blue-600 text-white font-bold text-[11px] transition-colors flex items-center gap-1"
+                            >
+                              <MessageSquare className="w-3 h-3" /> Ouvrir Tchat
+                            </button>
                             {t.statut !== 'closed' && (
                               <button
                                 onClick={() => handleUpdateTicketStatus(t.id, 'closed')}
@@ -882,6 +936,78 @@ export default function AdminDashboardPage() {
                 {isSubmittingCasino ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Ajouter le Casino'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Chat Modal */}
+      {chatModal.isOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border border-slate-800 p-0 rounded-2xl max-w-2xl w-full shadow-2xl relative flex flex-col h-[80vh] overflow-hidden">
+            {/* Chat Header */}
+            <div className="p-4 border-b border-slate-800 bg-surface/50 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <MessageSquare className="text-blue-500 w-5 h-5" /> Ticket: {chatModal.ticketSubject}
+                </h3>
+                <p className="text-xs text-slate-400">Affilié: <strong className="text-slate-200">{chatModal.affiliateName}</strong></p>
+              </div>
+              <button 
+                onClick={() => setChatModal({ ...chatModal, isOpen: false })}
+                className="text-slate-400 hover:text-white"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0a0a0f]">
+              {chatMessages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-slate-500 text-sm font-mono">Aucun message pour le moment.</p>
+                </div>
+              ) : (
+                chatMessages.map(msg => {
+                  const isAdmin = msg.sender_id === adminId
+                  return (
+                    <div key={msg.id} className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}>
+                      <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                        isAdmin 
+                          ? 'bg-blue-600/20 border border-blue-500/30 text-white rounded-br-sm' 
+                          : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-sm'
+                      }`}>
+                        <div className="text-[10px] opacity-50 font-bold mb-1 flex justify-between gap-4">
+                          <span>{isAdmin ? 'Vous (Admin)' : chatModal.affiliateName}</span>
+                          <span>{new Date(msg.created_at).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</span>
+                        </div>
+                        <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+
+            {/* Chat Input */}
+            <div className="p-4 border-t border-slate-800 bg-surface/50">
+              <form onSubmit={handleSendMessage} className="flex gap-2">
+                <input
+                  type="text"
+                  required
+                  placeholder="Écrivez votre réponse..."
+                  value={newChatMessage}
+                  onChange={e => setNewChatMessage(e.target.value)}
+                  className="flex-1 bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500"
+                />
+                <button
+                  type="submit"
+                  disabled={isSendingMessage}
+                  className="px-6 py-3 rounded-xl font-bold text-sm text-white bg-blue-600 hover:bg-blue-500 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isSendingMessage ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-4 h-4" />}
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
