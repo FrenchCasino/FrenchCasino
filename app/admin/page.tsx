@@ -71,7 +71,7 @@ export default function AdminDashboardPage() {
         .from('affiliates')
         .select(`
           *,
-          profiles:id (
+          profiles (
             full_name,
             email
           )
@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
           *,
           affiliates (
             iban,
-            profiles:id (
+            profiles (
               full_name,
               email
             )
@@ -113,7 +113,7 @@ export default function AdminDashboardPage() {
         .select(`
           *,
           affiliates (
-            profiles:id (
+            profiles (
               full_name,
               email
             )
