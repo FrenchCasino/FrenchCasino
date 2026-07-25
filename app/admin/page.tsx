@@ -30,14 +30,15 @@ export default function AdminDashboardPage() {
   const [affiliates, setAffiliates] = useState<any[]>([])
   const [payouts, setPayouts] = useState<any[]>([])
   const [casinos, setCasinos] = useState<any[]>([])
+  const [tickets, setTickets] = useState<any[]>([])
   
-  // KPI state
   const [kpi, setKpi] = useState({
     activeAffiliates: 0,
     pendingAffiliates: 0,
     totalCommissions: 0,
     pendingPayouts: 0,
     pendingPayoutsAmount: 0,
+    openTickets: 0,
   })
 
   // Commission Modal state
@@ -106,14 +107,32 @@ export default function AdminDashboardPage() {
       if (casErr) console.error("Error loading casinos:", casErr)
       else setCasinos(casData || [])
 
+      // Load Tickets
+      const { data: tksData, error: tksErr } = await supabase
+        .from('tickets')
+        .select(`
+          *,
+          affiliates (
+            profiles:id (
+              full_name,
+              email
+            )
+          )
+        `)
+        .order('created_at', { ascending: false })
+      
+      if (tksErr) console.error("Error loading tickets:", tksErr)
+      else setTickets(tksData || [])
+
       // Calculate KPIs
-      if (affData && payData) {
+      if (affData && payData && tksData) {
         setKpi({
           activeAffiliates: affData.filter(a => a.status === 'active').length,
           pendingAffiliates: affData.filter(a => a.status === 'pending').length,
           totalCommissions: affData.reduce((acc, a) => acc + (Number(a.total_earned) || 0), 0),
           pendingPayouts: payData.filter(p => p.statut === 'pending').length,
-          pendingPayoutsAmount: payData.filter(p => p.statut === 'pending').reduce((acc, p) => acc + (Number(p.montant_demande) || 0), 0)
+          pendingPayoutsAmount: payData.filter(p => p.statut === 'pending').reduce((acc, p) => acc + (Number(p.montant_demande) || 0), 0),
+          openTickets: tksData.filter(t => t.statut === 'open').length,
         })
       }
 
@@ -223,7 +242,6 @@ export default function AdminDashboardPage() {
     }
   }
 
-  // Actions Payouts
   const handleUpdatePayoutStatus = async (payoutId: string, affiliateEmail: string, affiliateName: string, amount: number, newStatus: string) => {
     if (!confirm(`Confirmez-vous le passage au statut '${newStatus}' pour ce virement de ${amount}€ ?`)) return
 
@@ -253,6 +271,22 @@ export default function AdminDashboardPage() {
       }
     } else {
       alert("Erreur lors de la mise à jour du paiement")
+    }
+  }
+
+  // Actions Support Tickets
+  const handleUpdateTicketStatus = async (ticketId: string, newStatus: string) => {
+    const { error } = await supabase.from('tickets').update({ statut: newStatus }).eq('id', ticketId)
+    if (!error) {
+      const oldStatus = tickets.find(t => t.id === ticketId)?.statut
+      setTickets(tickets.map(t => t.id === ticketId ? { ...t, statut: newStatus } : t))
+      // Update KPI
+      setKpi(prev => ({
+        ...prev,
+        openTickets: prev.openTickets + (newStatus === 'open' ? 1 : 0) - (oldStatus === 'open' ? 1 : 0)
+      }))
+    } else {
+      alert("Erreur lors de la mise à jour du ticket")
     }
   }
 
@@ -292,14 +326,22 @@ export default function AdminDashboardPage() {
             <button
               key={tab.id}
               onClick={() => setAdminTab(tab.id as any)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
+              className={`px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 relative ${
                 active
                   ? 'bg-red-600 text-white shadow-lg'
-                  : 'text-slate-400 hover:text-white hover:bg-surface-card border border-transparent hover:border-slate-800'
+                  : tab.id === 'support' && kpi.openTickets > 0
+                    ? 'text-red-400 hover:text-red-300 hover:bg-red-950/30 border border-red-900/50'
+                    : 'text-slate-400 hover:text-white hover:bg-surface-card border border-transparent hover:border-slate-800'
               }`}
             >
               <Icon className="w-4 h-4" />
               <span>{tab.label}</span>
+              {tab.id === 'support' && kpi.openTickets > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+              )}
             </button>
           )
         })}
@@ -567,12 +609,77 @@ export default function AdminDashboardPage() {
 
           {/* 5. Tchat & Support */}
           {adminTab === 'support' && (
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col items-center justify-center py-20 text-center space-y-4">
-              <MessageSquare className="w-12 h-12 text-slate-600 mb-2" />
-              <h3 className="font-display font-bold text-xl text-white">Tickets Support & Messagerie</h3>
-              <p className="text-sm text-slate-400 max-w-md mx-auto">
-                Interface de gestion des tickets en cours de construction. Bientôt, vous pourrez lier cette messagerie directement à un bot Telegram pour répondre depuis votre smartphone.
-              </p>
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <h3 className="font-display font-bold text-lg text-white">Tickets Support des Affiliés</h3>
+              
+              <div className="overflow-x-auto rounded-xl border border-slate-800/50">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-surface/50 uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
+                    <tr>
+                      <th className="p-4">Date</th>
+                      <th className="p-4">Affilié</th>
+                      <th className="p-4">Sujet du ticket</th>
+                      <th className="p-4 text-center">Statut</th>
+                      <th className="p-4">Actions Admin</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/40">
+                    {tickets.length === 0 ? (
+                      <tr><td colSpan={5} className="p-4 text-center text-slate-500 font-mono">Aucun ticket.</td></tr>
+                    ) : tickets.map((t) => (
+                      <tr key={t.id} className="hover:bg-surface/30 transition-colors">
+                        <td className="p-4 font-mono text-slate-400">
+                          {new Date(t.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' })}
+                        </td>
+                        <td className="p-4">
+                          <div className="font-bold text-white text-sm">{t.affiliates?.profiles?.full_name || 'Inconnu'}</div>
+                          <div className="font-mono text-[10px] text-slate-500">{t.affiliates?.profiles?.email}</div>
+                        </td>
+                        <td className="p-4 font-bold text-white max-w-xs truncate" title={t.sujet}>
+                          {t.sujet}
+                        </td>
+                        <td className="p-4 text-center">
+                          <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            t.statut === 'answered' ? 'bg-emerald/20 text-emerald border border-emerald/30' : 
+                            t.statut === 'closed' ? 'bg-slate-800 text-slate-400 border border-slate-700' : 
+                            'bg-red-500/20 text-red-500 border border-red-500/30'
+                          }`}>
+                            {t.statut === 'open' ? 'Nouveau' : t.statut === 'answered' ? 'Répondu' : 'Fermé'}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex gap-2">
+                            {t.statut === 'open' && (
+                              <button
+                                onClick={() => handleUpdateTicketStatus(t.id, 'answered')}
+                                className="px-3 py-1.5 rounded bg-emerald/90 hover:bg-emerald text-white font-bold text-[11px] transition-colors"
+                              >
+                                Marquer Répondu
+                              </button>
+                            )}
+                            {t.statut !== 'closed' && (
+                              <button
+                                onClick={() => handleUpdateTicketStatus(t.id, 'closed')}
+                                className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-[11px] transition-colors"
+                              >
+                                Fermer
+                              </button>
+                            )}
+                            {t.statut === 'closed' && (
+                              <button
+                                onClick={() => handleUpdateTicketStatus(t.id, 'open')}
+                                className="px-3 py-1.5 rounded bg-red-900/80 hover:bg-red-900 text-white font-bold text-[11px] transition-colors"
+                              >
+                                Rouvrir
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
