@@ -461,7 +461,7 @@ export default function AdminDashboardPage() {
                     <div className="space-y-1.5 text-[11px]">
                       <p className="text-slate-300"><span className="text-slate-500">Licence:</span> {casino.licence}</p>
                       <p className="text-emerald font-semibold"><span className="text-slate-500 font-normal">Sans dépôt:</span> {casino.bonus_sans_depot}</p>
-                      <p className="text-purple-300 font-semibold"><span className="text-slate-500 font-normal">Dépôt:</span> {casino.bonus_depot}</p>
+                      <p className="text-purple-300 font-semibold"><span className="text-slate-500 font-normal">Commission:</span> {casino.bonus_depot}</p>
                     </div>
 
                     <div className="flex gap-2 pt-3 border-t border-slate-800/60 mt-4 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -703,11 +703,12 @@ export default function AdminDashboardPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Bonus de Dépôt</label>
+                  <label className="text-xs font-semibold text-slate-300">Montant de la Commission</label>
                   <input
                     type="text"
                     value={newCasino.bonus_depot}
                     onChange={e => setNewCasino({ ...newCasino, bonus_depot: e.target.value })}
+                    placeholder="Ex: 50€ CPA ou 40% RevShare"
                     className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
                   />
                 </div>
