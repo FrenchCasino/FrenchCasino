@@ -47,27 +47,7 @@ export default function TopCasinoPage() {
 
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-12">
 
-      {/* Grille de Méthodologie */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between border-b border-surface-border pb-4">
-          <h2 className="font-display font-bold text-2xl text-white flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-gold" />
-            Méthodologie Transparente de Notation
-          </h2>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {METHODOLOGIE_NOTATION.map((item, idx) => (
-            <div key={idx} className="glass-panel p-5 rounded-xl border border-slate-800 space-y-2">
-              <span className="text-xs font-mono font-bold text-gold bg-gold/10 px-2 py-0.5 rounded border border-gold/20 inline-block">
-                Poids : {item.poids}
-              </span>
-              <h3 className="font-bold text-white text-sm">{item.critere}</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">{item.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Classement Liste & Podium */}
       <div className="space-y-16">
@@ -166,6 +146,28 @@ export default function TopCasinoPage() {
               <CasinoCard key={casino.id} casino={casino} rank={idx + 4} />
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Grille de Méthodologie */}
+      <div className="space-y-6 mt-16 pt-8 border-t border-slate-800">
+        <div className="flex items-center justify-between pb-4">
+          <h2 className="font-display font-bold text-2xl text-white flex items-center gap-2">
+            <ShieldCheck className="w-6 h-6 text-gold" />
+            Méthodologie Transparente de Notation
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {METHODOLOGIE_NOTATION.map((item, idx) => (
+            <div key={idx} className="glass-panel p-5 rounded-xl border border-slate-800 space-y-2">
+              <span className="text-xs font-mono font-bold text-gold bg-gold/10 px-2 py-0.5 rounded border border-gold/20 inline-block">
+                Poids : {item.poids}
+              </span>
+              <h3 className="font-bold text-white text-sm">{item.critere}</h3>
+              <p className="text-slate-400 text-xs leading-relaxed">{item.description}</p>
+            </div>
+          ))}
         </div>
       </div>
 
