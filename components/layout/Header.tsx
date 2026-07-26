@@ -3,14 +3,14 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, ArrowRight } from 'lucide-react'
+import { Menu, X, ArrowRight, ChevronDown, LayoutDashboard, Target, ShieldCheck } from 'lucide-react'
 
 export function Header() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Ne pas afficher le header du site public sur l'application Dashboard et Admin
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/recruiter')) {
     return null
   }
 
@@ -82,15 +82,30 @@ export function Header() {
             })}
           </nav>
 
-          {/* Seul Bouton CTA Principal */}
-          <div className="hidden lg:flex items-center">
-            <Link
-              href="/dashboard"
-              className="px-5 py-2.5 rounded-xl font-display font-bold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-primary to-purple-700 hover:from-primary-hover hover:to-purple-800 shadow-purple-glow hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
+          {/* Menu Compte avec Dropdown */}
+          <div className="hidden lg:flex items-center relative group">
+            <button
+              className="px-5 py-2.5 rounded-xl font-display font-bold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-primary to-purple-700 hover:from-primary-hover hover:to-purple-800 shadow-purple-glow hover:shadow-lg transition-all flex items-center gap-2"
             >
-              <span>Espace Affilié</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+              <span>Accéder à mon compte</span>
+              <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
+            </button>
+            <div className="absolute right-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div className="bg-surface-card border border-slate-800 rounded-xl shadow-xl w-52 overflow-hidden flex flex-col p-2">
+                <Link href="/dashboard" className="px-4 py-3 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-colors flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4 text-purple-400" />
+                  Espace Affilié
+                </Link>
+                <Link href="/recruiter" className="px-4 py-3 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-colors flex items-center gap-2">
+                  <Target className="w-4 h-4 text-gold" />
+                  Espace Recruteur
+                </Link>
+                <Link href="/admin" className="px-4 py-3 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-colors flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald" />
+                  Espace Admin
+                </Link>
+              </div>
+            </div>
           </div>
 
           {/* Bouton Hamburger Mobile */}
@@ -132,13 +147,31 @@ export function Header() {
               </div>
             </Link>
           ))}
-          <div className="pt-3 border-t border-slate-800">
+          <div className="pt-3 border-t border-slate-800 space-y-2">
+            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-2">Accéder à mon compte</div>
             <Link
               href="/dashboard"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center block py-3 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wider shadow-purple-glow"
+              className="w-full flex items-center gap-2 py-3 px-4 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/50"
             >
-              Accéder à l&apos;Espace Affilié
+              <LayoutDashboard className="w-4 h-4 text-purple-400" />
+              Espace Affilié
+            </Link>
+            <Link
+              href="/recruiter"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center gap-2 py-3 px-4 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/50"
+            >
+              <Target className="w-4 h-4 text-gold" />
+              Espace Recruteur
+            </Link>
+            <Link
+              href="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center gap-2 py-3 px-4 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/50"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald" />
+              Espace Admin
             </Link>
           </div>
         </div>

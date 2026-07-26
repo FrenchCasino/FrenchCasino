@@ -46,6 +46,8 @@ export default function ConnexionPage() {
     router.refresh()
     if (profile?.role === 'admin') {
       router.push('/admin')
+    } else if (profile?.role === 'recruiter') {
+      router.push('/recruiter')
     } else {
       router.push('/dashboard')
     }
