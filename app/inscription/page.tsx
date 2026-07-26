@@ -76,7 +76,7 @@ export default function InscriptionPage() {
             Rejoindre le Réseau d&apos;Affiliation
           </h1>
           <p className="text-xs text-slate-400">
-            Commencez à générer des commissions à partir de 30% RevShare
+            Commencez à générer des commissions de 20€ à 70€ par joueur parrainé
           </p>
         </div>
 

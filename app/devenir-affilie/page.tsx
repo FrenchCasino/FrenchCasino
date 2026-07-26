@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { TrendingUp, DollarSign, Users, ShieldCheck, CheckCircle2, ArrowRight, Zap, Award } from 'lucide-react'
 
 export const metadata = {
-  title: 'Programme d\'Affiliation Casino — Gagnez jusqu\'à 45% RevShare | FrenchCasino',
-  description: 'Rejoignez le réseau d\'affiliation casino N°1 en France. Taux de commission de 30% à 45% RevShare, paiements rapides IBAN & Crypto, liens de suivi instantanés et parrainage de sous-affiliés.',
+  title: 'Programme d\'Affiliation Casino — Gagnez de 20€ à 70€ / Joueur | FrenchCasino',
+  description: 'Rejoignez le réseau d\'affiliation casino N°1 en France. Taux de commission de 20€ à 70€ par joueur parrainé, paiements rapides IBAN & Crypto, liens de suivi instantanés et parrainage de sous-affiliés.',
 }
 
 export default function DevenirAffiliePage() {
@@ -19,11 +19,11 @@ export default function DevenirAffiliePage() {
         </div>
 
         <h1 className="font-display text-4xl sm:text-6xl font-extrabold text-white leading-tight">
-          Monétisez Votre Audience avec le <span className="text-gradient-gold">Meilleur Taux RevShare</span>
+          Monétisez Votre Audience avec des <span className="text-gradient-gold">Commissions Fixes (CPA)</span>
         </h1>
 
         <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-          Que vous soyez créateur de contenu, streamer, webmaster ou influenceur, profitez d&apos;un partenariat direct avec les meilleurs casinos certifiés. Touchez de <strong>30% à 45% de commissions récurrentes</strong>.
+          Que vous soyez créateur de contenu, streamer, webmaster ou influenceur, profitez d&apos;un partenariat direct avec les meilleurs casinos certifiés. Gagnez de <strong>20€ à 70€ par membre parrainé</strong>.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -58,7 +58,7 @@ export default function DevenirAffiliePage() {
             </div>
             <h3 className="font-display font-bold text-lg text-white">Commissions Élevées</h3>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Taux minimum garanti de 30% RevShare sans Negative Carryover sur les casinos partenaires.
+              Rémunération garantie de 20€ à 70€ par joueur sur les casinos partenaires.
             </p>
           </div>
 

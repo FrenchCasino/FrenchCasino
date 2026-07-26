@@ -66,7 +66,7 @@ export default function HomePage() {
                 className="w-full sm:w-auto px-8 py-4 rounded-xl font-display font-bold text-sm uppercase tracking-wider text-gold hover:text-white bg-surface-card hover:bg-surface border border-gold/40 hover:border-gold shadow-gold-glow transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
               >
                 <TrendingUp className="w-5 h-5 text-gold" />
-                <span>Devenir Affilié (30%+ RevShare)</span>
+                <span>Devenir Affilié (20€ à 70€ / Joueur)</span>
               </Link>
             </div>
 
@@ -218,7 +218,7 @@ export default function HomePage() {
                 Vous possédez une communauté ou un site web ? Devenez Affilié FrenchCasino.
               </h2>
               <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                Taux de commission préférentiel à partir de <strong>30% de RevShare</strong>, paiements mensuels rapides par virement IBAN ou Crypto, tableau de bord détaillé et liens de suivi instantanés.
+                Taux de commission préférentiel de <strong>20€ à 70€ par membre parrainé</strong>, paiements mensuels rapides par virement IBAN ou Crypto, tableau de bord détaillé et liens de suivi instantanés.
               </p>
               <div className="flex flex-wrap gap-4 pt-2">
                 <Link
@@ -238,8 +238,8 @@ export default function HomePage() {
 
             <div className="lg:col-span-5 grid grid-cols-2 gap-4">
               <div className="glass-panel p-4 rounded-xl border border-gold/20 text-center space-y-1">
-                <span className="text-2xl font-bold text-gradient-gold block">30% à 45%</span>
-                <span className="text-xs text-slate-400">Commission RevShare</span>
+                <span className="text-2xl font-bold text-gradient-gold block">20€ à 70€</span>
+                <span className="text-xs text-slate-400">Par membre parrainé</span>
               </div>
               <div className="glass-panel p-4 rounded-xl border border-gold/20 text-center space-y-1">
                 <span className="text-2xl font-bold text-gradient-purple block">Paiements</span>

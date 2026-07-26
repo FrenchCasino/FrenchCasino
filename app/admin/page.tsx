@@ -492,7 +492,7 @@ export default function AdminDashboardPage() {
                     <tr>
                       <th className="p-4">Affilié & Email</th>
                       <th className="p-4">Code / Lien</th>
-                      <th className="p-4 text-center">Taux RevShare</th>
+                      <th className="p-4 text-center">Taux CPA</th>
                       <th className="p-4 text-right">Gains Totaux</th>
                       <th className="p-4 text-center">Statut</th>
                       <th className="p-4">Actions Admin</th>
@@ -920,7 +920,7 @@ export default function AdminDashboardPage() {
                     type="text"
                     value={newCasino.bonus_depot}
                     onChange={e => setNewCasino({ ...newCasino, bonus_depot: e.target.value })}
-                    placeholder="Ex: 50€ CPA ou 40% RevShare"
+                    placeholder="Ex: 50€ CPA"
                     className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
                   />
                 </div>

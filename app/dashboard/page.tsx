@@ -368,7 +368,7 @@ export default function DashboardPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-gold uppercase tracking-wider">
             <ShieldCheck className="w-4 h-4" />
-            <span>Compte Affilié Vérifié — Statut Actif (30% RevShare)</span>
+            <span>Compte Affilié Vérifié — Statut Actif (Commissions Fixes)</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white mt-1">
             Tableau de Bord Affilié
