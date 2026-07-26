@@ -38,10 +38,11 @@ export async function middleware(request: NextRequest) {
 
     const path = request.nextUrl.pathname
 
-    // Protection des routes /dashboard et /admin
-    if (path.startsWith('/dashboard') || path.startsWith('/admin')) {
+    // Protection des routes /dashboard, /admin, /recruiter
+    if (path.startsWith('/dashboard') || path.startsWith('/admin') || path.startsWith('/recruiter')) {
       if (!user) {
-        return NextResponse.redirect(new URL('/connexion', request.url))
+        const type = path.startsWith('/admin') ? 'admin' : path.startsWith('/recruiter') ? 'recruiter' : 'affiliate'
+        return NextResponse.redirect(new URL(`/connexion?type=${type}`, request.url))
       }
 
       // Récupérer le profil pour vérifier le rôle
