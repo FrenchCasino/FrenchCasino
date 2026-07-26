@@ -33,6 +33,7 @@ export default function AdminDashboardPage() {
   const [payouts, setPayouts] = useState<any[]>([])
   const [casinos, setCasinos] = useState<any[]>([])
   const [tickets, setTickets] = useState<any[]>([])
+  const [recruiters, setRecruiters] = useState<any[]>([])
   
   const [kpi, setKpi] = useState({
     activeAffiliates: 0,
@@ -80,14 +81,18 @@ export default function AdminDashboardPage() {
 
       // Load Affiliates with Profiles
       const { data: affData, error: affErr } = await supabase
-        .from('affiliates')
-        .select(`
+        .from('affiliates').select(`
           *,
-          profiles (
+          profiles!affiliates_id_fkey (
             full_name,
-            email
+            email,
+            role
           )
         `)
+        
+      const { data: recData } = await supabase.from('profiles').select('*').eq('role', 'recruiter')
+      if (recData) setRecruiters(recData)
+  
       
       if (affErr) console.error("Error loading affiliates:", affErr)
       else setAffiliates(affData || [])
@@ -160,6 +165,20 @@ export default function AdminDashboardPage() {
   }, [loadData])
 
   // Actions Affiliés
+  const handleAssignRecruiter = async (affiliateId: string, recruiterId: string) => {
+    try {
+      await supabase.from('affiliates').update({ recruiter_id: recruiterId || null }).eq('id', affiliateId)
+      loadData()
+    } catch (err) {}
+  }
+  
+  const handleUpdateRole = async (profileId: string, newRole: string) => {
+    try {
+      await supabase.from('profiles').update({ role: newRole }).eq('id', profileId)
+      loadData()
+    } catch (err) {}
+  }
+
   const handleUpdateAffiliateStatus = async (id: string, newStatus: string) => {
     const { error } = await supabase.from('affiliates').update({ status: newStatus }).eq('id', id)
     if (!error) {
@@ -491,6 +510,8 @@ export default function AdminDashboardPage() {
                   <thead className="bg-surface/50 uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
                     <tr>
                       <th className="p-4">Affilié & Email</th>
+                      <th className="p-4">Contacts</th>
+                      <th className="p-4">Recruteur Assigné</th>
                       <th className="p-4">Code / Lien</th>
                       <th className="p-4 text-center">Taux CPA</th>
                       <th className="p-4 text-right">Gains Totaux</th>
@@ -504,8 +525,31 @@ export default function AdminDashboardPage() {
                     ) : affiliates.map((aff) => (
                       <tr key={aff.id} className="hover:bg-surface/30 transition-colors">
                         <td className="p-4">
-                          <div className="font-bold text-white text-sm">{aff.profiles?.full_name || 'Sans Nom'}</div>
+                          <div className="font-bold text-white text-sm">{aff.profiles?.full_name || 'Sans Nom'} <span className="text-[10px] bg-slate-800 px-1 rounded ml-1">{aff.profiles?.role}</span></div>
                           <div className="font-mono text-[10px] text-slate-400">{aff.profiles?.email || 'N/A'}</div>
+                          {aff.profiles?.role !== 'recruiter' && (
+                             <button onClick={() => handleUpdateRole(aff.id, 'recruiter')} className="text-[9px] text-gold hover:underline mt-1 block">Passer Recruteur</button>
+                          )}
+                          {aff.profiles?.role === 'recruiter' && (
+                             <button onClick={() => handleUpdateRole(aff.id, 'affiliate')} className="text-[9px] text-slate-400 hover:underline mt-1 block">Retirer Recruteur</button>
+                          )}
+                        </td>
+                        <td className="p-4 text-[10px] text-slate-400">
+                          {aff.contact_telegram && <div className="text-blue-400">TG: {aff.contact_telegram}</div>}
+                          {aff.contact_whatsapp && <div className="text-green-400">WA: {aff.contact_whatsapp}</div>}
+                          {aff.contact_phone && <div>Tel: {aff.contact_phone}</div>}
+                        </td>
+                        <td className="p-4">
+                          <select 
+                            value={aff.recruiter_id || ''}
+                            onChange={(e) => handleAssignRecruiter(aff.id, e.target.value)}
+                            className="bg-slate-900 border border-slate-700 text-[11px] rounded px-2 py-1 text-slate-300 max-w-[120px]"
+                          >
+                            <option value="">Aucun</option>
+                            {recruiters.map(r => (
+                              <option key={r.id} value={r.id}>{r.full_name}</option>
+                            ))}
+                          </select>
                         </td>
                         <td className="p-4">
                           <span className="px-2 py-1 bg-purple-900/30 text-purple-300 font-mono text-[11px] rounded border border-purple-800/50">

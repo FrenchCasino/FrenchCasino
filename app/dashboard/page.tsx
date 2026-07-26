@@ -41,6 +41,7 @@ export default function DashboardPage() {
   // Real data state
   const [affiliateCode, setAffiliateCode] = useState<string>('EN_ATTENTE')
   const [affiliateId, setAffiliateId] = useState<string | null>(null)
+  const [affiliateStatus, setAffiliateStatus] = useState<string>('pending')
   const [casinosList, setCasinosList] = useState<any[]>([])
   const [clicksData, setClicksData] = useState<Record<string, number>>({})
   
@@ -58,13 +59,14 @@ export default function DashboardPage() {
 
       const { data: aff } = await supabase
         .from('affiliates')
-        .select('id, referral_code')
+        .select('id, referral_code, status')
         .eq('id', user.id)
         .single()
       
       if (aff) {
         setAffiliateCode(aff.referral_code)
         setAffiliateId(aff.id)
+        setAffiliateStatus(aff.status)
 
         // Load Casinos
         const { data: casData } = await supabase
@@ -359,6 +361,28 @@ export default function DashboardPage() {
   }
 
   const maskedIban = ibanForm.iban ? `${ibanForm.iban.slice(0, 4)} •••• •••• •••• •••• ${ibanForm.iban.slice(-4)}` : ''
+
+  if (affiliateStatus === 'pending') {
+    return (
+      <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex items-center justify-center">
+        <div className="text-center max-w-lg space-y-6 glass-panel p-8 sm:p-12 rounded-3xl border border-gold/30">
+          <div className="w-16 h-16 mx-auto bg-gold/10 text-gold rounded-full flex items-center justify-center mb-4">
+            <Lock className="w-8 h-8" />
+          </div>
+          <h1 className="font-display text-2xl font-bold text-white">Compte en cours d'examen</h1>
+          <p className="text-slate-400">
+            Votre compte affilié a bien été créé, mais il doit d'abord être validé par un administrateur. 
+            Vous serez contacté très prochainement pour un bref entretien avant l'activation de vos accès.
+          </p>
+          <div className="pt-4">
+            <span className="inline-block px-4 py-2 bg-slate-800 rounded-lg text-slate-300 text-sm font-mono border border-slate-700">
+              Statut : EN ATTENTE
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">

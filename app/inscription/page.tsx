@@ -11,6 +11,9 @@ export default function InscriptionPage() {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [contactTelegram, setContactTelegram] = useState('')
+  const [contactWhatsapp, setContactWhatsapp] = useState('')
+  const [contactPhone, setContactPhone] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
   const [loading, setLoading] = useState(false)
@@ -29,6 +32,9 @@ export default function InscriptionPage() {
         data: {
           full_name: fullName,
           role: 'affiliate',
+          contact_telegram: contactTelegram,
+          contact_whatsapp: contactWhatsapp,
+          contact_phone: contactPhone,
         },
       },
     })
@@ -121,6 +127,39 @@ export default function InscriptionPage() {
                 onChange={e => setEmail(e.target.value)}
                 placeholder="votre.email@domaine.fr"
                 className="w-full bg-surface border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300">Téléphone</label>
+              <input
+                type="tel"
+                value={contactPhone}
+                onChange={e => setContactPhone(e.target.value)}
+                placeholder="Ex: 06 12 34 56 78"
+                className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300">Telegram</label>
+              <input
+                type="text"
+                value={contactTelegram}
+                onChange={e => setContactTelegram(e.target.value)}
+                placeholder="@pseudo"
+                className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300">WhatsApp</label>
+              <input
+                type="text"
+                value={contactWhatsapp}
+                onChange={e => setContactWhatsapp(e.target.value)}
+                placeholder="Numéro WhatsApp"
+                className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
               />
             </div>
           </div>
