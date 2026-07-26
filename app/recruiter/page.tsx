@@ -24,7 +24,7 @@ export default function RecruiterDashboard() {
 
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       if (profile) {
-        if (profile.role !== 'recruiter') {
+        if (profile.role !== 'recruiter' && profile.role !== 'admin') {
           window.location.href = '/dashboard'
           return
         }

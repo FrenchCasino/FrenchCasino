@@ -72,7 +72,10 @@ function ConnexionForm() {
 
     router.refresh()
     if (profile?.role === 'admin') {
-      router.push('/admin')
+      // Un admin peut se connecter et être redirigé vers l'espace qu'il est en train de tester
+      if (type === 'recruiter') router.push('/recruiter')
+      else if (type === 'affiliate') router.push('/dashboard')
+      else router.push('/admin')
     } else if (profile?.role === 'recruiter') {
       router.push('/recruiter')
     } else {
