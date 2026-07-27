@@ -70,20 +70,18 @@ function ConnexionForm() {
 
     setLoading(false)
 
-    router.refresh()
-    
     // On respecte le choix du formulaire (type) si l'utilisateur y a le droit
     if (type === 'admin' && profile?.role === 'admin') {
-      router.push('/admin')
+      window.location.href = '/admin'
     } else if (type === 'recruiter' && (profile?.role === 'recruiter' || profile?.role === 'admin')) {
-      router.push('/recruiter')
+      window.location.href = '/recruiter'
     } else if (type === 'affiliate') {
-      router.push('/dashboard')
+      window.location.href = '/dashboard'
     } else {
       // Fallback par défaut selon le rôle
-      if (profile?.role === 'admin') router.push('/admin')
-      else if (profile?.role === 'recruiter') router.push('/recruiter')
-      else router.push('/dashboard')
+      if (profile?.role === 'admin') window.location.href = '/admin'
+      else if (profile?.role === 'recruiter') window.location.href = '/recruiter'
+      else window.location.href = '/dashboard'
     }
   }
 

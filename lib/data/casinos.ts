@@ -568,11 +568,15 @@ export const CASINOS_MOCK: Casino[] = [
   }
 ]
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 export async function getCasinos(): Promise<Casino[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    
     const { data, error } = await supabase
       .from('casinos')
       .select('*')

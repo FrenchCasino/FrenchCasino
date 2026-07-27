@@ -83,10 +83,15 @@ export async function updateCasinoOrder(updates: { id: string, ordreClassement: 
 
   for (const update of updates) {
     if (update.id && update.id.length > 5) {
-      await supabase
+      const { error } = await supabase
         .from('casinos')
         .update({ ordre_classement: update.ordreClassement })
         .eq('id', update.id)
+      
+      if (error) {
+        console.error("Update error for casino", update.id, error)
+        throw new Error(error.message)
+      }
     }
   }
 
