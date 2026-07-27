@@ -138,10 +138,10 @@ export async function autoFixLogos() {
     { slug: 'spinfin', url: 'https://media.tn.bet/logo/spinfin-logo.jpg' },
     { slug: 'x3bet', url: 'https://media.tn.bet/logo/x3bet-casino-logo.jpg' },
     { slug: 'sg-casino', url: 'https://media.tn.bet/logo/sg-casino-logo.jpg' },
-    { slug: 'allyspin', url: 'https://www.google.com/s2/favicons?domain=allyspin.com&sz=128' },
-    { slug: 'onlyspin', url: 'https://www.google.com/s2/favicons?domain=onlyspin.com&sz=128' },
-    { slug: 'spinbara', url: 'https://www.google.com/s2/favicons?domain=spinbara.com&sz=128' },
-    { slug: 'viggoslots', url: 'https://www.google.com/s2/favicons?domain=viggoslots.com&sz=128' }
+    { slug: 'allyspin', url: 'https://www.lionbonuses.com/wp-content/uploads/Allyspin_1.webp' },
+    { slug: 'onlyspin', url: 'https://casinodoc.org/wp-content/uploads/2026/02/onlyspins-logo-illustration-.webp' },
+    { slug: 'spinbara', url: 'https://media.tn.bet/logo/spinbara-casino-logo.jpeg' },
+    { slug: 'viggoslots', url: 'https://jeux.ca/wp-content/uploads/2023/03/Viggoslots-1.png.webp' }
   ]
 
   for (const up of updates) {
