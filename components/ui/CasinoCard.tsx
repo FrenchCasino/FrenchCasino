@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { Casino } from '@/lib/data/casinos'
 import { Star, ShieldCheck, Zap, Gift, ExternalLink, ChevronRight, Check } from 'lucide-react'
