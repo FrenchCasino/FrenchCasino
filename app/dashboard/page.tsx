@@ -79,10 +79,12 @@ export default function DashboardPage() {
         // Load Casinos
         const { data: casData } = await supabase
           .from('casinos')
-          .select('id, name, slug, remboursement_depot, commission_conditions, bonus_depot, minimum_depot')
+          .select('id, name, slug, remboursement_depot, commission_conditions, bonus_depot, minimum_depot, visible_affiliate')
           .eq('is_active', true)
         
-        if (casData) setCasinosList(casData)
+        if (casData) {
+          setCasinosList(casData.filter((c: any) => c.visible_affiliate !== false))
+        }
 
         // Load Clicks
         const { data: clicks } = await supabase

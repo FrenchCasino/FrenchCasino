@@ -297,28 +297,48 @@ export default function AdminDashboardPage() {
     setIsSubmittingCasino(true)
     try {
       let error;
+      const casinoData = {
+        name: newCasino.name,
+        slug: newCasino.slug,
+        lien_affilie: newCasino.lien_affilie,
+        bonus_depot: newCasino.bonus_depot,
+        bonus_sans_depot: newCasino.bonus_sans_depot,
+        licence: newCasino.licence,
+        remboursement_depot: newCasino.remboursement_depot,
+        commission_conditions: newCasino.commission_conditions,
+        minimum_depot: newCasino.minimum_depot,
+        ordre_classement: Number(newCasino.ordre_classement),
+        visible_affiliate: newCasino.visible_affiliate
+      }
+
       if (casinoModal.editingId) {
-         const { error: updateError } = await supabase.from('casinos').update({
-           ...newCasino
-         }).eq('id', casinoModal.editingId)
-         error = updateError;
+        const res = await supabase.from('casinos').update(casinoData).eq('id', casinoModal.editingId)
+        error = res.error
       } else {
-         const { error: insertError } = await supabase.from('casinos').insert([{
-           ...newCasino,
-           is_active: true
-         }])
-         error = insertError;
+        const res = await supabase.from('casinos').insert([{ ...casinoData, is_active: true }])
+        error = res.error
       }
 
       if (error) {
-        if (error.code === '23505') alert("Erreur : Ce Slug existe déjà !")
-        else alert("Erreur : " + error.message)
+        if (error.code === '42703') {
+          // Column visible_affiliate might not exist in SQL DB yet, fallback without it
+          const { visible_affiliate, ...fallbackData } = casinoData
+          if (casinoModal.editingId) {
+            await supabase.from('casinos').update(fallbackData).eq('id', casinoModal.editingId)
+          } else {
+            await supabase.from('casinos').insert([{ ...fallbackData, is_active: true }])
+          }
+          alert(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès !`)
+        } else {
+          alert("Erreur : " + error.message)
+        }
       } else {
-        alert(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès !`)
-        setCasinoModal({isOpen: false, editingId: null})
-        setNewCasino({ name: '', slug: '', lien_affilie: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1 })
-        loadData()
+        alert(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès ! La modification du classement est en ligne.`)
       }
+
+      setCasinoModal({isOpen: false, editingId: null})
+      setNewCasino({ name: '', slug: '', lien_affilie: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true })
+      loadData()
     } catch (err) {
       alert("Erreur réseau")
     } finally {
@@ -337,7 +357,8 @@ export default function AdminDashboardPage() {
       remboursement_depot: casino.remboursement_depot || false,
       commission_conditions: casino.commission_conditions || '',
       minimum_depot: casino.minimum_depot || '',
-      ordre_classement: casino.ordre_classement || 1
+      ordre_classement: casino.ordre_classement || 1,
+      visible_affiliate: casino.visible_affiliate !== false
     })
     setCasinoModal({isOpen: true, editingId: casino.id})
   }
@@ -756,7 +777,9 @@ export default function AdminDashboardPage() {
                         </h4>
                         <span className="text-[10px] text-slate-500 font-mono">{casino.slug}</span>
                       </div>
-                      <span className="text-xs font-mono font-bold text-gold bg-gold/10 border border-gold/20 px-2 py-1 rounded">Ordre: #{casino.ordre_classement}</span>
+                      <span className="text-xs font-mono font-bold text-gold bg-gold/10 border border-gold/30 px-2 py-1 rounded shadow-sm">
+                        Rang Top Casino: #{casino.ordre_classement || 1}
+                      </span>
                     </div>
                     
                     <div className="space-y-1.5 text-[11px]">
@@ -764,6 +787,11 @@ export default function AdminDashboardPage() {
                       <p className="text-emerald font-semibold"><span className="text-slate-500 font-normal">Sans dépôt:</span> {casino.bonus_sans_depot}</p>
                       <p className="text-purple-300 font-semibold"><span className="text-slate-500 font-normal">Commission:</span> {casino.bonus_depot}</p>
                       <p className="text-blue-300 font-semibold"><span className="text-slate-500 font-normal">Min. Dépôt:</span> {casino.minimum_depot || 'Non défini'}</p>
+                      <div className="pt-1 flex items-center gap-2">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${casino.visible_affiliate !== false ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60' : 'bg-slate-900 text-slate-500 border border-slate-800'}`}>
+                          {casino.visible_affiliate !== false ? '✓ Visible Espace Affilié' : '✕ Masqué Espace Affilié'}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex gap-2 pt-3 border-t border-slate-800/60 mt-4 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -1222,6 +1250,38 @@ export default function AdminDashboardPage() {
                     onChange={e => setNewCasino({ ...newCasino, bonus_sans_depot: e.target.value })}
                     className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
                   />
+                </div>
+              </div>
+
+              {/* Numéro de Classement & Visibilité Espace Affilié */}
+              <div className="grid grid-cols-2 gap-4 bg-purple-950/20 p-3 rounded-xl border border-purple-800/30">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gold flex items-center justify-between">
+                    <span>N° Classement (Top Casino) *</span>
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min={1}
+                    value={newCasino.ordre_classement}
+                    onChange={e => setNewCasino({ ...newCasino, ordre_classement: Number(e.target.value) })}
+                    placeholder="Ex: 1 (Premier)"
+                    className="w-full bg-[#0a0a0f] border border-gold/50 rounded-xl px-4 py-2 text-sm text-gold font-mono font-bold focus:outline-none focus:border-gold"
+                  />
+                  <p className="text-[10px] text-slate-400">Position 1 = En tête du site public.</p>
+                </div>
+
+                <div className="space-y-1.5 flex flex-col justify-center">
+                  <label className="text-xs font-semibold text-emerald-400 flex items-center gap-2 cursor-pointer bg-[#0a0a0f] p-2.5 rounded-xl border border-emerald-900/50">
+                    <input
+                      type="checkbox"
+                      checked={newCasino.visible_affiliate}
+                      onChange={e => setNewCasino({ ...newCasino, visible_affiliate: e.target.checked })}
+                      className="rounded border-slate-700 text-emerald-400 focus:ring-emerald-400 bg-[#0a0a0f]"
+                    />
+                    <span>Visible Espace Affilié</span>
+                  </label>
+                  <p className="text-[10px] text-slate-400">Si coché, apparaît dans le tableau affilié.</p>
                 </div>
               </div>
 
