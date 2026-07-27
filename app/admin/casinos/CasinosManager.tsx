@@ -11,7 +11,7 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    const needsFix = casinos.some(c => c.logoUrl && c.logoUrl.startsWith('/casinos/'));
+    const needsFix = casinos.some(c => c.logoUrl && (c.logoUrl.startsWith('/casinos/') || c.logoUrl.includes('google.com/s2/favicons')));
     if (needsFix) {
       console.log('Fixing logos automatically...');
       autoFixLogos().then(() => {
@@ -195,9 +195,29 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
 
   return (
     <div className="space-y-4">
-      <button onClick={handleCreate} className="w-full py-3 border border-dashed border-slate-600 text-slate-300 hover:text-white hover:bg-surface-border rounded-xl flex items-center justify-center gap-2 font-medium transition-colors">
-        <Plus className="w-5 h-5" /> Ajouter un nouveau Casino
-      </button>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button onClick={handleCreate} className="flex-1 py-3 border border-dashed border-slate-600 text-slate-300 hover:text-white hover:bg-surface-border rounded-xl flex items-center justify-center gap-2 font-medium transition-colors">
+          <Plus className="w-5 h-5" /> Ajouter un nouveau Casino
+        </button>
+        <button 
+          onClick={async () => {
+            setIsLoading(true);
+            try {
+              await autoFixLogos();
+              alert("⚡ Tous les 24 logos ont été réinitialisés et synchronisés avec succès !");
+              window.location.reload();
+            } catch(e: any) {
+              alert("Erreur: " + e.message);
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          disabled={isLoading}
+          className="px-4 py-3 bg-purple-600/30 border border-purple-500/50 hover:bg-purple-600/50 text-purple-200 rounded-xl flex items-center justify-center gap-2 font-medium transition-colors shrink-0"
+        >
+          ⚡ Synchroniser Tous Les Logos HD
+        </button>
+      </div>
 
       <div className="space-y-2">
         {casinos.map((casino, index) => (
