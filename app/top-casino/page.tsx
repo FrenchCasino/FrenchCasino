@@ -80,7 +80,7 @@ export default function TopCasinoPage() {
                   <span className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Bonus de Bienvenue</span>
                   <span className="font-bold text-sm text-white">{CASINOS_MOCK[1].bonusDepot}</span>
                 </div>
-                <a href={CASINOS_MOCK[1].lienAffilie} className="mt-4 block w-full py-2.5 bg-slate-300 hover:bg-white text-slate-900 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors">Jouer</a>
+                <a href={CASINOS_MOCK[1].lienAffilie} target="_blank" rel="noopener noreferrer" className="mt-4 block w-full py-2.5 bg-slate-300 hover:bg-white text-slate-900 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors">Jouer</a>
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@ export default function TopCasinoPage() {
                     <span className="block text-xs font-semibold text-emerald mt-1">+ {CASINOS_MOCK[0].bonusSansDepot}</span>
                   )}
                 </div>
-                <a href={CASINOS_MOCK[0].lienAffilie} className="mt-6 block w-full py-3.5 bg-gradient-to-r from-gold to-yellow-500 hover:from-yellow-400 hover:to-yellow-300 text-black font-black text-sm uppercase tracking-wider rounded-xl shadow-gold-glow transition-all transform hover:scale-105">Récupérer le Bonus</a>
+                <a href={CASINOS_MOCK[0].lienAffilie} target="_blank" rel="noopener noreferrer" className="mt-6 block w-full py-3.5 bg-gradient-to-r from-gold to-yellow-500 hover:from-yellow-400 hover:to-yellow-300 text-black font-black text-sm uppercase tracking-wider rounded-xl shadow-gold-glow transition-all transform hover:scale-105">Récupérer le Bonus</a>
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function TopCasinoPage() {
                   <span className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Bonus de Bienvenue</span>
                   <span className="font-bold text-sm text-white">{CASINOS_MOCK[2].bonusDepot}</span>
                 </div>
-                <a href={CASINOS_MOCK[2].lienAffilie} className="mt-4 block w-full py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-colors">Jouer</a>
+                <a href={CASINOS_MOCK[2].lienAffilie} target="_blank" rel="noopener noreferrer" className="mt-4 block w-full py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-colors">Jouer</a>
               </div>
             </div>
           </div>
