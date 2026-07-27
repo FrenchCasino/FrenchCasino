@@ -19,12 +19,19 @@ import {
   Loader2,
   MessageSquare,
   Send,
-  CornerDownRight
+  CornerDownRight,
+  Building,
+  ExternalLink,
+  CheckSquare,
+  Square,
+  Handshake,
+  Percent
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { CASINOS_MOCK } from '@/lib/data/casinos'
 
 export default function AdminDashboardPage() {
-  const [adminTab, setAdminTab] = useState<'kpi' | 'affiliates' | 'casinos' | 'payouts' | 'support' | 'logs'>('kpi')
+  const [adminTab, setAdminTab] = useState<'kpi' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'support' | 'logs'>('kpi')
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
@@ -34,6 +41,43 @@ export default function AdminDashboardPage() {
   const [casinos, setCasinos] = useState<any[]>([])
   const [tickets, setTickets] = useState<any[]>([])
   const [recruiters, setRecruiters] = useState<any[]>([])
+
+  // Partenaires State & Modals
+  const [partners, setPartners] = useState<any[]>([
+    {
+      id: 'p1',
+      name: 'NetPartners Affiliate Network',
+      dashboard_url: 'https://netpartners.com/login',
+      cpa_commission: '120€ / Joueur',
+      rs_commission: '45% RS',
+      casinos_relies: ['GoldBet Casino', 'EuropeFortune', 'Atefia Casino']
+    },
+    {
+      id: 'p2',
+      name: 'DriveAffiliates Global',
+      dashboard_url: 'https://go.driveaffiliates.com/login',
+      cpa_commission: '150€ / Joueur',
+      rs_commission: '40% RS',
+      casinos_relies: ['Brutal Casino', 'MegaWin Casino', 'Slott Casino']
+    },
+    {
+      id: 'p3',
+      name: 'WePay Affiliate Hub',
+      dashboard_url: 'https://track.wepayaffiliate.com/login',
+      cpa_commission: '100€ / Joueur',
+      rs_commission: '35% RS',
+      casinos_relies: ['Europe777', 'i24slots', 'Royal Vincit']
+    }
+  ])
+
+  const [partnerModal, setPartnerModal] = useState<{isOpen: boolean, editingId: string | null}>({isOpen: false, editingId: null})
+  const [newPartner, setNewPartner] = useState({
+    name: '',
+    dashboard_url: '',
+    cpa_commission: '',
+    rs_commission: '',
+    casinos_relies: [] as string[]
+  })
   
   const [kpi, setKpi] = useState({
     activeAffiliates: 0,
@@ -340,12 +384,13 @@ export default function AdminDashboardPage() {
   }
 
   // Actions Support Tickets
-  const handleUpdateTicketStatus = async (ticketId: string, newStatus: string) => {
-    const { error } = await supabase.from('tickets').update({ statut: newStatus }).eq('id', ticketId)
+  const handleUpdateTicketStatus = async (id: string, newStatus: string) => {
+    const oldTicket = tickets.find(t => t.id === id)
+    const oldStatus = oldTicket?.statut
+
+    const { error } = await supabase.from('support_tickets').update({ statut: newStatus }).eq('id', id)
     if (!error) {
-      const oldStatus = tickets.find(t => t.id === ticketId)?.statut
-      setTickets(tickets.map(t => t.id === ticketId ? { ...t, statut: newStatus } : t))
-      // Update KPI
+      setTickets(tickets.map(t => t.id === id ? { ...t, statut: newStatus } : t))
       setKpi(prev => ({
         ...prev,
         openTickets: prev.openTickets + (newStatus === 'open' ? 1 : 0) - (oldStatus === 'open' ? 1 : 0)
@@ -426,6 +471,7 @@ export default function AdminDashboardPage() {
             { id: 'kpi', label: 'KPIs Globaux', icon: Activity },
             { id: 'affiliates', label: 'Gestion Affiliés', icon: Users },
             { id: 'casinos', label: 'Gestion Casinos', icon: Plus },
+            { id: 'partners', label: 'Mes Partenaires', icon: Building },
             { id: 'payouts', label: 'Paiements & Exports', icon: CreditCard },
             { id: 'support', label: 'Tickets Support', icon: Clock },
             { id: 'logs', label: 'Logs & Alertes', icon: FileText },
@@ -661,6 +707,127 @@ export default function AdminDashboardPage() {
                         className="flex-1 px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-900/50 text-xs font-semibold text-red-400 hover:bg-red-900 flex items-center justify-center gap-1.5 transition-colors"
                       >
                         <Trash2 className="w-3 h-3" /> {casino.is_active ? 'Désactiver' : 'Activer'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 3.5. GESTION DES PARTENAIRES */}
+          {adminTab === 'partners' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-panel p-5 rounded-xl border border-slate-800">
+                <div>
+                  <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
+                    <Building className="w-5 h-5 text-gold" />
+                    <span>Plateformes Partenaires & Réseaux (Affiliate Networks)</span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Gérez vos comptes partenaires externes, accédez rapidement à leurs dashboards (ouverture dans un nouvel onglet), configurez vos taux CPA & RS et attribuez les casinos reliés du Top Casino.
+                  </p>
+                </div>
+                <button 
+                  onClick={openCreatePartnerModal}
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-gold text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:brightness-110 shadow-gold-glow shrink-0 transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Ajouter un Partenaire</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {partners.length === 0 ? (
+                  <div className="col-span-full p-8 glass-panel rounded-xl text-center text-slate-400 space-y-2">
+                    <Building className="w-8 h-8 text-slate-600 mx-auto" />
+                    <p className="font-semibold">Aucun partenaire configuré pour le moment.</p>
+                    <p className="text-xs text-slate-500">Cliquez sur "Ajouter un Partenaire" pour créer votre premier compte d'affiliation.</p>
+                  </div>
+                ) : partners.map((partner) => (
+                  <div key={partner.id} className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4 relative overflow-hidden group hover:border-gold/30 transition-all flex flex-col justify-between">
+                    <div className="space-y-3">
+                      {/* Header Partenaire */}
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="p-2 rounded-xl bg-purple-950/50 border border-purple-800/40 text-gold">
+                            <Building className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-white text-base leading-tight">{partner.name}</h4>
+                            <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1 mt-0.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                              Partenaire Actif
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Lien Vers Dashboard (Ouverture dans une nouvelle page) */}
+                        <a 
+                          href={partner.dashboard_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/60 border border-purple-500/40 text-xs font-semibold text-purple-200 hover:text-white flex items-center gap-1.5 transition-colors shrink-0 shadow-sm"
+                          title="Ouvrir le dashboard partenaire dans un nouvel onglet"
+                        >
+                          <span>Dashboard</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-gold" />
+                        </a>
+                      </div>
+
+                      {/* Commissions CPA & RS */}
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <div className="bg-slate-900/80 border border-slate-800 p-2.5 rounded-xl space-y-0.5">
+                          <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider flex items-center gap-1">
+                            <DollarSign className="w-3 h-3 text-emerald-400" />
+                            CPA Négocié
+                          </span>
+                          <p className="text-xs font-mono font-bold text-emerald-400">{partner.cpa_commission || 'Non défini'}</p>
+                        </div>
+                        <div className="bg-slate-900/80 border border-slate-800 p-2.5 rounded-xl space-y-0.5">
+                          <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider flex items-center gap-1">
+                            <Percent className="w-3 h-3 text-gold" />
+                            Revenue Share
+                          </span>
+                          <p className="text-xs font-mono font-bold text-gold">{partner.rs_commission || 'Non défini'}</p>
+                        </div>
+                      </div>
+
+                      {/* Casinos Reliés de la Liste Top Casino */}
+                      <div className="space-y-1.5 pt-1">
+                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider flex items-center gap-1">
+                          <Handshake className="w-3.5 h-3.5 text-purple-400" />
+                          Casinos Reliés ({partner.casinos_relies?.length || 0}) :
+                        </span>
+                        
+                        <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                          {partner.casinos_relies && partner.casinos_relies.length > 0 ? (
+                            partner.casinos_relies.map((cName: string, idx: number) => (
+                              <span key={idx} className="px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[10px] font-medium text-slate-200 flex items-center gap-1">
+                                <span className="w-1 h-1 rounded-full bg-gold" />
+                                {cName}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-[11px] text-slate-500 italic">Aucun casino coché</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div className="flex gap-2 pt-3 border-t border-slate-800/80 mt-4">
+                      <button 
+                        onClick={() => openEditPartnerModal(partner)}
+                        className="flex-1 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition-colors"
+                      >
+                        <Edit className="w-3.5 h-3.5" /> Éditer
+                      </button>
+                      <button 
+                        onClick={() => handleDeletePartner(partner.id)}
+                        className="px-3 py-2 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 text-xs font-semibold text-red-400 hover:text-white flex items-center justify-center gap-1.5 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Supprimer
                       </button>
                     </div>
                   </div>
@@ -1095,6 +1262,126 @@ export default function AdminDashboardPage() {
                 </button>
               </form>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Ajouter / Modifier Partenaire */}
+      {partnerModal.isOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border border-slate-800 p-6 rounded-2xl max-w-xl w-full shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Building className="text-gold w-5 h-5" />
+                {partnerModal.editingId ? 'Modifier le Partenaire' : 'Ajouter un Nouveau Partenaire'}
+              </h3>
+              <button 
+                onClick={() => setPartnerModal({ isOpen: false, editingId: null })}
+                className="text-slate-400 hover:text-white"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePartner} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Nom de la Plateforme / Partenaire *</label>
+                <input
+                  type="text"
+                  required
+                  value={newPartner.name}
+                  onChange={e => setNewPartner({ ...newPartner, name: e.target.value })}
+                  placeholder="Ex: NetPartners, DriveAffiliates..."
+                  className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-gold"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Lien direct vers le Dashboard Partenaire *</label>
+                <input
+                  type="url"
+                  required
+                  value={newPartner.dashboard_url}
+                  onChange={e => setNewPartner({ ...newPartner, dashboard_url: e.target.value })}
+                  placeholder="https://partenaire-dashboard.com/login"
+                  className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-gold font-mono focus:outline-none focus:border-gold"
+                />
+                <p className="text-[10px] text-slate-500">Un clic sur "Dashboard" ouvrira automatiquement ce lien dans un nouvel onglet.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Commission CPA (ex: 120€ / CPA)</label>
+                  <input
+                    type="text"
+                    value={newPartner.cpa_commission}
+                    onChange={e => setNewPartner({ ...newPartner, cpa_commission: e.target.value })}
+                    placeholder="Ex: 120€ CPA"
+                    className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-emerald-400 font-mono focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Commission RS (ex: 45% RS)</label>
+                  <input
+                    type="text"
+                    value={newPartner.rs_commission}
+                    onChange={e => setNewPartner({ ...newPartner, rs_commission: e.target.value })}
+                    placeholder="Ex: 45% RS"
+                    className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-gold font-mono focus:outline-none focus:border-gold"
+                  />
+                </div>
+              </div>
+
+              {/* Sélection des Casinos reliés (Checkboxes) */}
+              <div className="space-y-2 pt-2">
+                <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                  <span>Casinos Reliés (Cochez les casinos gérés par ce partenaire) :</span>
+                  <span className="text-[10px] text-gold font-mono">{newPartner.casinos_relies.length} coché(s)</span>
+                </label>
+
+                <div className="bg-[#0a0a0f] border border-slate-800 p-3 rounded-xl max-h-48 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {(casinos.length > 0 ? casinos : CASINOS_MOCK).map((c: any) => {
+                    const casinoName = c.name
+                    const isChecked = newPartner.casinos_relies.includes(casinoName)
+                    return (
+                      <label 
+                        key={c.id || c.slug}
+                        onClick={() => toggleCasinoInPartner(casinoName)}
+                        className={`flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer select-none transition-colors ${
+                          isChecked 
+                            ? 'bg-purple-950/60 border-purple-500/50 text-white font-semibold' 
+                            : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        {isChecked ? (
+                          <CheckSquare className="w-4 h-4 text-gold shrink-0" />
+                        ) : (
+                          <Square className="w-4 h-4 text-slate-600 shrink-0" />
+                        )}
+                        <span className="truncate">{casinoName}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setPartnerModal({ isOpen: false, editingId: null })}
+                  className="flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-950 bg-gradient-to-r from-amber-500 to-gold hover:brightness-110 shadow-gold-glow transition-all"
+                >
+                  {partnerModal.editingId ? 'Enregistrer les Modifications' : 'Créer le Partenaire'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
