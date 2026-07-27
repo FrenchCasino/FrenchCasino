@@ -34,21 +34,22 @@ export default function HomePage() {
           <div className="text-center max-w-3xl mx-auto space-y-6">
             
             {/* Badge Premium Top */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-card/80 border border-gold/30 text-gold text-xs font-semibold tracking-wider uppercase shadow-gold-glow animate-pulse-glow">
-              <Sparkles className="w-4 h-4 text-gold" />
-              <span>Guide Comparateur & Réseau d&apos;Affiliation 2026</span>
+            <div className="flex flex-col items-center gap-2">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-card/80 border border-gold/30 text-gold text-xs font-semibold tracking-wider uppercase shadow-gold-glow animate-pulse-glow">
+                <Sparkles className="w-4 h-4 text-gold" />
+                <span>Guide Officiel Casinos FR · 2026</span>
+              </div>
+              <span className="text-xs uppercase tracking-wider text-gold font-bold">Sélection exclusive & indépendante</span>
             </div>
 
             {/* Titre Impactant H1 */}
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
-              Jouez sur les Casinos les Plus{' '}
-              <span className="text-gradient-purple">Fiables</span> & Obtenez des{' '}
-              <span className="text-gradient-gold">Bonus Exclusifs</span>
+              Bienvenue sur <span className="text-gradient-purple">French</span> <span className="text-gradient-gold">Casino</span>
             </h1>
 
             {/* Paragraphe d'accroche original SEO */}
             <p className="text-slate-300 text-base sm:text-lg leading-relaxed font-normal">
-              Comparez les licences officielles, la vitesse des retraits et profitez de bonus sans dépôt vérifiés par notre équipe d&apos;experts.
+              Le guide premium des casinos en ligne francophones. Uniquement des plateformes 100% sécurisées, avec les meilleurs bonus, les retraits les plus rapides et un accompagnement expert pour les joueurs FR.
             </p>
 
             {/* CTAs d'Action */}
@@ -62,12 +63,20 @@ export default function HomePage() {
               </Link>
 
               <Link
-                href="/devenir-affilie"
+                href="/top-casino"
                 className="w-full sm:w-auto px-8 py-4 rounded-xl font-display font-bold text-sm uppercase tracking-wider text-gold hover:text-white bg-surface-card hover:bg-surface border border-gold/40 hover:border-gold shadow-gold-glow transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
               >
-                <TrendingUp className="w-5 h-5 text-gold" />
-                <span>Devenir Affilié (20€ à 70€ / Joueur)</span>
+                <Award className="w-5 h-5 text-gold" />
+                <span>Top Casinos 2026</span>
               </Link>
+            </div>
+
+            {/* Petits checks sous le bouton */}
+            <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 pt-6 text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald" /> Sites 100% vérifiés</span>
+              <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-amber-400" /> Retraits rapides</span>
+              <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-blue-400" /> Support francophone</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-slate-400" /> 18+ Jeu responsable</span>
             </div>
 
             {/* Compteur Jackpot Stats */}
