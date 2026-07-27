@@ -342,6 +342,77 @@ export default function AdminDashboardPage() {
     setCasinoModal({isOpen: true, editingId: casino.id})
   }
 
+  // Load saved partners from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('french_casino_partners')
+    if (saved) {
+      try {
+        setPartners(JSON.parse(saved))
+      } catch(e) {}
+    }
+  }, [])
+
+  const handleSavePartner = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newPartner.name || !newPartner.dashboard_url) {
+      alert("Veuillez renseigner au moins le nom et le lien du dashboard.")
+      return
+    }
+
+    let updated: any[]
+    if (partnerModal.editingId) {
+      updated = partners.map(p => p.id === partnerModal.editingId ? { ...newPartner, id: p.id } : p)
+    } else {
+      updated = [...partners, { ...newPartner, id: 'partner_' + Date.now() }]
+    }
+
+    setPartners(updated)
+    localStorage.setItem('french_casino_partners', JSON.stringify(updated))
+    setPartnerModal({ isOpen: false, editingId: null })
+  }
+
+  const handleDeletePartner = (id: string) => {
+    if (confirm("Voulez-vous vraiment supprimer ce partenaire ?")) {
+      const updated = partners.filter(p => p.id !== id)
+      setPartners(updated)
+      localStorage.setItem('french_casino_partners', JSON.stringify(updated))
+    }
+  }
+
+  const toggleCasinoInPartner = (casinoName: string) => {
+    setNewPartner(prev => {
+      const exists = prev.casinos_relies.includes(casinoName)
+      return {
+        ...prev,
+        casinos_relies: exists 
+          ? prev.casinos_relies.filter(c => c !== casinoName)
+          : [...prev.casinos_relies, casinoName]
+      }
+    })
+  }
+
+  const openCreatePartnerModal = () => {
+    setNewPartner({
+      name: '',
+      dashboard_url: '',
+      cpa_commission: '',
+      rs_commission: '',
+      casinos_relies: []
+    })
+    setPartnerModal({ isOpen: true, editingId: null })
+  }
+
+  const openEditPartnerModal = (partner: any) => {
+    setNewPartner({
+      name: partner.name || '',
+      dashboard_url: partner.dashboard_url || '',
+      cpa_commission: partner.cpa_commission || '',
+      rs_commission: partner.rs_commission || '',
+      casinos_relies: partner.casinos_relies || []
+    })
+    setPartnerModal({ isOpen: true, editingId: partner.id })
+  }
+
   const handleToggleCasinoActive = async (id: string, currentStatus: boolean) => {
     const { error } = await supabase.from('casinos').update({ is_active: !currentStatus }).eq('id', id)
     if (!error) {
