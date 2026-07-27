@@ -578,7 +578,7 @@ export async function getCasinos(): Promise<Casino[]> {
       .select('*')
       .order('ordre_classement', { ascending: true })
 
-    if (error || !data || data.length === 0) {
+    if (error || !data || data.length < 3) {
       console.error("Supabase casinos error or empty, using mock:", error)
       return CASINOS_MOCK
     }
