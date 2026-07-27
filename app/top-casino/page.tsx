@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { CASINOS_MOCK, METHODOLOGIE_NOTATION } from '@/lib/data/casinos'
+import { getCasinos, METHODOLOGIE_NOTATION } from '@/lib/data/casinos'
 import { CasinoCard } from '@/components/ui/CasinoCard'
 import { Award, ShieldCheck, Check, Star, Lock, Zap } from 'lucide-react'
 
@@ -11,7 +11,8 @@ export const metadata = {
   description: 'Classement de fiabilité des casinos en ligne en France. Analyse des licences officielles, rapidité des retraits et transparence de la grille de notation.',
 }
 
-export default function TopCasinoPage() {
+export default async function TopCasinoPage() {
+  const casinos = await getCasinos();
   return (
     <>
       <PageHero
@@ -71,16 +72,16 @@ export default function TopCasinoPage() {
                 <span className="text-[10px] font-bold text-slate-800 tracking-wider drop-shadow-sm">2ND</span>
               </div>
               <div className="mt-8 text-center space-y-3">
-                <h3 className="font-display font-bold text-xl text-white">{CASINOS_MOCK[1].name}</h3>
+                <h3 className="font-display font-bold text-xl text-white">{casinos[1].name}</h3>
                 <div className="flex justify-center items-center gap-1 text-slate-300 bg-slate-800/50 px-3 py-1 rounded-full text-xs font-semibold mx-auto w-fit border border-slate-700">
                   <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                  {CASINOS_MOCK[1].noteFiabilite}/5
+                  {casinos[1].noteFiabilite}/5
                 </div>
                 <div className="pt-3 border-t border-slate-700/50">
                   <span className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Bonus de Bienvenue</span>
-                  <span className="font-bold text-sm text-white">{CASINOS_MOCK[1].bonusDepot}</span>
+                  <span className="font-bold text-sm text-white">{casinos[1].bonusDepot}</span>
                 </div>
-                <a href={CASINOS_MOCK[1].lienAffilie} target="_blank" rel="noopener noreferrer" className="mt-4 block w-full py-2.5 bg-slate-300 hover:bg-white text-slate-900 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors">Jouer</a>
+                <a href={casinos[1].lienAffilie} target="_blank" rel="noopener noreferrer" className="mt-4 block w-full py-2.5 bg-slate-300 hover:bg-white text-slate-900 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors">Jouer</a>
               </div>
             </div>
           </div>
@@ -94,19 +95,19 @@ export default function TopCasinoPage() {
               </div>
               <div className="mt-10 text-center space-y-4">
                 <div className="inline-block px-3 py-1 bg-gold/20 border border-gold/40 text-gold text-[10px] font-bold uppercase tracking-widest rounded-full mb-1">№ 1 — Meilleur casino FR 2026</div>
-                <h3 className="font-display font-black text-2xl text-white">{CASINOS_MOCK[0].name}</h3>
+                <h3 className="font-display font-black text-2xl text-white">{casinos[0].name}</h3>
                 <div className="flex justify-center items-center gap-1 text-gold bg-gold/10 px-4 py-1.5 rounded-full text-sm font-bold mx-auto w-fit border border-gold/20">
                   <Star className="w-4 h-4 text-gold fill-gold" />
-                  {CASINOS_MOCK[0].noteFiabilite}/5
+                  {casinos[0].noteFiabilite}/5
                 </div>
                 <div className="pt-4 border-t border-gold/20">
                   <span className="block text-[10px] uppercase tracking-wider text-amber-400/80 mb-1">Offre Exclusive</span>
-                  <span className="font-extrabold text-base text-gold">{CASINOS_MOCK[0].bonusDepot}</span>
-                  {CASINOS_MOCK[0].bonusSansDepot && (
-                    <span className="block text-xs font-semibold text-emerald mt-1">+ {CASINOS_MOCK[0].bonusSansDepot}</span>
+                  <span className="font-extrabold text-base text-gold">{casinos[0].bonusDepot}</span>
+                  {casinos[0].bonusSansDepot && (
+                    <span className="block text-xs font-semibold text-emerald mt-1">+ {casinos[0].bonusSansDepot}</span>
                   )}
                 </div>
-                <a href={CASINOS_MOCK[0].lienAffilie} target="_blank" rel="noopener noreferrer" className="mt-6 block w-full py-3.5 bg-gradient-to-r from-gold to-yellow-500 hover:from-yellow-400 hover:to-yellow-300 text-black font-black text-sm uppercase tracking-wider rounded-xl shadow-gold-glow animate-pulse-glow hover:animate-none transition-all transform hover:scale-105 group-hover:shadow-[0_0_30px_rgba(251,191,36,0.6)] duration-300">Récupérer le Bonus</a>
+                <a href={casinos[0].lienAffilie} target="_blank" rel="noopener noreferrer" className="mt-6 block w-full py-3.5 bg-gradient-to-r from-gold to-yellow-500 hover:from-yellow-400 hover:to-yellow-300 text-black font-black text-sm uppercase tracking-wider rounded-xl shadow-gold-glow animate-pulse-glow hover:animate-none transition-all transform hover:scale-105 group-hover:shadow-[0_0_30px_rgba(251,191,36,0.6)] duration-300">Récupérer le Bonus</a>
               </div>
             </div>
           </div>
@@ -119,16 +120,16 @@ export default function TopCasinoPage() {
                 <span className="text-[10px] font-bold text-orange-950 tracking-wider drop-shadow-sm">3EME</span>
               </div>
               <div className="mt-8 text-center space-y-3">
-                <h3 className="font-display font-bold text-xl text-white">{CASINOS_MOCK[2].name}</h3>
+                <h3 className="font-display font-bold text-xl text-white">{casinos[2].name}</h3>
                 <div className="flex justify-center items-center gap-1 text-orange-300 bg-orange-900/30 px-3 py-1 rounded-full text-xs font-semibold mx-auto w-fit border border-orange-800/50">
                   <Star className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
-                  {CASINOS_MOCK[2].noteFiabilite}/5
+                  {casinos[2].noteFiabilite}/5
                 </div>
                 <div className="pt-3 border-t border-slate-700/50">
                   <span className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Bonus de Bienvenue</span>
-                  <span className="font-bold text-sm text-white">{CASINOS_MOCK[2].bonusDepot}</span>
+                  <span className="font-bold text-sm text-white">{casinos[2].bonusDepot}</span>
                 </div>
-                <a href={CASINOS_MOCK[2].lienAffilie} target="_blank" rel="noopener noreferrer" className="mt-4 block w-full py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-colors">Jouer</a>
+                <a href={casinos[2].lienAffilie} target="_blank" rel="noopener noreferrer" className="mt-4 block w-full py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-colors">Jouer</a>
               </div>
             </div>
           </div>
@@ -142,7 +143,7 @@ export default function TopCasinoPage() {
           </h2>
 
           <div className="space-y-4">
-            {CASINOS_MOCK.slice(3, 15).map((casino, idx) => (
+            {casinos.slice(3, 15).map((casino, idx) => (
               <CasinoCard key={casino.id} casino={casino} rank={idx + 4} />
             ))}
           </div>
@@ -155,7 +156,7 @@ export default function TopCasinoPage() {
           </h2>
 
           <div className="space-y-4">
-            {CASINOS_MOCK.slice(15).map((casino, idx) => (
+            {casinos.slice(15).map((casino, idx) => (
               <CasinoCard key={casino.id} casino={casino} rank={idx + 16} />
             ))}
           </div>

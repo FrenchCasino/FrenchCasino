@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { CASINOS_MOCK } from '@/lib/data/casinos'
+import { getCasinos } from '@/lib/data/casinos'
 import { Star, ShieldCheck, Zap, Gift, ExternalLink, Check, Clock, FileText, ArrowLeft } from 'lucide-react'
 
 interface Props {
@@ -11,7 +11,8 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props) {
-  const casino = CASINOS_MOCK.find(c => c.slug === params.slug)
+  const casinos = await getCasinos()
+  const casino = casinos.find(c => c.slug === params.slug)
   if (!casino) return { title: 'Casino non trouvé — FrenchCasino' }
   return {
     title: `Avis ${casino.name} (2026) : Test, Note & Bonus ${casino.bonusSansDepot || casino.bonusDepot}`,
@@ -19,8 +20,9 @@ export async function generateMetadata({ params }: Props) {
   }
 }
 
-export default function CasinoDetailPage({ params }: Props) {
-  const casino = CASINOS_MOCK.find(c => c.slug === params.slug)
+export default async function CasinoDetailPage({ params }: Props) {
+  const casinos = await getCasinos()
+  const casino = casinos.find(c => c.slug === params.slug)
 
   if (!casino) {
     notFound()

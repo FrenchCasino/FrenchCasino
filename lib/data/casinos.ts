@@ -567,3 +567,44 @@ export const CASINOS_MOCK: Casino[] = [
     ]
   }
 ]
+
+import { createClient } from '@/lib/supabase/server'
+
+export async function getCasinos(): Promise<Casino[]> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('casinos')
+      .select('*')
+      .order('ordre_classement', { ascending: true })
+
+    if (error || !data || data.length === 0) {
+      console.error("Supabase casinos error or empty, using mock:", error)
+      return CASINOS_MOCK
+    }
+
+    return data.map(c => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      logoUrl: c.logo_url,
+      licence: c.licence,
+      noteFiabilite: Number(c.note_fiabilite),
+      description: c.description,
+      bonusSansDepot: c.bonus_sans_depot,
+      bonusDepot: c.bonus_depot,
+      fraisRetrait: c.frais_retrait,
+      delaiRetrait: c.delai_retrait,
+      wager: c.wager,
+      lienAffilie: c.lien_affilie,
+      ordreClassement: c.ordre_classement,
+      tags: c.tags || [],
+      pointsForts: c.points_forts || [],
+      badgeText: c.badge_text,
+      highlighted: c.highlighted
+    }))
+  } catch (e) {
+    console.error("Supabase error, fallback to mock:", e)
+    return CASINOS_MOCK
+  }
+}

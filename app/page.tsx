@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { CASINOS_MOCK, METHODOLOGIE_NOTATION } from '@/lib/data/casinos'
+import { getCasinos, METHODOLOGIE_NOTATION } from '@/lib/data/casinos'
 import { CasinoCard } from '@/components/ui/CasinoCard'
 import { JackpotCounter } from '@/components/ui/JackpotCounter'
 import {
@@ -17,8 +17,9 @@ import {
   DollarSign
 } from 'lucide-react'
 
-export default function HomePage() {
-  const top3Casinos = CASINOS_MOCK.slice(0, 3)
+export default async function HomePage() {
+  const casinos = await getCasinos()
+  const top3Casinos = casinos.slice(0, 3)
 
   return (
     <div className="space-y-16 pb-12">

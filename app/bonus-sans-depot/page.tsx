@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { CASINOS_MOCK } from '@/lib/data/casinos'
+import { getCasinos } from '@/lib/data/casinos'
 import { CasinoCard } from '@/components/ui/CasinoCard'
 import { Gift, ShieldCheck, Sparkles, Filter } from 'lucide-react'
 
@@ -11,8 +11,9 @@ export const metadata = {
   description: 'Liste exclusive et vérifiée des meilleurs bonus casino sans dépôt en France pour 2026. Free spins, jetons gratuits et bonus cash sans carte bancaire.',
 }
 
-export default function BonusSansDepotPage() {
-  const casinosBonusSansDepot = CASINOS_MOCK.filter(c => c.bonusSansDepot !== null)
+export default async function BonusSansDepotPage() {
+  const casinos = await getCasinos();
+  const casinosBonusSansDepot = casinos.filter(c => c.bonusSansDepot !== null)
 
   return (
     <>

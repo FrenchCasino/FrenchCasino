@@ -1,5 +1,5 @@
 import React from 'react'
-import { CASINOS_MOCK } from '@/lib/data/casinos'
+import { getCasinos } from '@/lib/data/casinos'
 import { CasinoCard } from '@/components/ui/CasinoCard'
 import { Zap, ShieldCheck, Filter } from 'lucide-react'
 
@@ -10,7 +10,8 @@ export const metadata = {
   description: 'Sélection des plus gros bonus de dépôt casino en France. Bonus SANS WAGER, cashback et packages de bienvenue jusqu\'à 2000€ négociés.',
 }
 
-export default function BonusDepotPage() {
+export default async function BonusDepotPage() {
+  const casinos = await getCasinos();
   return (
     <>
       <PageHero
@@ -42,7 +43,7 @@ export default function BonusDepotPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="font-display font-bold text-xl sm:text-2xl text-white">
-            {CASINOS_MOCK.length} Offres Partenaires Certifiées
+            {casinos.length} Offres Partenaires Certifiées
           </h2>
           <span className="text-xs font-medium text-slate-400 bg-surface-card px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-1.5">
             <Filter className="w-3.5 h-3.5 text-gold" />
@@ -51,7 +52,7 @@ export default function BonusDepotPage() {
         </div>
 
         <div className="space-y-4">
-          {CASINOS_MOCK.map((casino, idx) => (
+          {casinos.map((casino, idx) => (
             <CasinoCard key={casino.id} casino={casino} rank={idx + 1} />
           ))}
         </div>
