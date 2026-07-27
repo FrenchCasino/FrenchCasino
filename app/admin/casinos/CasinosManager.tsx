@@ -1,14 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Casino } from '@/lib/data/casinos'
-import { saveCasino, deleteCasino, updateCasinoOrder } from './actions'
+import { saveCasino, deleteCasino, updateCasinoOrder, autoFixLogos } from './actions'
 import { Plus, Edit2, Trash2, Save, X, GripVertical, ChevronUp, ChevronDown } from 'lucide-react'
 
 export default function CasinosManager({ initialCasinos }: { initialCasinos: Casino[] }) {
   const [casinos, setCasinos] = useState<Casino[]>(initialCasinos)
   const [editing, setEditing] = useState<Casino | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const needsFix = casinos.some(c => c.logoUrl && c.logoUrl.startsWith('/casinos/'));
+    if (needsFix) {
+      console.log('Fixing logos automatically...');
+      autoFixLogos().then(() => {
+        window.location.reload();
+      });
+    }
+  }, [casinos]);
 
   const handleEdit = (casino: Casino) => {
     setEditing({ ...casino })
