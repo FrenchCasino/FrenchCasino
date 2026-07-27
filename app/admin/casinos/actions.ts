@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 
 export async function saveCasino(data: any) {
   const supabase = await createClient()
+  await supabase.auth.getUser()
 
   // Convert fields for DB insertion (camelCase to snake_case)
   const dbData = {
@@ -60,6 +61,7 @@ export async function deleteCasino(id: string) {
   if (!id || id.length < 5) return { success: false, error: "Invalid ID" }
   
   const supabase = await createClient()
+  await supabase.auth.getUser()
   const result = await supabase
     .from('casinos')
     .delete()
@@ -80,17 +82,24 @@ export async function deleteCasino(id: string) {
 
 export async function updateCasinoOrder(updates: { id: string, ordreClassement: number }[]) {
   const supabase = await createClient()
+  await supabase.auth.getUser()
 
   for (const update of updates) {
     if (update.id && update.id.length > 5) {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('casinos')
         .update({ ordre_classement: update.ordreClassement })
         .eq('id', update.id)
+        .select()
       
       if (error) {
         console.error("Update error for casino", update.id, error)
         throw new Error(error.message)
+      }
+
+      if (!data || data.length === 0) {
+        console.error("No rows updated for casino", update.id)
+        throw new Error(\`Impossible de modifier (RLS bloqué ou ID introuvable)\`)
       }
     }
   }

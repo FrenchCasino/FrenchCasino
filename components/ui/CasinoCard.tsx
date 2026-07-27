@@ -36,14 +36,21 @@ export function CasinoCard({ casino, rank }: CasinoCardProps) {
             </div>
           )}
 
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-purple-900/40 to-slate-900 border border-slate-700/80 p-2 flex items-center justify-center text-center font-bold text-lg text-white shadow-md group-hover:border-primary/50 transition-colors">
-            {/* Logo Placeholder / Image */}
-            <div className="flex flex-col items-center">
-              <span className="text-xl">🎰</span>
-              <span className="text-[10px] text-slate-300 font-semibold truncate max-w-[60px]">
-                {casino.name.split(' ')[0]}
-              </span>
-            </div>
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-purple-900/40 to-slate-900 border border-slate-700/80 p-2 flex items-center justify-center text-center font-bold text-lg text-white shadow-md group-hover:border-primary/50 transition-colors relative overflow-hidden">
+            {casino.logoUrl ? (
+              <img 
+                src={casino.logoUrl} 
+                alt={\`Logo \${casino.name}\`}
+                className="object-contain w-full h-full drop-shadow-md rounded"
+              />
+            ) : (
+              <div className="flex flex-col items-center">
+                <span className="text-xl">🎰</span>
+                <span className="text-[10px] text-slate-300 font-semibold truncate max-w-[60px]">
+                  {casino.name.split(' ')[0]}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="space-y-1">
