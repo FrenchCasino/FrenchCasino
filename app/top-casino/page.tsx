@@ -65,10 +65,10 @@ export default function TopCasinoPage() {
           
           {/* Rang 2 (Argent) */}
           <div className="order-2 md:order-1 flex-1 max-w-[280px] w-full flex flex-col items-center">
-            <div className="w-full glass-panel border border-slate-400/30 bg-gradient-to-t from-slate-900 to-slate-800/80 p-6 rounded-t-3xl relative transform md:translate-y-8 shadow-[0_0_30px_rgba(148,163,184,0.1)]">
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 bg-slate-300 rounded-full border-4 border-[#0a0a0f] flex flex-col items-center justify-center shadow-lg shadow-slate-400/20">
-                <span className="text-2xl">🥈</span>
-                <span className="text-[10px] font-bold text-slate-800">2ND</span>
+            <div className="group w-full glass-panel border border-slate-700/50 bg-gradient-to-t from-slate-800/40 to-slate-800/10 p-6 rounded-t-3xl relative transform md:translate-y-8 shadow-[0_0_30px_rgba(148,163,184,0.1)] hover:-translate-y-0 hover:shadow-[0_0_40px_rgba(148,163,184,0.25)] transition-all duration-500">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 bg-gradient-to-br from-slate-300 to-slate-500 rounded-full border-4 border-[#0a0a0f] flex flex-col items-center justify-center shadow-lg shadow-slate-400/30 animate-[float_4s_ease-in-out_infinite_0.5s] group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
+                <span className="text-2xl drop-shadow-md">🥈</span>
+                <span className="text-[10px] font-bold text-slate-800 tracking-wider drop-shadow-sm">2ND</span>
               </div>
               <div className="mt-8 text-center space-y-3">
                 <h3 className="font-display font-bold text-xl text-white">{CASINOS_MOCK[1].name}</h3>
@@ -87,10 +87,10 @@ export default function TopCasinoPage() {
 
           {/* Rang 1 (Or) */}
           <div className="order-1 md:order-2 flex-1 max-w-[320px] w-full flex flex-col items-center z-10">
-            <div className="w-full glass-panel border-2 border-gold/50 bg-gradient-to-t from-amber-900/40 to-amber-900/10 p-6 sm:p-8 rounded-t-3xl relative shadow-[0_0_50px_rgba(251,191,36,0.15)] hover:-translate-y-2 transition-transform duration-500">
-              <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-gold to-yellow-300 rounded-full border-4 border-[#0a0a0f] flex flex-col items-center justify-center shadow-xl shadow-gold/30">
-                <span className="text-4xl">👑</span>
-                <span className="text-xs font-black text-amber-950 mt-1">1ER</span>
+            <div className="group w-full glass-panel border-2 border-gold/60 bg-gradient-to-t from-amber-900/50 to-amber-900/10 p-6 sm:p-8 rounded-t-3xl relative shadow-[0_0_60px_rgba(251,191,36,0.2)] hover:-translate-y-4 hover:shadow-[0_0_80px_rgba(251,191,36,0.4)] transition-all duration-500">
+              <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-gold to-yellow-300 rounded-full border-4 border-[#0a0a0f] flex flex-col items-center justify-center shadow-xl shadow-gold/50 animate-float group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
+                <span className="text-4xl drop-shadow-md">👑</span>
+                <span className="text-xs font-black text-amber-950 mt-1 tracking-widest drop-shadow-sm">1ER</span>
               </div>
               <div className="mt-10 text-center space-y-4">
                 <div className="inline-block px-3 py-1 bg-gold/20 border border-gold/40 text-gold text-[10px] font-bold uppercase tracking-widest rounded-full mb-1">№ 1 — Meilleur casino FR 2026</div>
@@ -106,17 +106,17 @@ export default function TopCasinoPage() {
                     <span className="block text-xs font-semibold text-emerald mt-1">+ {CASINOS_MOCK[0].bonusSansDepot}</span>
                   )}
                 </div>
-                <a href={CASINOS_MOCK[0].lienAffilie} target="_blank" rel="noopener noreferrer" className="mt-6 block w-full py-3.5 bg-gradient-to-r from-gold to-yellow-500 hover:from-yellow-400 hover:to-yellow-300 text-black font-black text-sm uppercase tracking-wider rounded-xl shadow-gold-glow transition-all transform hover:scale-105">Récupérer le Bonus</a>
+                <a href={CASINOS_MOCK[0].lienAffilie} target="_blank" rel="noopener noreferrer" className="mt-6 block w-full py-3.5 bg-gradient-to-r from-gold to-yellow-500 hover:from-yellow-400 hover:to-yellow-300 text-black font-black text-sm uppercase tracking-wider rounded-xl shadow-gold-glow animate-pulse-glow hover:animate-none transition-all transform hover:scale-105 group-hover:shadow-[0_0_30px_rgba(251,191,36,0.6)] duration-300">Récupérer le Bonus</a>
               </div>
             </div>
           </div>
 
           {/* Rang 3 (Bronze) */}
           <div className="order-3 md:order-3 flex-1 max-w-[280px] w-full flex flex-col items-center">
-            <div className="w-full glass-panel border border-orange-700/30 bg-gradient-to-t from-orange-950/40 to-slate-800/80 p-6 rounded-t-3xl relative transform md:translate-y-12 shadow-[0_0_30px_rgba(194,65,12,0.1)]">
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full border-4 border-[#0a0a0f] flex flex-col items-center justify-center shadow-lg shadow-orange-500/20">
-                <span className="text-2xl">🥉</span>
-                <span className="text-[10px] font-bold text-orange-950">3EME</span>
+            <div className="group w-full glass-panel border border-orange-700/40 bg-gradient-to-t from-orange-950/50 to-slate-800/80 p-6 rounded-t-3xl relative transform md:translate-y-12 shadow-[0_0_30px_rgba(194,65,12,0.15)] hover:translate-y-4 hover:shadow-[0_0_40px_rgba(194,65,12,0.3)] transition-all duration-500">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full border-4 border-[#0a0a0f] flex flex-col items-center justify-center shadow-lg shadow-orange-500/30 animate-[float_4s_ease-in-out_infinite_1s] group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
+                <span className="text-2xl drop-shadow-md">🥉</span>
+                <span className="text-[10px] font-bold text-orange-950 tracking-wider drop-shadow-sm">3EME</span>
               </div>
               <div className="mt-8 text-center space-y-3">
                 <h3 className="font-display font-bold text-xl text-white">{CASINOS_MOCK[2].name}</h3>
