@@ -39,6 +39,7 @@ export default function DashboardPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   
   // Real data state
+  const [loadingData, setLoadingData] = useState(true)
   const [affiliateCode, setAffiliateCode] = useState<string>('EN_ATTENTE')
   const [affiliateId, setAffiliateId] = useState<string | null>(null)
   const [affiliateStatus, setAffiliateStatus] = useState<string>('pending')
@@ -58,9 +59,10 @@ export default function DashboardPage() {
       if (!user) return
 
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-      if (profile?.role === 'admin') {
+      if (profile?.role === 'admin' || profile?.role === 'recruiter') {
+        // Un admin ou un recruteur testant le dashboard affilié bypass le statut pending si pas d'infos contraires
         setAffiliateStatus('active')
-        setAffiliateCode('ADMIN_VIEW')
+        setAffiliateCode('MODE_TEST')
       }
 
       const { data: aff } = await supabase
@@ -167,6 +169,8 @@ export default function DashboardPage() {
         }))
         setChartData(finalChart)
       }
+      
+      setLoadingData(false)
     }
     loadAffiliateData()
   }, [])
@@ -367,6 +371,14 @@ export default function DashboardPage() {
   }
 
   const maskedIban = ibanForm.iban ? `${ibanForm.iban.slice(0, 4)} •••• •••• •••• •••• ${ibanForm.iban.slice(-4)}` : ''
+
+  if (loadingData) {
+    return (
+      <div className="min-h-screen pt-24 flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   if (affiliateStatus === 'pending') {
     return (
