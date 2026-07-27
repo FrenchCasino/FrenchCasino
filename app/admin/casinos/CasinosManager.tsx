@@ -196,12 +196,23 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
               <input
                 type="number"
                 defaultValue={casino.ordreClassement}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.currentTarget.blur();
+                  }
+                }}
                 onBlur={async (e) => {
                   const newVal = parseInt(e.target.value);
                   if (newVal && newVal !== casino.ordreClassement) {
                     setIsLoading(true);
                     try {
-                      await updateCasinoOrder([{ id: casino.id, ordreClassement: newVal }]);
+                      const updates = [{ id: casino.id, ordreClassement: newVal }];
+                      // Swap with the casino that currently has this rank
+                      const swappedCasino = casinos.find(c => c.ordreClassement === newVal);
+                      if (swappedCasino) {
+                         updates.push({ id: swappedCasino.id, ordreClassement: casino.ordreClassement });
+                      }
+                      await updateCasinoOrder(updates);
                       window.location.reload();
                     } catch (err) {
                       alert("Erreur de sauvegarde");
@@ -210,7 +221,7 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
                 }}
                 disabled={isLoading}
                 className="w-16 bg-slate-900 border border-slate-700 text-white font-bold text-center py-2 rounded-lg hover:border-slate-500 focus:border-primary focus:outline-none transition-colors"
-                title="Modifier le classement"
+                title="Modifier le classement (Entrée pour valider)"
               />
               <div>
                 <h3 className="font-bold text-white text-lg">{casino.name}</h3>
