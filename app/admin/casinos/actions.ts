@@ -99,7 +99,7 @@ export async function updateCasinoOrder(updates: { id: string, ordreClassement: 
 
       if (!data || data.length === 0) {
         console.error("No rows updated for casino", update.id)
-        throw new Error(\`Impossible de modifier (RLS bloqué ou ID introuvable)\`)
+        throw new Error(`Impossible de modifier (RLS bloqué ou ID introuvable)`)
       }
     }
   }

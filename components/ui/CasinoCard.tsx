@@ -40,7 +40,7 @@ export function CasinoCard({ casino, rank }: CasinoCardProps) {
             {casino.logoUrl ? (
               <img 
                 src={casino.logoUrl} 
-                alt={\`Logo \${casino.name}\`}
+                alt={`Logo ${casino.name}`}
                 className="object-contain w-full h-full drop-shadow-md rounded"
               />
             ) : (
