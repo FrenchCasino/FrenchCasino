@@ -139,25 +139,12 @@ export default async function TopCasinoPage() {
         {/* Le Reste du Classement */}
         <div className="space-y-6 pt-10">
           <h2 className="font-display font-bold text-2xl text-white flex items-center gap-2">
-            Suite du classement — Rang 4 à 15
+            Suite du classement
           </h2>
 
           <div className="space-y-4">
-            {casinos.slice(3, 15).map((casino, idx) => (
+            {casinos.slice(3).map((casino, idx) => (
               <CasinoCard key={casino.id} casino={casino} rank={idx + 4} />
-            ))}
-          </div>
-        </div>
-
-        {/* Classement bonus inscription */}
-        <div className="space-y-6 pt-10">
-          <h2 className="font-display font-bold text-2xl text-white flex items-center gap-2">
-            Classement bonus inscription — Rang 16
-          </h2>
-
-          <div className="space-y-4">
-            {casinos.slice(15).map((casino, idx) => (
-              <CasinoCard key={casino.id} casino={casino} rank={idx + 16} />
             ))}
           </div>
         </div>
