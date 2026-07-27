@@ -39,7 +39,6 @@ export default function HomePage() {
                 <Sparkles className="w-4 h-4 text-gold" />
                 <span>Guide Officiel Casinos FR · 2026</span>
               </div>
-              <span className="text-xs uppercase tracking-wider text-gold font-bold">Sélection exclusive & indépendante</span>
             </div>
 
             {/* Titre Impactant H1 */}
