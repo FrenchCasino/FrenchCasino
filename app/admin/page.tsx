@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
 
   // Casino Modal state
   const [casinoModal, setCasinoModal] = useState<{isOpen: boolean, editingId: string | null}>({isOpen: false, editingId: null})
-  const [newCasino, setNewCasino] = useState({
+  const [newCasino, setNewCasino] = useState<any>({
     name: '',
     slug: '',
     lien_affilie: '',
@@ -106,7 +106,8 @@ export default function AdminDashboardPage() {
     remboursement_depot: false,
     commission_conditions: 'Nouveau inscrit seulement',
     minimum_depot: '20€',
-    ordre_classement: 1
+    ordre_classement: 1,
+    visible_affiliate: true
   })
   const [isSubmittingCasino, setIsSubmittingCasino] = useState(false)
 
