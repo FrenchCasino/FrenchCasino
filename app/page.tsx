@@ -17,6 +17,9 @@ import {
   DollarSign
 } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function HomePage() {
   const casinos = await getCasinos()
   const top3Casinos = casinos.slice(0, 3)

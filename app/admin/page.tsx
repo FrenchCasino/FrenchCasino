@@ -167,7 +167,16 @@ export default function AdminDashboardPage() {
         .order('ordre_classement', { ascending: true })
       
       if (casErr) console.error("Error loading casinos:", casErr)
-      else setCasinos(casData || [])
+      else {
+        const mapped = (casData || []).map((c: any) => {
+          const localVis = typeof window !== 'undefined' ? (localStorage.getItem(`casino_vis_aff_${c.id}`) || localStorage.getItem(`casino_vis_aff_${c.slug}`)) : null;
+          return {
+            ...c,
+            visible_affiliate: localVis !== null ? localVis === 'true' : c.visible_affiliate !== false
+          };
+        });
+        setCasinos(mapped);
+      }
 
       // Load Tickets
       const { data: tksData, error: tksErr } = await supabase
@@ -343,6 +352,14 @@ export default function AdminDashboardPage() {
         alert(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès ! La modification du classement est en ligne.`)
       }
 
+      // Persist visible_affiliate in localStorage fallback
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`casino_vis_aff_${newCasino.slug}`, String(newCasino.visible_affiliate))
+        if (casinoModal.editingId) {
+          localStorage.setItem(`casino_vis_aff_${casinoModal.editingId}`, String(newCasino.visible_affiliate))
+        }
+      }
+
       setCasinoModal({isOpen: false, editingId: null})
       setNewCasino({ name: '', slug: '', lien_affilie: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true })
       loadData()
@@ -351,6 +368,22 @@ export default function AdminDashboardPage() {
     } finally {
       setIsSubmittingCasino(false)
     }
+  }
+
+  const handleToggleAffiliateVisibility = async (casino: any) => {
+    const currentVis = casino.visible_affiliate !== false
+    const newVis = !currentVis
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(`casino_vis_aff_${casino.id}`, String(newVis))
+      localStorage.setItem(`casino_vis_aff_${casino.slug}`, String(newVis))
+    }
+
+    setCasinos(casinos.map(c => c.id === casino.id ? { ...c, visible_affiliate: newVis } : c))
+
+    try {
+      await supabase.from('casinos').update({ visible_affiliate: newVis }).eq('id', casino.id)
+    } catch (e) {}
   }
 
   const openEditCasinoModal = (casino: any) => {
@@ -795,9 +828,14 @@ export default function AdminDashboardPage() {
                       <p className="text-purple-300 font-semibold"><span className="text-slate-500 font-normal">Commission:</span> {casino.bonus_depot}</p>
                       <p className="text-blue-300 font-semibold"><span className="text-slate-500 font-normal">Min. Dépôt:</span> {casino.minimum_depot || 'Non défini'}</p>
                       <div className="pt-1 flex items-center gap-2">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${casino.visible_affiliate !== false ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60' : 'bg-slate-900 text-slate-500 border border-slate-800'}`}>
-                          {casino.visible_affiliate !== false ? '✓ Visible Espace Affilié' : '✕ Masqué Espace Affilié'}
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleAffiliateVisibility(casino)}
+                          className={`px-2 py-1 rounded text-[10px] font-bold transition-colors flex items-center gap-1 cursor-pointer hover:brightness-125 ${casino.visible_affiliate !== false ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60' : 'bg-red-950/40 text-red-400 border border-red-900/50'}`}
+                          title="Cliquer pour masquer ou afficher ce casino aux affiliés"
+                        >
+                          {casino.visible_affiliate !== false ? '✓ Visible Espace Affilié (Cliquer pour masquer)' : '✕ Masqué Espace Affilié (Cliquer pour afficher)'}
+                        </button>
                       </div>
                     </div>
 

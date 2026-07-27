@@ -6,6 +6,9 @@ import { Award, ShieldCheck, Check, Star, Lock, Zap } from 'lucide-react'
 
 import { PageHero } from '@/components/ui/PageHero'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata = {
   title: 'Classement des Casinos en Ligne les Plus Fiables (2026) — FrenchCasino',
   description: 'Classement de fiabilité des casinos en ligne en France. Analyse des licences officielles, rapidité des retraits et transparence de la grille de notation.',

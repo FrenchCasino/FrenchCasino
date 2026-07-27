@@ -6,6 +6,8 @@ import { Gift, ShieldCheck, Sparkles, Filter } from 'lucide-react'
 
 import { PageHero } from '@/components/ui/PageHero'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Bonus Sans Dépôt Casino (2026) — Spins Gratuits & Cash Offert',
   description: 'Liste exclusive et vérifiée des meilleurs bonus casino sans dépôt en France pour 2026. Free spins, jetons gratuits et bonus cash sans carte bancaire.',

@@ -5,6 +5,8 @@ import { Zap, ShieldCheck, Filter } from 'lucide-react'
 
 import { PageHero } from '@/components/ui/PageHero'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Meilleurs Bonus de Dépôt Casino (2026) — Packages de Bienvenue Exclusifs',
   description: 'Sélection des plus gros bonus de dépôt casino en France. Bonus SANS WAGER, cashback et packages de bienvenue jusqu\'à 2000€ négociés.',
