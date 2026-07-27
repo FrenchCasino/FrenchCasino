@@ -192,24 +192,32 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
       <div className="space-y-2">
         {casinos.map((casino, index) => (
           <div key={casino.id} className="flex items-center justify-between p-4 bg-surface rounded-xl border border-surface-border hover:border-slate-600 transition-colors">
-            <div className="flex items-center gap-4">
-              <div className="text-xl font-black text-slate-600 w-8 text-center">
-                #{casino.ordreClassement}
-              </div>
+              <div className="flex items-center gap-4">
+              <input
+                type="number"
+                defaultValue={casino.ordreClassement}
+                onBlur={async (e) => {
+                  const newVal = parseInt(e.target.value);
+                  if (newVal && newVal !== casino.ordreClassement) {
+                    setIsLoading(true);
+                    try {
+                      await updateCasinoOrder([{ id: casino.id, ordreClassement: newVal }]);
+                      window.location.reload();
+                    } catch (err) {
+                      alert("Erreur de sauvegarde");
+                    }
+                  }
+                }}
+                disabled={isLoading}
+                className="w-16 bg-slate-900 border border-slate-700 text-white font-bold text-center py-2 rounded-lg hover:border-slate-500 focus:border-primary focus:outline-none transition-colors"
+                title="Modifier le classement"
+              />
               <div>
                 <h3 className="font-bold text-white text-lg">{casino.name}</h3>
                 <p className="text-xs text-emerald-400 font-medium">{casino.bonusDepot} {casino.bonusSansDepot && `+ ${casino.bonusSansDepot}`}</p>
               </div>
             </div>
             <div className="flex gap-2">
-              <div className="flex flex-col gap-1 mr-2">
-                <button onClick={() => handleMoveUp(index)} disabled={index === 0 || isLoading} className="p-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 rounded">
-                  <ChevronUp className="w-4 h-4" />
-                </button>
-                <button onClick={() => handleMoveDown(index)} disabled={index === casinos.length - 1 || isLoading} className="p-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 rounded">
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-              </div>
               <button onClick={() => handleEdit(casino)} className="p-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded-lg">
                 <Edit2 className="w-4 h-4" />
               </button>
