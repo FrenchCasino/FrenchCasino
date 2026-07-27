@@ -11,6 +11,8 @@ interface CasinoCardProps {
 }
 
 export function CasinoCard({ casino, rank }: CasinoCardProps) {
+  const [imgError, setImgError] = useState(false)
+
   return (
     <div className={`relative group rounded-2xl glass-panel glass-panel-hover p-5 sm:p-6 transition-all duration-300 ${
       casino.highlighted ? 'border-primary/50 shadow-purple-glow' : 'border-surface-border'
@@ -26,27 +28,29 @@ export function CasinoCard({ casino, rank }: CasinoCardProps) {
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-        
-        {/* Section Gauche : Logo, Rang, Nom, Note */}
-        <div className="flex items-center gap-4 min-w-[240px]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        {/* Infos Casino (Logo, Nom, Note) */}
+        <div className="flex items-center gap-4 sm:gap-5 min-w-[240px]">
           {rank && (
-            <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-surface border border-slate-700 font-display font-extrabold text-sm text-gold flex items-center justify-center shadow-inner">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-surface-dark border border-gold/30 text-gold font-display font-bold text-sm shadow-inner shrink-0">
               #{rank}
             </div>
           )}
 
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-purple-900/40 to-slate-900 border border-slate-700/80 p-2 flex items-center justify-center text-center font-bold text-lg text-white shadow-md group-hover:border-primary/50 transition-colors relative overflow-hidden">
-            {casino.logoUrl ? (
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-purple-900/40 to-slate-900 border border-slate-700/80 p-2 flex items-center justify-center text-center font-bold text-lg text-white shadow-md group-hover:border-primary/50 transition-colors relative overflow-hidden shrink-0">
+            {casino.logoUrl && !imgError ? (
               <img 
                 src={casino.logoUrl} 
                 alt={`Logo ${casino.name}`}
                 className="object-contain w-full h-full drop-shadow-md rounded"
+                onError={() => setImgError(true)}
               />
             ) : (
-              <div className="flex flex-col items-center">
-                <span className="text-xl">🎰</span>
-                <span className="text-[10px] text-slate-300 font-semibold truncate max-w-[60px]">
+              <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-purple-800 to-indigo-950 p-1 rounded">
+                <span className="text-lg font-black tracking-widest text-gold drop-shadow-sm uppercase">
+                  {casino.name.substring(0, 3)}
+                </span>
+                <span className="text-[9px] text-slate-300 font-semibold truncate max-w-[60px] uppercase">
                   {casino.name.split(' ')[0]}
                 </span>
               </div>

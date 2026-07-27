@@ -119,29 +119,29 @@ export async function autoFixLogos() {
 
   const updates = [
     { slug: 'goldbet-casino', url: 'https://consumersiteimages.trustpilot.net/business-units/66f1b6ead36fdcc4d52b3599-198x149-2x.avif' },
-    { slug: 'megawin-casino', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Fmegawin-logo.jpg&w=256&q=100' },
+    { slug: 'megawin-casino', url: 'https://media.tn.bet/logo/megawin-logo.jpg' },
     { slug: 'slott-casino', url: 'https://igamingfuture.com/wp-content/uploads/2024/07/image001-80-1024x683.jpg' },
     { slug: 'betory-casino', url: 'https://d1yabsjhm5ni78.cloudfront.net/media/betory.com/icons/main_icon_1772453740.png' },
     { slug: 'evospin', url: 'https://foundtreasure.org/wp-content/uploads/2021/05/evospin-casino-logo.png' },
     { slug: 'spin-dynasty', url: 'https://www.ambianceloisirs.fr/logos/spindynasty.png' },
     { slug: 'goldenplay', url: 'https://goldenplaycasino-fr.com/kited695858/goldenplay-casino-logo1.BcD1Fva6_Z1qhOrb.webp' },
     { slug: 'gunsbet', url: 'https://img.stargambling.net/2023/10/rae3za-gunsbet-casino-logo.png' },
-    { slug: 'brutal-casino', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Fbrutal-casino-logo.jpg&w=256&q=100' },
+    { slug: 'brutal-casino', url: 'https://media.tn.bet/logo/brutal-casino-logo.jpg' },
     { slug: 'king-chance', url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYs9ohTDJDNzFtK8nhHW5JTm3Y2DVHzBonQniXbcE3L8pTK40oD8xdv_Gs&s=10' },
-    { slug: 'mr-baron-casino', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Fmrbaron-casino-logo.jpg&w=256&q=100' },
+    { slug: 'mr-baron', url: 'https://media.tn.bet/logo/mrbaron-casino-logo.jpg' },
     { slug: 'europe777', url: 'https://europe777-casino.fr/wp-content/uploads/2026/03/europe777-casino-logo.png' },
     { slug: 'lucky-treasure', url: 'https://jeux.ca/content/cms-images/d228560744f34ad2ac8d3edc0866007ca52b8339-600x240.webp' },
-    { slug: 'i24slots', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Fi24slots-logo.jpg&w=256&q=100' },
-    { slug: 'europefortune', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Feurope-fortune-logo.jpg&w=256&q=100' },
-    { slug: 'royal-vincit', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Froyal-vincit-logo.jpg&w=256&q=100' },
+    { slug: 'i24slots', url: 'https://media.tn.bet/logo/i24slots-logo.jpg' },
+    { slug: 'europefortune', url: 'https://media.tn.bet/logo/europe-fortune-logo.jpg' },
+    { slug: 'royal-vincit', url: 'https://media.tn.bet/logo/royal-vincit-logo.jpg' },
     { slug: 'atefia-casino', url: 'https://playplinkoau.com/assets/img/casinos/atefia.svg' },
-    { slug: 'spinfin', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Fspinfin-logo.jpg&w=256&q=100' },
-    { slug: 'x3bet', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Fx3bet-casino-logo.jpg&w=256&q=100' },
-    { slug: 'allyspin', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Fallyspin-logo.jpg&w=256&q=100' },
-    { slug: 'onlyspin', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Fonlyspin-logo.jpg&w=256&q=100' },
-    { slug: 'spinbara', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Fspinbara-logo.jpg&w=256&q=100' },
-    { slug: 'sg-casino', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Fsg-casino-logo.jpg&w=256&q=100' },
-    { slug: 'viggoslots', url: 'https://tnbet.fr/_next/image?url=https%3A%2F%2Fmedia.tn.bet%2Flogo%2Fviggoslots-logo.jpg&w=256&q=100' }
+    { slug: 'spinfin', url: 'https://media.tn.bet/logo/spinfin-logo.jpg' },
+    { slug: 'x3bet', url: 'https://media.tn.bet/logo/x3bet-casino-logo.jpg' },
+    { slug: 'sg-casino', url: 'https://media.tn.bet/logo/sg-casino-logo.jpg' },
+    { slug: 'allyspin', url: 'https://www.google.com/s2/favicons?domain=allyspin.com&sz=128' },
+    { slug: 'onlyspin', url: 'https://www.google.com/s2/favicons?domain=onlyspin.com&sz=128' },
+    { slug: 'spinbara', url: 'https://www.google.com/s2/favicons?domain=spinbara.com&sz=128' },
+    { slug: 'viggoslots', url: 'https://www.google.com/s2/favicons?domain=viggoslots.com&sz=128' }
   ]
 
   for (const up of updates) {
