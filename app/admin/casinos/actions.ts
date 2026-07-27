@@ -77,3 +77,24 @@ export async function deleteCasino(id: string) {
 
   return { success: true }
 }
+
+export async function updateCasinoOrder(updates: { id: string, ordreClassement: number }[]) {
+  const supabase = await createClient()
+
+  for (const update of updates) {
+    if (update.id && update.id.length > 5) {
+      await supabase
+        .from('casinos')
+        .update({ ordre_classement: update.ordreClassement })
+        .eq('id', update.id)
+    }
+  }
+
+  revalidatePath('/')
+  revalidatePath('/top-casino')
+  revalidatePath('/bonus-sans-depot')
+  revalidatePath('/bonus-depot')
+  revalidatePath('/admin/casinos')
+
+  return { success: true }
+}

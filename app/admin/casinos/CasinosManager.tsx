@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { Casino } from '@/lib/data/casinos'
-import { saveCasino, deleteCasino } from './actions'
-import { Plus, Edit2, Trash2, Save, X, GripVertical } from 'lucide-react'
+import { saveCasino, deleteCasino, updateCasinoOrder } from './actions'
+import { Plus, Edit2, Trash2, Save, X, GripVertical, ChevronUp, ChevronDown } from 'lucide-react'
 
 export default function CasinosManager({ initialCasinos }: { initialCasinos: Casino[] }) {
   const [casinos, setCasinos] = useState<Casino[]>(initialCasinos)
@@ -12,6 +12,64 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
 
   const handleEdit = (casino: Casino) => {
     setEditing({ ...casino })
+  }
+
+  const handleMoveUp = async (index: number) => {
+    if (index === 0) return;
+    setIsLoading(true);
+    const newCasinos = [...casinos];
+    const current = newCasinos[index];
+    const prev = newCasinos[index - 1];
+    
+    // Swap order
+    const currentOrder = current.ordreClassement;
+    current.ordreClassement = prev.ordreClassement;
+    prev.ordreClassement = currentOrder;
+    
+    // Swap array position for immediate UI update
+    newCasinos[index] = prev;
+    newCasinos[index - 1] = current;
+    setCasinos(newCasinos);
+    
+    try {
+      await updateCasinoOrder([
+        { id: current.id, ordreClassement: current.ordreClassement },
+        { id: prev.id, ordreClassement: prev.ordreClassement }
+      ]);
+    } catch (e: any) {
+      alert("Erreur lors de la sauvegarde de l'ordre.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handleMoveDown = async (index: number) => {
+    if (index === casinos.length - 1) return;
+    setIsLoading(true);
+    const newCasinos = [...casinos];
+    const current = newCasinos[index];
+    const next = newCasinos[index + 1];
+    
+    // Swap order
+    const currentOrder = current.ordreClassement;
+    current.ordreClassement = next.ordreClassement;
+    next.ordreClassement = currentOrder;
+    
+    // Swap array position
+    newCasinos[index] = next;
+    newCasinos[index + 1] = current;
+    setCasinos(newCasinos);
+    
+    try {
+      await updateCasinoOrder([
+        { id: current.id, ordreClassement: current.ordreClassement },
+        { id: next.id, ordreClassement: next.ordreClassement }
+      ]);
+    } catch (e: any) {
+      alert("Erreur lors de la sauvegarde de l'ordre.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const handleCreate = () => {
@@ -132,7 +190,7 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
       </button>
 
       <div className="space-y-2">
-        {casinos.map((casino) => (
+        {casinos.map((casino, index) => (
           <div key={casino.id} className="flex items-center justify-between p-4 bg-surface rounded-xl border border-surface-border hover:border-slate-600 transition-colors">
             <div className="flex items-center gap-4">
               <div className="text-xl font-black text-slate-600 w-8 text-center">
@@ -144,6 +202,14 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
               </div>
             </div>
             <div className="flex gap-2">
+              <div className="flex flex-col gap-1 mr-2">
+                <button onClick={() => handleMoveUp(index)} disabled={index === 0 || isLoading} className="p-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 rounded">
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleMoveDown(index)} disabled={index === casinos.length - 1 || isLoading} className="p-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 rounded">
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
               <button onClick={() => handleEdit(casino)} className="p-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded-lg">
                 <Edit2 className="w-4 h-4" />
               </button>
