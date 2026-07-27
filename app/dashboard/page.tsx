@@ -77,10 +77,18 @@ export default function DashboardPage() {
         setAffiliateStatus(aff.status)
 
         // Load Casinos
-        const { data: casData } = await supabase
+        let { data: casData, error: casErr } = await supabase
           .from('casinos')
           .select('id, name, slug, remboursement_depot, commission_conditions, bonus_depot, minimum_depot, visible_affiliate')
           .eq('is_active', true)
+        
+        if (casErr) {
+          const { data: fallbackData } = await supabase
+            .from('casinos')
+            .select('id, name, slug, remboursement_depot, commission_conditions, bonus_depot, minimum_depot')
+            .eq('is_active', true)
+          casData = fallbackData
+        }
         
         if (casData) {
           setCasinosList(casData.filter((c: any) => c.visible_affiliate !== false))

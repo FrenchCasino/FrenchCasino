@@ -321,15 +321,21 @@ export default function AdminDashboardPage() {
       }
 
       if (error) {
-        if (error.code === '42703') {
-          // Column visible_affiliate might not exist in SQL DB yet, fallback without it
+        if (error.code === '42703' || error.code === 'PGRST204' || (error.message && error.message.includes('visible_affiliate'))) {
+          // Column visible_affiliate might not exist in SQL DB yet, fallback without it so update succeeds
           const { visible_affiliate, ...fallbackData } = casinoData
+          let fallbackRes;
           if (casinoModal.editingId) {
-            await supabase.from('casinos').update(fallbackData).eq('id', casinoModal.editingId)
+            fallbackRes = await supabase.from('casinos').update(fallbackData).eq('id', casinoModal.editingId)
           } else {
-            await supabase.from('casinos').insert([{ ...fallbackData, is_active: true }])
+            fallbackRes = await supabase.from('casinos').insert([{ ...fallbackData, is_active: true }])
           }
-          alert(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès !`)
+
+          if (fallbackRes.error) {
+            alert("Erreur : " + fallbackRes.error.message)
+          } else {
+            alert(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès ! La modification du classement est en ligne.`)
+          }
         } else {
           alert("Erreur : " + error.message)
         }
