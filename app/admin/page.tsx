@@ -808,7 +808,7 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
                 {partners.length === 0 ? (
                   <div className="col-span-full p-8 glass-panel rounded-xl text-center text-slate-400 space-y-2">
                     <Building className="w-8 h-8 text-slate-600 mx-auto" />
@@ -816,17 +816,17 @@ export default function AdminDashboardPage() {
                     <p className="text-xs text-slate-500">Cliquez sur "Ajouter un Partenaire" pour créer votre premier compte d'affiliation.</p>
                   </div>
                 ) : partners.map((partner) => (
-                  <div key={partner.id} className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4 relative overflow-hidden group hover:border-gold/30 transition-all flex flex-col justify-between">
-                    <div className="space-y-3">
-                      {/* Header Partenaire */}
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="flex items-center gap-2.5">
-                          <div className="p-2 rounded-xl bg-purple-950/50 border border-purple-800/40 text-gold">
+                  <div key={partner.id} className="glass-panel p-5 rounded-2xl border border-slate-800 relative overflow-hidden group hover:border-gold/30 transition-all flex flex-col justify-between h-full shadow-lg">
+                    <div className="space-y-4">
+                      {/* Header Partenaire — Hauteur Fixe pour Alignement Parfait */}
+                      <div className="flex justify-between items-start gap-2 min-h-[56px]">
+                        <div className="flex items-start gap-2.5">
+                          <div className="p-2 rounded-xl bg-purple-950/50 border border-purple-800/40 text-gold shrink-0 mt-0.5">
                             <Building className="w-5 h-5" />
                           </div>
                           <div>
-                            <h4 className="font-bold text-white text-base leading-tight">{partner.name}</h4>
-                            <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1 mt-0.5">
+                            <h4 className="font-bold text-white text-sm sm:text-base leading-snug line-clamp-2">{partner.name}</h4>
+                            <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1 mt-1">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                               Partenaire Actif
                             </span>
@@ -846,48 +846,51 @@ export default function AdminDashboardPage() {
                         </a>
                       </div>
 
-                      {/* Commissions CPA & RS */}
-                      <div className="grid grid-cols-2 gap-2 pt-1">
-                        <div className="bg-slate-900/80 border border-slate-800 p-2.5 rounded-xl space-y-0.5">
+                      {/* Commissions CPA & RS — Alignées */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-slate-900/80 border border-slate-800 p-2.5 rounded-xl space-y-0.5 min-h-[54px] flex flex-col justify-center">
                           <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider flex items-center gap-1">
-                            <DollarSign className="w-3 h-3 text-emerald-400" />
+                            <DollarSign className="w-3 h-3 text-emerald-400 shrink-0" />
                             CPA Négocié
                           </span>
-                          <p className="text-xs font-mono font-bold text-emerald-400">{partner.cpa_commission || 'Non défini'}</p>
+                          <p className="text-xs font-mono font-bold text-emerald-400 truncate">{partner.cpa_commission || 'Non défini'}</p>
                         </div>
-                        <div className="bg-slate-900/80 border border-slate-800 p-2.5 rounded-xl space-y-0.5">
+                        <div className="bg-slate-900/80 border border-slate-800 p-2.5 rounded-xl space-y-0.5 min-h-[54px] flex flex-col justify-center">
                           <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider flex items-center gap-1">
-                            <Percent className="w-3 h-3 text-gold" />
+                            <Percent className="w-3 h-3 text-gold shrink-0" />
                             Revenue Share
                           </span>
-                          <p className="text-xs font-mono font-bold text-gold">{partner.rs_commission || 'Non défini'}</p>
+                          <p className="text-xs font-mono font-bold text-gold truncate">{partner.rs_commission || 'Non défini'}</p>
                         </div>
                       </div>
 
-                      {/* Casinos Reliés de la Liste Top Casino */}
-                      <div className="space-y-1.5 pt-1">
-                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider flex items-center gap-1">
-                          <Handshake className="w-3.5 h-3.5 text-purple-400" />
-                          Casinos Reliés ({partner.casinos_relies?.length || 0}) :
+                      {/* Casinos Reliés — Container à Hauteur Fixe Égale */}
+                      <div className="space-y-1.5">
+                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider flex items-center justify-between">
+                          <span className="flex items-center gap-1">
+                            <Handshake className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                            Casinos Reliés
+                          </span>
+                          <span className="font-mono text-gold text-[10px]">({partner.casinos_relies?.length || 0})</span>
                         </span>
                         
-                        <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                        <div className="bg-slate-900/40 border border-slate-800/80 p-2.5 rounded-xl h-24 overflow-y-auto flex flex-wrap gap-1.5 content-start">
                           {partner.casinos_relies && partner.casinos_relies.length > 0 ? (
                             partner.casinos_relies.map((cName: string, idx: number) => (
                               <span key={idx} className="px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[10px] font-medium text-slate-200 flex items-center gap-1">
-                                <span className="w-1 h-1 rounded-full bg-gold" />
+                                <span className="w-1 h-1 rounded-full bg-gold shrink-0" />
                                 {cName}
                               </span>
                             ))
                           ) : (
-                            <span className="text-[11px] text-slate-500 italic">Aucun casino coché</span>
+                            <span className="text-[11px] text-slate-500 italic p-1">Aucun casino coché</span>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    {/* Footer Actions */}
-                    <div className="flex gap-2 pt-3 border-t border-slate-800/80 mt-4">
+                    {/* Footer Actions — Ancré au Bas */}
+                    <div className="flex gap-2 pt-3 border-t border-slate-800/80 mt-5">
                       <button 
                         onClick={() => openEditPartnerModal(partner)}
                         className="flex-1 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition-colors"
