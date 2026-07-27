@@ -93,7 +93,7 @@ export default function TopCasinoPage() {
                 <span className="text-xs font-black text-amber-950 mt-1">1ER</span>
               </div>
               <div className="mt-10 text-center space-y-4">
-                <div className="inline-block px-3 py-1 bg-gold/20 border border-gold/40 text-gold text-[10px] font-bold uppercase tracking-widest rounded-full mb-1">Choix n°1 en France</div>
+                <div className="inline-block px-3 py-1 bg-gold/20 border border-gold/40 text-gold text-[10px] font-bold uppercase tracking-widest rounded-full mb-1">№ 1 — Meilleur casino FR 2026</div>
                 <h3 className="font-display font-black text-2xl text-white">{CASINOS_MOCK[0].name}</h3>
                 <div className="flex justify-center items-center gap-1 text-gold bg-gold/10 px-4 py-1.5 rounded-full text-sm font-bold mx-auto w-fit border border-gold/20">
                   <Star className="w-4 h-4 text-gold fill-gold" />
@@ -138,12 +138,25 @@ export default function TopCasinoPage() {
         {/* Le Reste du Classement */}
         <div className="space-y-6 pt-10">
           <h2 className="font-display font-bold text-2xl text-white flex items-center gap-2">
-            Suite du Palmarès des Casinos Recommandés
+            Suite du classement — Rang 4 à 15
           </h2>
 
           <div className="space-y-4">
-            {CASINOS_MOCK.slice(3).map((casino, idx) => (
+            {CASINOS_MOCK.slice(3, 15).map((casino, idx) => (
               <CasinoCard key={casino.id} casino={casino} rank={idx + 4} />
+            ))}
+          </div>
+        </div>
+
+        {/* Classement bonus inscription */}
+        <div className="space-y-6 pt-10">
+          <h2 className="font-display font-bold text-2xl text-white flex items-center gap-2">
+            Classement bonus inscription — Rang 16
+          </h2>
+
+          <div className="space-y-4">
+            {CASINOS_MOCK.slice(15).map((casino, idx) => (
+              <CasinoCard key={casino.id} casino={casino} rank={idx + 16} />
             ))}
           </div>
         </div>

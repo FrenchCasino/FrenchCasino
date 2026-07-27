@@ -19,14 +19,22 @@ export interface Casino {
   highlighted?: boolean;
 }
 
+export const METHODOLOGIE_NOTATION = [
+  { critere: "Licence & Sécurité", poids: "30%", description: "Vérification des licences officielles (Curaçao, MGA, etc.) et du cryptage SSL." },
+  { critere: "Vitesse des Retraits", poids: "25%", description: "Tests réels de retrait via crypto et virement bancaire. Pénalité si > 48h." },
+  { critere: "Conditions de Bonus", poids: "25%", description: "Analyse du wager, limites de retrait et termes abusifs cachés." },
+  { critere: "Support Client", poids: "20%", description: "Test de réactivité du live chat en français à différentes heures." }
+]
+
 export const CASINOS_MOCK: Casino[] = [
+  // PODIUM (Index 0, 1, 2)
   {
     id: "c1",
     name: "GoldBet Casino",
     slug: "goldbet-casino",
     logoUrl: "/casinos/goldbet.webp",
-    licence: "Curaçao Gaming License",
-    noteFiabilite: 4.9,
+    licence: "Curaçao",
+    noteFiabilite: 4.85,
     description: "Le choix numéro 1 pour les joueurs français. Des retraits ultra rapides et un support disponible à toute heure.",
     bonusSansDepot: null,
     bonusDepot: "100% jusqu'à 500€",
@@ -42,34 +50,60 @@ export const CASINOS_MOCK: Casino[] = [
       "Bonus VIP",
       "FR acceptés"
     ],
-    badgeText: "MEILLEUR CASINO FR",
+    badgeText: "MEILLEUR CASINO FR 2026",
     highlighted: true
   },
   {
     id: "c2",
-    name: "Slott Casino",
-    slug: "slott-casino",
-    logoUrl: "/casinos/slott.webp",
-    licence: "Curaçao eGaming",
+    name: "MegaWin Casino",
+    slug: "megawin-casino",
+    logoUrl: "/casinos/megawin.webp",
+    licence: "Curaçao",
     noteFiabilite: 4.8,
-    description: "Une plateforme très moderne proposant des jackpots fréquents et un environnement entièrement adapté aux joueurs francophones.",
-    bonusSansDepot: null,
-    bonusDepot: "200% jusqu'à 20 000€ + 75 FS",
+    description: "Une plateforme très moderne proposant des avantages VIP exceptionnels et un bonus gratuit à l'inscription.",
+    bonusSansDepot: "10€",
+    bonusDepot: "150% jusqu'à 1000€",
     fraisRetrait: "0%",
-    delaiRetrait: "24-48h",
-    wager: "x35",
-    lienAffilie: "/api/track?casino=slott-casino",
+    delaiRetrait: "24h",
+    wager: "x40",
+    lienAffilie: "/api/track?casino=megawin-casino",
     ordreClassement: 2,
-    tags: ["Moderne", "Jackpots"],
+    tags: ["Sans Dépôt", "VIP"],
     pointsForts: [
-      "Interface moderne",
-      "Jackpots fréquents",
-      "Support FR"
+      "10€ sans dépôt",
+      "VIP 8 niveaux",
+      "Support FR",
+      "FR acceptés"
     ],
     highlighted: true
   },
   {
     id: "c3",
+    name: "Slott Casino",
+    slug: "slott-casino",
+    logoUrl: "/casinos/slott.webp",
+    licence: "Curaçao eGaming",
+    noteFiabilite: 4.75,
+    description: "La plus grande bibliothèque de jeux du marché francophone avec un bonus de bienvenue massif.",
+    bonusSansDepot: null,
+    bonusDepot: "200% bienvenue",
+    fraisRetrait: "0%",
+    delaiRetrait: "24-48h",
+    wager: "x35",
+    lienAffilie: "/api/track?casino=slott-casino",
+    ordreClassement: 3,
+    tags: ["Jeux", "Massif"],
+    pointsForts: [
+      "200% bienvenue",
+      "12 000+ jeux",
+      "FR acceptés"
+    ],
+    highlighted: true
+  },
+  
+  // SUITE DU CLASSEMENT (Index 3 à 15)
+  {
+    id: "c4",
     name: "Brutal Casino",
     slug: "brutal-casino",
     logoUrl: "/casinos/brutal.webp",
@@ -77,23 +111,21 @@ export const CASINOS_MOCK: Casino[] = [
     noteFiabilite: 4.8,
     description: "Allez droit au but avec un lobby massif et une politique de bonus 100% sans condition de mise.",
     bonusSansDepot: null,
-    bonusDepot: "100% jusqu'à 1000€ (Sans wager)",
+    bonusDepot: "100% jusqu'à 1000€",
     fraisRetrait: "0%",
-    delaiRetrait: "12-24h",
+    delaiRetrait: "12h",
     wager: "Aucun (0x)",
     lienAffilie: "/api/track?casino=brutal-casino",
-    ordreClassement: 3,
-    tags: ["Sans Wager", "Lobby Massif"],
+    ordreClassement: 4,
+    tags: ["Sans Wager"],
     pointsForts: [
-      "Bonus sans condition",
-      "Lobby massif",
-      "FR acceptés"
-    ],
-    badgeText: "SANS WAGER",
-    highlighted: true
+      "Sans wager",
+      "Retrait 12h",
+      "FR"
+    ]
   },
   {
-    id: "c4",
+    id: "c5",
     name: "AllySpin",
     slug: "allyspin",
     logoUrl: "/casinos/allyspin.webp",
@@ -101,292 +133,259 @@ export const CASINOS_MOCK: Casino[] = [
     noteFiabilite: 4.7,
     description: "Des récompenses progressives et des retraits fiables pour les joueurs réguliers.",
     bonusSansDepot: null,
-    bonusDepot: "100% jusqu'à 500€ + 100 FS",
+    bonusDepot: "100% jusqu'à 500€",
     fraisRetrait: "0%",
-    delaiRetrait: "2-3 jours",
+    delaiRetrait: "24h",
     wager: "x40",
     lienAffilie: "/api/track?casino=allyspin",
-    ordreClassement: 4,
+    ordreClassement: 5,
     tags: ["Fidélité"],
     pointsForts: [
       "Fidélité progressive",
       "Retraits stables",
-      "FR acceptés"
-    ]
-  },
-  {
-    id: "c5",
-    name: "OnlySpin",
-    slug: "onlyspin",
-    logoUrl: "/casinos/onlyspin.webp",
-    licence: "Curaçao",
-    noteFiabilite: 4.5,
-    description: "Le paradis des amateurs de machines à sous avec des free spins tous les jours.",
-    bonusSansDepot: null,
-    bonusDepot: "100% jusqu'à 500€ + 200 FS",
-    fraisRetrait: "0%",
-    delaiRetrait: "24-48h",
-    wager: "x35",
-    lienAffilie: "/api/track?casino=onlyspin",
-    ordreClassement: 5,
-    tags: ["Free Spins", "Moderne"],
-    pointsForts: [
-      "Spins quotidiens",
-      "Slots modernes",
-      "FR acceptés"
+      "FR"
     ]
   },
   {
     id: "c6",
-    name: "Spin Dynasty",
-    slug: "spin-dynasty",
-    logoUrl: "/casinos/spin-dynasty.webp",
+    name: "EuropeFortune",
+    slug: "europefortune",
+    logoUrl: "/casinos/europefortune.webp",
     licence: "Curaçao",
-    noteFiabilite: 4.4,
-    description: "Profitez d'un énorme bonus de dépôt pour explorer un catalogue riche et varié.",
-    bonusSansDepot: null,
-    bonusDepot: "150% jusqu'à 1500€",
+    noteFiabilite: 4.6,
+    description: "Un casino européen offrant un bonus de départ sans dépôt.",
+    bonusSansDepot: "10€",
+    bonusDepot: "100% jusqu'à 500€",
     fraisRetrait: "0%",
-    delaiRetrait: "1-2 jours",
-    wager: "x40",
-    lienAffilie: "/api/track?casino=spin-dynasty",
+    delaiRetrait: "48h",
+    wager: "x35",
+    lienAffilie: "/api/track?casino=europefortune",
     ordreClassement: 6,
-    tags: ["Gros Bonus"],
+    tags: ["Sans Dépôt"],
     pointsForts: [
-      "Gros bonus dépôt",
-      "Retraits corrects",
-      "FR acceptés"
+      "10€ offerts",
+      "Casino européen",
+      "FR"
     ]
   },
   {
     id: "c7",
-    name: "GoldenPlay",
-    slug: "goldenplay",
-    logoUrl: "/casinos/goldenplay.webp",
+    name: "i24slots",
+    slug: "i24slots",
+    logoUrl: "/casinos/i24slots.webp",
     licence: "Curaçao",
-    noteFiabilite: 4.3,
-    description: "L'expérience de jeu dorée avec des bonus réguliers et une grande diversité de titres.",
-    bonusSansDepot: null,
-    bonusDepot: "100% jusqu'à 500€ + 50 FS",
+    noteFiabilite: 4.5,
+    description: "Slots populaires et bonus gratuit.",
+    bonusSansDepot: "10€",
+    bonusDepot: "100% jusqu'à 300€",
     fraisRetrait: "0%",
-    delaiRetrait: "1-3 jours",
-    wager: "x35",
-    lienAffilie: "/api/track?casino=goldenplay",
+    delaiRetrait: "24-48h",
+    wager: "x40",
+    lienAffilie: "/api/track?casino=i24slots",
     ordreClassement: 7,
-    tags: ["Catalogue"],
+    tags: ["Sans Dépôt"],
     pointsForts: [
-      "100% + tours offerts",
-      "Catalogue varié",
-      "FR acceptés"
+      "10€ offerts",
+      "Slots populaires",
+      "FR"
     ]
   },
   {
     id: "c8",
-    name: "Spinbara",
-    slug: "spinbara",
-    logoUrl: "/casinos/spinbara.webp",
+    name: "Royal Vincit",
+    slug: "royal-vincit",
+    logoUrl: "/casinos/royal-vincit.webp",
     licence: "Curaçao",
-    noteFiabilite: 4.2,
-    description: "Un véritable bar à slots avec des promotions qui tombent chaque semaine.",
-    bonusSansDepot: null,
-    bonusDepot: "100% jusqu'à 300€",
+    noteFiabilite: 4.5,
+    description: "Un thème royal avec des bonus sans dépôt pour commencer.",
+    bonusSansDepot: "10€",
+    bonusDepot: "150% jusqu'à 750€",
     fraisRetrait: "0%",
-    delaiRetrait: "1-3 jours",
+    delaiRetrait: "48h",
     wager: "x40",
-    lienAffilie: "/api/track?casino=spinbara",
+    lienAffilie: "/api/track?casino=royal-vincit",
     ordreClassement: 8,
-    tags: ["Promos"],
+    tags: ["Thème"],
     pointsForts: [
-      "Bar à slots",
-      "Promos régulières",
-      "FR acceptés"
+      "10€ offerts",
+      "Thème royal",
+      "FR"
     ]
   },
   {
     id: "c9",
-    name: "SG Casino",
-    slug: "sg-casino",
-    logoUrl: "/casinos/sg-casino.webp",
+    name: "Betory Casino",
+    slug: "betory-casino",
+    logoUrl: "/casinos/betory.webp",
     licence: "Curaçao",
-    noteFiabilite: 4.1,
-    description: "La meilleure sélection de jeux en direct et de game shows.",
+    noteFiabilite: 4.4,
+    description: "Nouveau casino 2026 avec plus de 6000 jeux.",
     bonusSansDepot: null,
-    bonusDepot: "100% jusqu'à 500€ + 200 FS",
+    bonusDepot: "100% jusqu'à 400€",
     fraisRetrait: "0%",
-    delaiRetrait: "2-3 jours",
+    delaiRetrait: "24h",
     wager: "x35",
-    lienAffilie: "/api/track?casino=sg-casino",
+    lienAffilie: "/api/track?casino=betory-casino",
     ordreClassement: 9,
-    tags: ["Casino Live"],
+    tags: ["Nouveau"],
     pointsForts: [
-      "Sélection live",
-      "Retraits corrects",
-      "FR acceptés"
+      "Nouveau 2026",
+      "+6000 jeux",
+      "FR"
     ]
   },
   {
     id: "c10",
+    name: "OnlySpin",
+    slug: "onlyspin",
+    logoUrl: "/casinos/onlyspin.webp",
+    licence: "Curaçao",
+    noteFiabilite: 4.3,
+    description: "Le paradis des amateurs de machines à sous.",
+    bonusSansDepot: null,
+    bonusDepot: "100% jusqu'à 500€",
+    fraisRetrait: "0%",
+    delaiRetrait: "24-48h",
+    wager: "x35",
+    lienAffilie: "/api/track?casino=onlyspin",
+    ordreClassement: 10,
+    tags: ["Spins"],
+    pointsForts: [
+      "Spins quotidiens",
+      "Slots modernes",
+      "FR"
+    ]
+  },
+  {
+    id: "c11",
+    name: "Spin Dynasty",
+    slug: "spin-dynasty",
+    logoUrl: "/casinos/spin-dynasty.webp",
+    licence: "Curaçao",
+    noteFiabilite: 4.2,
+    description: "Gros bonus de dépôt et des conditions raisonnables.",
+    bonusSansDepot: null,
+    bonusDepot: "150% jusqu'à 1500€",
+    fraisRetrait: "0%",
+    delaiRetrait: "48h",
+    wager: "x40",
+    lienAffilie: "/api/track?casino=spin-dynasty",
+    ordreClassement: 11,
+    tags: ["Gros Bonus"],
+    pointsForts: [
+      "Gros bonus dépôt",
+      "Retraits corrects",
+      "FR"
+    ]
+  },
+  {
+    id: "c12",
+    name: "GoldenPlay",
+    slug: "goldenplay",
+    logoUrl: "/casinos/goldenplay.webp",
+    licence: "Curaçao",
+    noteFiabilite: 4.1,
+    description: "Catalogue varié et tours gratuits.",
+    bonusSansDepot: null,
+    bonusDepot: "100% + tours",
+    fraisRetrait: "0%",
+    delaiRetrait: "48h",
+    wager: "x35",
+    lienAffilie: "/api/track?casino=goldenplay",
+    ordreClassement: 12,
+    tags: ["Varié"],
+    pointsForts: [
+      "100% + tours offerts",
+      "Catalogue varié",
+      "FR"
+    ]
+  },
+  {
+    id: "c13",
+    name: "Spinbara",
+    slug: "spinbara",
+    logoUrl: "/casinos/spinbara.webp",
+    licence: "Curaçao",
+    noteFiabilite: 4.0,
+    description: "Promotions régulières et très grand nombre de jeux.",
+    bonusSansDepot: null,
+    bonusDepot: "100% jusqu'à 300€",
+    fraisRetrait: "0%",
+    delaiRetrait: "48h",
+    wager: "x40",
+    lienAffilie: "/api/track?casino=spinbara",
+    ordreClassement: 13,
+    tags: ["Promos"],
+    pointsForts: [
+      "Bar à slots",
+      "Promos régulières",
+      "FR"
+    ]
+  },
+  {
+    id: "c14",
+    name: "SG Casino",
+    slug: "sg-casino",
+    logoUrl: "/casinos/sg-casino.webp",
+    licence: "Curaçao",
+    noteFiabilite: 3.9,
+    description: "Idéal pour les jeux en direct.",
+    bonusSansDepot: null,
+    bonusDepot: "100% jusqu'à 500€",
+    fraisRetrait: "0%",
+    delaiRetrait: "48h",
+    wager: "x35",
+    lienAffilie: "/api/track?casino=sg-casino",
+    ordreClassement: 14,
+    tags: ["Live"],
+    pointsForts: [
+      "Sélection live",
+      "Retraits corrects",
+      "FR"
+    ]
+  },
+  {
+    id: "c15",
     name: "Lucky Treasure",
     slug: "lucky-treasure",
     logoUrl: "/casinos/lucky-treasure.webp",
     licence: "Curaçao",
     noteFiabilite: 3.8,
-    description: "Des bonus alléchants mais un processus de retrait qui demande de la patience.",
+    description: "Paiements un peu plus lents mais d'excellents bonus.",
     bonusSansDepot: null,
-    bonusDepot: "150% jusqu'à 1000€ + 100 FS",
+    bonusDepot: "150% jusqu'à 10 000€",
     fraisRetrait: "0%",
     delaiRetrait: "3-5 jours",
-    wager: "x40",
+    wager: "x30",
     lienAffilie: "/api/track?casino=lucky-treasure",
-    ordreClassement: 10,
-    tags: ["Gros Bonus"],
+    ordreClassement: 15,
+    tags: ["Bonus"],
     pointsForts: [
       "Paiements lents",
       "Bonus intéressants",
-      "FR acceptés"
+      "FR"
     ]
   },
   {
-    id: "c11",
-    name: "i24 Casino",
-    slug: "i24-casino",
-    logoUrl: "/casinos/i24-casino.webp",
-    licence: "Curaçao",
-    noteFiabilite: 3.5,
-    description: "Essayez le casino sans risque avec un bonus sans dépôt dès l'inscription.",
-    bonusSansDepot: "10 € offerts sans dépôt",
-    bonusDepot: "100% jusqu'à 200€",
-    fraisRetrait: "0%",
-    delaiRetrait: "2-5 jours",
-    wager: "x50",
-    lienAffilie: "/api/track?casino=i24-casino",
-    ordreClassement: 11,
-    tags: ["Sans Dépôt"],
-    pointsForts: [
-      "10 € offerts",
-      "Conditions à vérifier",
-      "FR acceptés"
-    ],
-    badgeText: "10€ OFFERTS"
-  },
-  {
-    id: "c12",
-    name: "MegaWin",
-    slug: "megawin",
-    logoUrl: "/casinos/megawin.webp",
-    licence: "Curaçao",
-    noteFiabilite: 3.6,
-    description: "Une vaste gamme de machines à sous populaires pour jouer vos 10€ gratuits.",
-    bonusSansDepot: "10 € offerts sans dépôt",
-    bonusDepot: "100% jusqu'à 300€",
-    fraisRetrait: "0%",
-    delaiRetrait: "2-4 jours",
-    wager: "x45",
-    lienAffilie: "/api/track?casino=megawin",
-    ordreClassement: 12,
-    tags: ["Sans Dépôt", "Populaire"],
-    pointsForts: [
-      "10 € offerts",
-      "Slots populaires",
-      "FR acceptés"
-    ],
-    badgeText: "10€ OFFERTS"
-  },
-  {
-    id: "c13",
-    name: "Europe Fortune",
-    slug: "europe-fortune",
-    logoUrl: "/casinos/europe-fortune.webp",
-    licence: "Curaçao",
-    noteFiabilite: 3.4,
-    description: "Tentez votre chance avec un petit capital gratuit avant de déposer.",
-    bonusSansDepot: "10 € offerts sans dépôt",
-    bonusDepot: "100% jusqu'à 250€",
-    fraisRetrait: "0%",
-    delaiRetrait: "2-5 jours",
-    wager: "x40",
-    lienAffilie: "/api/track?casino=europe-fortune",
-    ordreClassement: 13,
-    tags: ["Sans Dépôt"],
-    pointsForts: [
-      "10 € offerts",
-      "Retraits moyens",
-      "FR acceptés"
-    ],
-    badgeText: "10€ OFFERTS"
-  },
-  {
-    id: "c14",
-    name: "Royal Vinci",
-    slug: "royal-vinci",
-    logoUrl: "/casinos/royal-vinci.webp",
-    licence: "Curaçao",
-    noteFiabilite: 3.5,
-    description: "Plongez dans un thème royal avec 10€ offerts pour découvrir le catalogue.",
-    bonusSansDepot: "10 € offerts sans dépôt",
-    bonusDepot: "100% jusqu'à 500€",
-    fraisRetrait: "0%",
-    delaiRetrait: "3-5 jours",
-    wager: "x45",
-    lienAffilie: "/api/track?casino=royal-vinci",
-    ordreClassement: 14,
-    tags: ["Thème Royal", "Sans Dépôt"],
-    pointsForts: [
-      "10 € offerts",
-      "Thème royal",
-      "FR acceptés"
-    ],
-    badgeText: "10€ OFFERTS"
-  },
-  {
-    id: "c15",
+    id: "c16",
     name: "Viggoslots",
     slug: "viggoslots",
     logoUrl: "/casinos/viggoslots.webp",
-    licence: "Mountberg Ltd",
-    noteFiabilite: 3.7,
-    description: "Tous les bonus sont sans wager. Vous encaissez ce que vous gagnez, malgré des retraits un peu lents.",
-    bonusSansDepot: "10 Free Spins (Offre VIP)",
-    bonusDepot: "100% jusqu'à 400€ + 170 FS (Sans Wager)",
+    licence: "Mountberg",
+    noteFiabilite: 3.5,
+    description: "Des offres sans wager mais des retraits parfois retardés.",
+    bonusSansDepot: null,
+    bonusDepot: "100% Sans Wager",
     fraisRetrait: "0%",
-    delaiRetrait: "4-7 jours",
+    delaiRetrait: "3-5 jours",
     wager: "Aucun (0x)",
     lienAffilie: "/api/track?casino=viggoslots",
-    ordreClassement: 15,
+    ordreClassement: 16,
     tags: ["Sans Wager"],
     pointsForts: [
       "Sans wager",
       "Paiements lents",
-      "FR acceptés"
-    ],
-    badgeText: "SANS WAGER"
+      "FR"
+    ]
   }
-];
-
-export const METHODOLOGIE_NOTATION = [
-  {
-    critere: "Licence & Régulation",
-    poids: "25%",
-    description: "Vérification systématique de l'authenticité des licences (Curaçao, MGA, Anjouan) et conformité du générateur de nombres aléatoires (RNG)."
-  },
-  {
-    critere: "Rapidité des Retraits",
-    poids: "25%",
-    description: "Test réel des retraits (crypto, virement, e-wallet) avec comptabilisation précise du délai de validation de la demande."
-  },
-  {
-    critere: "Transparence des Bonus & Wager",
-    poids: "20%",
-    description: "Analyse stricte des termes et conditions : plafond de retrait sur bonus, mise maximale autorisée et clarté du wager."
-  },
-  {
-    critere: "Qualité du Service Client",
-    poids: "15%",
-    description: "Test anonyme du chat en direct et du support mail à différentes heures du jour et de la nuit en français."
-  },
-  {
-    critere: "Retours & Avis de la Communauté",
-    poids: "15%",
-    description: "Prise en compte des litiges signalés sur notre plateforme et retours d'expérience des joueurs membres."
-  }
-];
+]
