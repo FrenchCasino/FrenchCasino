@@ -591,7 +591,7 @@ export default function DashboardPage() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="bg-surface p-3 rounded-xl border border-slate-800 text-right">
             <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Solde Disponible</span>
-            <span className="text-xl font-bold font-mono text-gradient-gold">1 420.00 €</span>
+            <span className="text-xl font-bold font-mono text-gradient-gold">{soldeDisponible.toFixed(2)} €</span>
           </div>
           <button
             onClick={() => setDepositModalOpen(true)}
