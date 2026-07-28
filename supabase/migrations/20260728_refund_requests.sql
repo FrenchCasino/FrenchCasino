@@ -30,8 +30,7 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('proofs', 'proofs', true)
 ON CONFLICT (id) DO NOTHING;
 
--- RLS for storage.objects (if not already enabled)
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- RLS sur storage.objects est activé par défaut dans Supabase, pas besoin de le modifier
 
 -- Allow public read access to proofs
 CREATE POLICY "Public Access to proofs" 
