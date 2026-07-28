@@ -736,7 +736,22 @@ export default function AdminDashboardPage() {
 
                 <form onSubmit={handleSendTelegramBroadcast} className="relative z-10">
                   <div className="mb-4">
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">Message (Supporte le HTML Telegram &lt;b&gt;, &lt;i&gt;, &lt;a href=""&gt;)</label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-semibold text-slate-300">Message (Supporte le HTML Telegram &lt;b&gt;, &lt;i&gt;, &lt;a href=""&gt;)</label>
+                      <div className="flex gap-1">
+                        {['🎰', '🔥', '💰', '🏆', '🚨', '🆕', '💸', '💎', '🚀', '🎁', '📈', '✅', '⚠️', '🎉', '🤑'].map(emoji => (
+                          <button
+                            key={emoji}
+                            type="button"
+                            onClick={() => setTelegramMessage(prev => prev + emoji)}
+                            className="w-6 h-6 flex items-center justify-center text-sm bg-slate-800 hover:bg-slate-700 hover:text-xl rounded transition-all"
+                            title="Ajouter l'émoji"
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                     <textarea 
                       value={telegramMessage}
                       onChange={(e) => setTelegramMessage(e.target.value)}
