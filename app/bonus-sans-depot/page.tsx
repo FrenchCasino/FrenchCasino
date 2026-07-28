@@ -16,7 +16,9 @@ export const metadata = {
 
 export default async function BonusSansDepotPage() {
   const casinos = await getCasinos();
-  const casinosBonusSansDepot = casinos.filter(c => c.bonusSansDepot !== null)
+  const casinosBonusSansDepot = casinos
+    .filter(c => c.bonusSansDepot && c.bonusSansDepot.trim() !== '')
+    .slice(0, 10);
 
   return (
     <>
