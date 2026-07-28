@@ -619,7 +619,6 @@ export default function DashboardPage() {
             { id: 'payout', label: 'Paiements', icon: CreditCard },
             { id: 'iban', label: 'Mon IBAN', icon: Lock },
             { id: 'support', label: 'Support & Tchat', icon: MessageSquare },
-            { id: 'recruitment', label: 'Recrutement', icon: Users },
           ].map(tab => {
             const Icon = tab.icon
             const active = activeTab === tab.id
@@ -1027,29 +1026,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* 8. RECRUTER (SOUS-AFFILIÉS) */}
-      {activeTab === 'recruitment' && (
-        <div className="glass-panel p-8 rounded-2xl border border-gold/30 space-y-6">
-          <div className="space-y-2">
-            <h3 className="font-display font-bold text-xl text-white">Programme de Parrainage Sous-Affiliés</h3>
-            <p className="text-xs text-slate-400">
-              Invitez d&apos;autres créateurs à rejoindre FrenchCasino via votre lien de parrainage unique. Vous percevrez une commission bonus sur l&apos;ensemble de leurs résultats.
-            </p>
-          </div>
 
-          <div className="bg-surface p-4 rounded-xl border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span className="text-xs font-mono text-gold truncate">
-              {window.location.origin}/devenir-affilie?parent={affiliateCode}
-            </span>
-            <button
-              onClick={() => copyToClipboard(`${window.location.origin}/devenir-affilie?parent=${affiliateCode}`, 'parent')}
-              className="px-4 py-2 rounded-lg bg-gold text-black font-bold text-xs uppercase tracking-wider hover:bg-gold-light transition-colors"
-            >
-              {copiedCode === 'parent' ? 'Copié !' : 'Copier Mon Lien'}
-            </button>
-          </div>
-        </div>
-      )}
 
         </div>
       </div>
