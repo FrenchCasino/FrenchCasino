@@ -180,6 +180,18 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
             <label className="text-xs text-slate-400">Note Fiabilité (ex: 4.8)</label>
             <input type="number" step="0.1" value={editing.noteFiabilite} onChange={e => setEditing({...editing, noteFiabilite: Number(e.target.value)})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" />
           </div>
+
+          <div className="space-y-1.5 md:col-span-2 flex flex-col justify-center">
+            <label className="text-xs font-semibold text-emerald-400 flex items-center gap-2 cursor-pointer bg-emerald-950/20 p-3 rounded-xl border border-emerald-900/50">
+              <input
+                type="checkbox"
+                checked={editing.visible_affiliate !== false}
+                onChange={e => setEditing({ ...editing, visible_affiliate: e.target.checked })}
+                className="rounded border-slate-700 text-emerald-400 focus:ring-emerald-400 bg-slate-900"
+              />
+              <span>Visible Espace Affilié (Apparaît dans le tableau de bord des affiliés)</span>
+            </label>
+          </div>
         </div>
 
         <button 

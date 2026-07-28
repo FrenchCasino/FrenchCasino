@@ -17,6 +17,7 @@ export interface Casino {
   pointsForts: string[];
   badgeText?: string;
   highlighted?: boolean;
+  visible_affiliate?: boolean;
 }
 
 export const METHODOLOGIE_NOTATION = [
@@ -605,7 +606,8 @@ export async function getCasinos(): Promise<Casino[]> {
       tags: c.tags || [],
       pointsForts: c.points_forts || [],
       badgeText: c.badge_text,
-      highlighted: c.highlighted
+      highlighted: c.highlighted,
+      visible_affiliate: c.visible_affiliate !== false
     }))
   } catch (e) {
     console.error("Supabase error, fallback to mock:", e)

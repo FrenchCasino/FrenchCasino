@@ -26,7 +26,8 @@ export async function saveCasino(data: any) {
     points_forts: data.pointsForts || [],
     badge_text: data.badgeText || null,
     highlighted: Boolean(data.highlighted),
-    is_active: true
+    is_active: true,
+    visible_affiliate: data.visible_affiliate !== false
   }
 
   let result;
