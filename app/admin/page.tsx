@@ -775,6 +775,14 @@ export default function AdminDashboardPage() {
                     <h3 className="font-bold text-white text-sm mb-1">Qualité & Règles</h3>
                     <p className="text-[10px] text-slate-400">Alerte Fraude ou KPI</p>
                   </button>
+                  <button 
+                    onClick={() => setTelegramMessage("👋 <b>Bienvenue aux nouveaux affiliés !</b>\n\nFrench Casino vous rémunère de la façon suivante :\n\n💰 <b>Commissions (CPA) :</b>\nSi un membre dépose 15€ sur un casino via votre lien de partage, vous remportez de 20€ à 70€ selon la promotion du jour.\n\n🎁 <b>Remboursement des dépôts :</b>\nVous pouvez profiter de nos promotions pour rembourser vos membres lors de leur dépôt ! Vous avez juste à faire une demande de remboursement dans la rubrique \"Paiement\" de votre tableau de bord. Le remboursement interviendra généralement le lendemain du dépôt.\n\n📅 <b>Paiement de vos soldes :</b>\nNous faisons les virements de vos soldes entre le 15 et le 20 du mois suivant.\n<i>Exemple : En septembre, vous avez un solde disponible de 530€. Ce montant sera remis à zéro le 1er octobre et vous pourrez demander le paiement de 530€ (ou moins) à partir du 15 octobre.</i>\n\n❓ Si vous avez des questions, n'hésitez pas à vous adresser à votre recruteur.\n\nL'équipe FrenchCasino")}
+                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors md:col-span-2 lg:col-span-3"
+                  >
+                    <span className="text-xl mb-2 block">👋</span>
+                    <h3 className="font-bold text-white text-sm mb-1">Bienvenue Nouvel Affilié</h3>
+                    <p className="text-[10px] text-slate-400">Explication détaillée (Commissions, Remboursements, Virements 15-20)</p>
+                  </button>
                 </div>
 
                 <form onSubmit={handleSendTelegramBroadcast} className="relative z-10">
