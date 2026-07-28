@@ -60,7 +60,7 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+      const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).single()
       if (profile?.role === 'admin' || profile?.role === 'recruiter') {
         // Un admin ou un recruteur testant le dashboard affilié bypass le statut pending si pas d'infos contraires
         setAffiliateStatus('active')
