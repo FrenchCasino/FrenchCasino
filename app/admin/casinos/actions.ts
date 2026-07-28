@@ -31,22 +31,59 @@ export async function saveCasino(data: any) {
   }
 
   let result;
+  let targetId = data.id;
+  const isUpdate = data.id && data.id.length > 5;
   
   // Update if ID exists and is not 'c' something (our mock ids) or empty
-  if (data.id && data.id.length > 5) {
+  if (isUpdate) {
     result = await supabase
       .from('casinos')
       .update(dbData)
       .eq('id', data.id)
+      .select()
   } else {
     // Insert new
     result = await supabase
       .from('casinos')
       .insert([dbData])
+      .select()
+      
+    if (result.data && result.data.length > 0) {
+      targetId = result.data[0].id;
+    }
   }
 
   if (result.error) {
     throw new Error(result.error.message)
+  }
+
+  // --- REORDERING LOGIC ---
+  if (targetId) {
+    const { data: allCasinos } = await supabase
+      .from('casinos')
+      .select('id, ordre_classement')
+      .order('ordre_classement', { ascending: true })
+
+    if (allCasinos) {
+      // Remove target from the list
+      const others = allCasinos.filter(c => c.id !== targetId);
+      const targetRank = dbData.ordre_classement;
+      
+      // Calculate index (0-based) for the new rank
+      // If user types rank 5, index is 4.
+      const targetIndex = Math.max(0, targetRank - 1);
+      
+      // Insert target at its new position
+      others.splice(targetIndex, 0, { id: targetId, ordre_classement: targetRank });
+      
+      // Update ranks that need changing
+      for (let i = 0; i < others.length; i++) {
+        const expectedRank = i + 1;
+        if (others[i].ordre_classement !== expectedRank) {
+          await supabase.from('casinos').update({ ordre_classement: expectedRank }).eq('id', others[i].id);
+        }
+      }
+    }
   }
 
   revalidatePath('/')
