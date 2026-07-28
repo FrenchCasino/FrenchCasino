@@ -50,8 +50,8 @@ export default function DashboardLayout({
           
           {/* Virement Express Indicator */}
           <div className="hidden sm:flex items-center gap-2 bg-surface-card px-3.5 py-1.5 rounded-xl border border-gold/30">
-            <span className="text-[11px] text-slate-400 font-medium">Solde Réseau :</span>
-            <span className="text-sm font-bold font-mono text-gradient-gold">1 420.00 €</span>
+            <span className="text-[11px] text-slate-400 font-medium">Statut Réseau :</span>
+            <span className="text-sm font-bold font-mono text-gradient-gold">Actif</span>
           </div>
 
           {/* Return to Public Website */}

@@ -850,7 +850,7 @@ export default function DashboardPage() {
         <div className="max-w-xl mx-auto glass-panel p-8 rounded-2xl border border-gold/30 space-y-6">
           <div className="space-y-1">
             <h3 className="font-display font-bold text-xl text-white">Formulaire de Demande de Retrait</h3>
-            <p className="text-xs text-slate-400">Solde minimum requis : 100.00 € (Votre solde actuel : 1 420.00 €)</p>
+            <p className="text-xs text-slate-400">Solde minimum requis : 100.00 € (Votre solde actuel : {soldeDisponible.toFixed(2)} €)</p>
           </div>
 
           {payoutSuccess && (
