@@ -14,7 +14,14 @@ export const metadata = {
 }
 
 export default async function BonusDepotPage() {
-  const casinos = await getCasinos();
+  const allCasinos = await getCasinos();
+  const casinosBonusDepot = allCasinos
+    .filter(c => {
+      if (!c.bonusDepot) return false;
+      const text = c.bonusDepot.trim().toLowerCase();
+      return text !== '' && text !== 'aucun' && text !== 'non' && text !== 'n/a' && text !== '-';
+    })
+    .slice(0, 10);
   return (
     <>
       <PageHero
@@ -46,7 +53,7 @@ export default async function BonusDepotPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="font-display font-bold text-xl sm:text-2xl text-white">
-            {casinos.length} Offres Partenaires Certifiées
+            {casinosBonusDepot.length} Offres Partenaires Certifiées
           </h2>
           <span className="text-xs font-medium text-slate-400 bg-surface-card px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-1.5">
             <Filter className="w-3.5 h-3.5 text-gold" />
@@ -55,7 +62,7 @@ export default async function BonusDepotPage() {
         </div>
 
         <div className="space-y-4">
-          {casinos.map((casino, idx) => (
+          {casinosBonusDepot.map((casino, idx) => (
             <CasinoCard key={casino.id} casino={casino} rank={idx + 1} />
           ))}
         </div>
