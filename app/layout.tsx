@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "FrenchCasino V2 — Le Comparateur & Guide Casino N°1 en France (2026)",
@@ -37,6 +38,20 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <Toaster
+          theme="dark"
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: '#0f0f17',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#f8f8f8',
+              fontFamily: 'Inter, sans-serif',
+              borderRadius: '14px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+            },
+          }}
+        />
       </body>
     </html>
   );

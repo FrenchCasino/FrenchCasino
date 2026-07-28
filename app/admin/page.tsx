@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
 import {
   ShieldAlert,
   Users,
@@ -25,15 +26,20 @@ import {
   CheckSquare,
   Square,
   Handshake,
-  Percent
+  Percent,
+  Eye,
+  RefreshCw
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { CASINOS_MOCK } from '@/lib/data/casinos'
+import { useConfirm } from '@/components/ui/ConfirmModal'
 
 export default function AdminDashboardPage() {
-  const [adminTab, setAdminTab] = useState<'kpi' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'support' | 'telegram' | 'logs'>('kpi')
+  const [adminTab, setAdminTab] = useState<'kpi' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'refunds' | 'support' | 'telegram' | 'logs'>('kpi')
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+  const { confirm, ConfirmDialog } = useConfirm()
+  const [refundRequests, setRefundRequests] = useState<any[]>([])
 
   // State
   const [affiliates, setAffiliates] = useState<any[]>([])
@@ -137,13 +143,13 @@ export default function AdminDashboardPage() {
       })
       const data = await res.json()
       if (data.success) {
-        alert("Message envoyé au canal avec succès !")
+        toast.success('Message envoyé au canal avec succès !')
         setTelegramMessage('')
       } else {
-        alert("Erreur lors de l'envoi : " + data.error)
+        toast.error("Erreur lors de l'envoi : " + data.error)
       }
     } catch (err) {
-      alert("Erreur réseau")
+      toast.error('Erreur réseau')
     } finally {
       setIsSendingTelegram(false)
     }
@@ -226,6 +232,21 @@ export default function AdminDashboardPage() {
       if (tksErr) console.error("Error loading tickets:", tksErr)
       else setTickets(tksData || [])
 
+      // Load Refund Requests
+      const { data: refundData } = await supabase
+        .from('refund_requests')
+        .select(`
+          *,
+          affiliates (
+            profiles (
+              full_name,
+              email
+            )
+          )
+        `)
+        .order('created_at', { ascending: false })
+      if (refundData) setRefundRequests(refundData)
+
       // Calculate KPIs
       if (affData && payData && tksData) {
         setKpi({
@@ -268,30 +289,31 @@ export default function AdminDashboardPage() {
     const { error } = await supabase.from('affiliates').update({ status: newStatus }).eq('id', id)
     if (!error) {
       setAffiliates(affiliates.map(a => a.id === id ? { ...a, status: newStatus } : a))
-      // Mettre à jour les KPIs locaux si besoin
       setKpi(prev => ({
         ...prev,
         activeAffiliates: newStatus === 'active' ? prev.activeAffiliates + 1 : prev.activeAffiliates - 1,
         pendingAffiliates: newStatus === 'pending' ? prev.pendingAffiliates + 1 : prev.pendingAffiliates - 1
       }))
+      toast.success(`Statut mis à jour : ${newStatus}`)
     } else {
-      alert("Erreur lors de la mise à jour du statut")
+      toast.error('Erreur lors de la mise à jour du statut')
     }
   }
 
   const handleUpdateCommissionRate = async (id: string, currentRate: number) => {
-    const newRateStr = prompt("Nouveau taux de commission (ex: 0.35 pour 35%)", currentRate.toString())
+    const newRateStr = window.prompt("Nouveau taux de commission (ex: 0.35 pour 35%)", currentRate.toString())
     if (!newRateStr) return
     const newRate = parseFloat(newRateStr)
     if (isNaN(newRate) || newRate < 0 || newRate > 1) {
-      alert("Taux invalide. Doit être entre 0 et 1.")
+      toast.error('Taux invalide. Doit être entre 0 et 1.')
       return
     }
     const { error } = await supabase.from('affiliates').update({ commission_rate: newRate }).eq('id', id)
     if (!error) {
       setAffiliates(affiliates.map(a => a.id === id ? { ...a, commission_rate: newRate } : a))
+      toast.success(`Taux mis à jour : ${(newRate * 100).toFixed(0)}%`)
     } else {
-      alert("Erreur lors de la mise à jour du taux")
+      toast.error('Erreur lors de la mise à jour du taux')
     }
   }
 
@@ -313,15 +335,15 @@ export default function AdminDashboardPage() {
       })
       const data = await res.json()
       if (data.success) {
-        alert("Commission ajoutée avec succès !")
+        toast.success('Commission ajoutée avec succès !')
         setCommissionModal({ isOpen: false, affiliateId: '', affiliateName: '' })
         setCommissionAmount('')
-        loadData() // Recharge les KPIs et Affiliés
+        loadData()
       } else {
-        alert("Erreur: " + data.error)
+        toast.error('Erreur : ' + data.error)
       }
     } catch (err) {
-      alert("Erreur réseau")
+      toast.error('Erreur réseau')
     } finally {
       setIsSubmitting(false)
     }
@@ -331,7 +353,7 @@ export default function AdminDashboardPage() {
   const handleAddCasino = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newCasino.name || !newCasino.slug || !newCasino.lien_affilie) {
-      alert("Veuillez remplir les champs obligatoires (Nom, Slug, Lien)")
+      toast.error('Veuillez remplir les champs obligatoires (Nom, Slug, Lien)')
       return
     }
 
@@ -374,15 +396,15 @@ export default function AdminDashboardPage() {
           }
 
           if (fallbackRes.error) {
-            alert("Erreur : " + fallbackRes.error.message)
+            toast.error('Erreur : ' + fallbackRes.error.message)
           } else {
-            alert(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès ! La modification du classement est en ligne.`)
+            toast.success(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès !`)
           }
         } else {
-          alert("Erreur : " + error.message)
+          toast.error('Erreur : ' + error.message)
         }
       } else {
-        alert(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès ! La modification du classement est en ligne.`)
+        toast.success(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès !`)
       }
 
       // Persist visible_affiliate in localStorage fallback
@@ -397,7 +419,7 @@ export default function AdminDashboardPage() {
       setNewCasino({ name: '', slug: '', lien_affilie: '', logo_url: '', commission_cpa: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true })
       loadData()
     } catch (err) {
-      alert("Erreur réseau")
+      toast.error('Erreur réseau')
     } finally {
       setIsSubmittingCasino(false)
     }
@@ -451,7 +473,7 @@ export default function AdminDashboardPage() {
   const handleSavePartner = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newPartner.name || !newPartner.dashboard_url) {
-      alert("Veuillez renseigner au moins le nom et le lien du dashboard.")
+      toast.error('Veuillez renseigner au moins le nom et le lien du dashboard.')
       return
     }
 
@@ -467,12 +489,18 @@ export default function AdminDashboardPage() {
     setPartnerModal({ isOpen: false, editingId: null })
   }
 
-  const handleDeletePartner = (id: string) => {
-    if (confirm("Voulez-vous vraiment supprimer ce partenaire ?")) {
-      const updated = partners.filter(p => p.id !== id)
-      setPartners(updated)
-      localStorage.setItem('french_casino_partners', JSON.stringify(updated))
-    }
+  const handleDeletePartner = async (id: string) => {
+    const ok = await confirm({
+      title: 'Supprimer ce partenaire',
+      message: 'Voulez-vous vraiment supprimer ce partenaire ? Cette action est irréversible.',
+      confirmLabel: 'Supprimer',
+      variant: 'danger',
+    })
+    if (!ok) return
+    const updated = partners.filter(p => p.id !== id)
+    setPartners(updated)
+    localStorage.setItem('french_casino_partners', JSON.stringify(updated))
+    toast.success('Partenaire supprimé avec succès.')
   }
 
   const toggleCasinoInPartner = (casinoName: string) => {
@@ -513,13 +541,20 @@ export default function AdminDashboardPage() {
     const { error } = await supabase.from('casinos').update({ is_active: !currentStatus }).eq('id', id)
     if (!error) {
       setCasinos(casinos.map(c => c.id === id ? { ...c, is_active: !currentStatus } : c))
+      toast.success(`Casino ${!currentStatus ? 'activé' : 'désactivé'} avec succès.`)
     } else {
-      alert("Erreur lors de la modification du statut du casino")
+      toast.error('Erreur lors de la modification du statut du casino')
     }
   }
 
   const handleUpdatePayoutStatus = async (payoutId: string, affiliateEmail: string, affiliateName: string, amount: number, newStatus: string) => {
-    if (!confirm(`Confirmez-vous le passage au statut '${newStatus}' pour ce virement de ${amount}€ ?`)) return
+    const ok = await confirm({
+      title: `Mettre à jour ce virement`,
+      message: `Confirmez-vous le passage au statut '${newStatus}' pour ce virement de ${amount}€ ?`,
+      confirmLabel: 'Confirmer',
+      variant: newStatus === 'rejected' ? 'danger' : 'default',
+    })
+    if (!ok) return
 
     const { error } = await supabase.from('payout_requests').update({ 
       statut: newStatus,
@@ -528,33 +563,22 @@ export default function AdminDashboardPage() {
 
     if (!error) {
       setPayouts(payouts.map(p => p.id === payoutId ? { ...p, statut: newStatus } : p))
-      
-      // Trigger notification email via notre route API
+      toast.success(`Virement marqué comme "${newStatus}".`)
       try {
         await fetch('/api/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'payout',
-            email: affiliateEmail,
-            name: affiliateName,
-            amount: amount,
-            status: newStatus
-          })
+          body: JSON.stringify({ type: 'payout', email: affiliateEmail, name: affiliateName, amount, status: newStatus })
         })
-      } catch (err) {
-        console.error("Email API Error:", err)
-      }
+      } catch (err) { console.error('Email API Error:', err) }
     } else {
-      alert("Erreur lors de la mise à jour du paiement")
+      toast.error('Erreur lors de la mise à jour du paiement')
     }
   }
 
-  // Actions Support Tickets
   const handleUpdateTicketStatus = async (id: string, newStatus: string) => {
     const oldTicket = tickets.find(t => t.id === id)
     const oldStatus = oldTicket?.statut
-
     const { error } = await supabase.from('support_tickets').update({ statut: newStatus }).eq('id', id)
     if (!error) {
       setTickets(tickets.map(t => t.id === id ? { ...t, statut: newStatus } : t))
@@ -563,7 +587,7 @@ export default function AdminDashboardPage() {
         openTickets: prev.openTickets + (newStatus === 'open' ? 1 : 0) - (oldStatus === 'open' ? 1 : 0)
       }))
     } else {
-      alert("Erreur lors de la mise à jour du ticket")
+      toast.error('Erreur lors de la mise à jour du ticket')
     }
   }
 
@@ -597,15 +621,13 @@ export default function AdminDashboardPage() {
         .select('*, profiles(full_name, role)')
         .eq('ticket_id', chatModal.ticketId)
         .order('created_at', { ascending: true })
-      
       if (messages) setChatMessages(messages)
       setNewChatMessage('')
-      
       if (tickets.find(t => t.id === chatModal.ticketId)?.statut === 'open') {
         handleUpdateTicketStatus(chatModal.ticketId, 'answered')
       }
     } else {
-      alert("Erreur lors de l'envoi du message")
+      toast.error("Erreur lors de l'envoi du message")
     }
     
     setIsSendingMessage(false)
@@ -613,6 +635,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      <ConfirmDialog />
       
       {/* Header Admin */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-red-500/30 bg-red-950/20">
@@ -640,6 +663,7 @@ export default function AdminDashboardPage() {
             { id: 'casinos', label: 'Gestion Casinos', icon: Plus },
             { id: 'partners', label: 'Mes Partenaires', icon: Building },
             { id: 'payouts', label: 'Paiements & Exports', icon: CreditCard },
+            { id: 'refunds', label: 'Remboursements', icon: RefreshCw },
             { id: 'support', label: 'Tickets Support', icon: Clock },
             { id: 'telegram', label: 'Diffusion Telegram', icon: Send },
             { id: 'logs', label: 'Logs & Alertes', icon: FileText },
@@ -831,6 +855,7 @@ export default function AdminDashboardPage() {
                       <th className="p-4">Contacts</th>
                       <th className="p-4">Recruteur Assigné</th>
                       <th className="p-4">Code / Lien</th>
+                      <th className="p-4">IBAN</th>
                       <th className="p-4 text-right">Gains Totaux</th>
                       <th className="p-4 text-center">Statut</th>
                       <th className="p-4">Actions Admin</th>
@@ -872,6 +897,17 @@ export default function AdminDashboardPage() {
                           <span className="px-2 py-1 bg-purple-900/30 text-purple-300 font-mono text-[11px] rounded border border-purple-800/50">
                             {aff.referral_code}
                           </span>
+                        </td>
+                        <td className="p-4">
+                          {aff.iban ? (
+                            <div className="space-y-0.5">
+                              <div className="text-[10px] text-gold font-semibold">{aff.iban_holder || 'N/A'}</div>
+                              <div className="font-mono text-[10px] text-slate-300">{aff.iban}</div>
+                              {aff.bic && <div className="text-[9px] text-slate-500">BIC: {aff.bic}</div>}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-slate-600 italic">Non renseigné</span>
+                          )}
                         </td>
                         <td className="p-4 font-mono text-gold font-bold text-right">{(Number(aff.total_earned) || 0).toLocaleString()} €</td>
                         <td className="p-4 text-center">
@@ -985,6 +1021,95 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* REMBOURSEMENTS */}
+          {adminTab === 'refunds' && (
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
+                  <RefreshCw className="w-5 h-5 text-gold" />
+                  Demandes de Remboursement de Dépôt
+                </h3>
+                <button onClick={loadData} className="text-xs text-slate-400 hover:text-white flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 transition-colors">
+                  <RefreshCw className="w-3 h-3" /> Actualiser
+                </button>
+              </div>
+              <div className="overflow-x-auto rounded-xl border border-slate-800/50">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-surface/50 uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
+                    <tr>
+                      <th className="p-4">Affilié</th>
+                      <th className="p-4">Casino</th>
+                      <th className="p-4">Montant</th>
+                      <th className="p-4">Preuve</th>
+                      <th className="p-4">Date</th>
+                      <th className="p-4 text-center">Statut</th>
+                      <th className="p-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/40">
+                    {refundRequests.length === 0 ? (
+                      <tr><td colSpan={7} className="p-8 text-center text-slate-500 font-mono">Aucune demande de remboursement pour le moment.</td></tr>
+                    ) : refundRequests.map((req) => (
+                      <tr key={req.id} className="hover:bg-surface/30 transition-colors">
+                        <td className="p-4">
+                          <div className="font-bold text-white text-sm">{req.affiliates?.profiles?.full_name || 'N/A'}</div>
+                          <div className="text-[10px] text-slate-500">{req.affiliates?.profiles?.email}</div>
+                        </td>
+                        <td className="p-4 font-semibold text-purple-300">{req.casino_name}</td>
+                        <td className="p-4 font-mono font-bold text-gold">{Number(req.amount).toFixed(2)} €</td>
+                        <td className="p-4">
+                          {req.proof_url ? (
+                            <a href={req.proof_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-400 hover:text-blue-300 underline text-xs">
+                              <Eye className="w-3.5 h-3.5" /> Voir la preuve
+                            </a>
+                          ) : (
+                            <span className="text-slate-600 italic">Aucun fichier</span>
+                          )}
+                        </td>
+                        <td className="p-4 text-[11px] text-slate-400">{req.created_at ? new Date(req.created_at).toLocaleDateString('fr-FR') : 'N/A'}</td>
+                        <td className="p-4 text-center">
+                          <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            req.status === 'approved' ? 'bg-emerald/20 text-emerald border border-emerald/30' :
+                            req.status === 'rejected' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                            'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                          }`}>
+                            {req.status === 'approved' ? 'Approuvé' : req.status === 'rejected' ? 'Refusé' : 'En attente'}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          {req.status === 'pending' && (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={async () => {
+                                  await supabase.from('refund_requests').update({ status: 'approved' }).eq('id', req.id)
+                                  setRefundRequests(refundRequests.map(r => r.id === req.id ? { ...r, status: 'approved' } : r))
+                                  toast.success('Remboursement approuvé.')
+                                }}
+                                className="px-2 py-1 rounded bg-emerald/20 text-emerald border border-emerald/30 text-[10px] font-bold hover:bg-emerald/30 transition-colors"
+                              >
+                                ✓ Approuver
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  await supabase.from('refund_requests').update({ status: 'rejected' }).eq('id', req.id)
+                                  setRefundRequests(refundRequests.map(r => r.id === req.id ? { ...r, status: 'rejected' } : r))
+                                  toast.error('Remboursement refusé.')
+                                }}
+                                className="px-2 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold hover:bg-red-500/30 transition-colors"
+                              >
+                                ✕ Refuser
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

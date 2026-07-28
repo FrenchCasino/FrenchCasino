@@ -32,6 +32,7 @@ import {
   CartesianGrid
 } from 'recharts'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 
 export default function DashboardPage() {
   const supabase = createClient()
@@ -54,6 +55,10 @@ export default function DashboardPage() {
   const [soldeDisponible, setSoldeDisponible] = useState(0)
   const [chartData, setChartData] = useState<any[]>([])
   const [ticketsList, setTicketsList] = useState<any[]>([])
+
+  // Refund form state
+  const [refundForm, setRefundForm] = useState({ casinoId: '', amount: '', proofFile: null as File | null })
+  const [isSubmittingRefund, setIsSubmittingRefund] = useState(false)
 
   React.useEffect(() => {
     async function loadAffiliateData() {
@@ -247,12 +252,12 @@ export default function DashboardPage() {
     e.preventDefault()
     
     const amount = Number(payoutAmount)
-    if (amount < 250) {
-      alert("Le montant minimum de retrait est de 250 €.")
+    if (amount < 100) {
+      toast.error('Le montant minimum de retrait est de 100 €.')
       return
     }
     if (amount > soldeDisponible) {
-      alert("Fonds insuffisants.")
+      toast.error('Fonds insuffisants.')
       return
     }
     if (!affiliateId) return
@@ -365,7 +370,7 @@ export default function DashboardPage() {
         })
       } catch (err) {}
     } else {
-      alert("Erreur lors de l'envoi du message")
+      toast.error("Erreur lors de l'envoi du message")
     }
     
     setIsSendingMessage(false)
@@ -388,11 +393,11 @@ export default function DashboardPage() {
           message: `Nouveau dépôt déclaré par l'affilié ${affiliateCode}\n\nCasino : <b>${casinoName}</b>\nMontant : <b>${depositForm.amount} €</b>`
         })
       })
-      alert('Déclaration de dépôt envoyée avec succès.')
+      toast.success('Déclaration de dépôt envoyée avec succès.')
       setDepositModalOpen(false)
       setDepositForm({ casinoId: '', amount: '' })
     } catch (err) {
-      alert("Erreur lors de l'envoi de la déclaration.")
+      toast.error("Erreur lors de l'envoi de la déclaration.")
     }
 
     setIsSubmittingDeposit(false)
@@ -404,7 +409,7 @@ export default function DashboardPage() {
   const handleCompleteOnboarding = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!affiliateId || !ibanForm.holder || !ibanForm.iban || !ibanForm.bic) {
-      alert("Veuillez remplir tous les champs bancaires.")
+      toast.error('Veuillez remplir tous les champs bancaires.')
       return
     }
     
@@ -420,7 +425,7 @@ export default function DashboardPage() {
       .eq('id', affiliateId)
       
     if (error) {
-      alert("Erreur lors de la sauvegarde : " + error.message)
+      toast.error('Erreur lors de la sauvegarde : ' + error.message)
       setIsOnboardingSaving(false)
       return
     }
@@ -846,50 +851,169 @@ export default function DashboardPage() {
 
       {/* 5. DEMANDE DE PAIEMENT */}
       {activeTab === 'payout' && (
-        <div className="max-w-xl mx-auto glass-panel p-8 rounded-2xl border border-gold/30 space-y-6">
-          <div className="space-y-1">
-            <h3 className="font-display font-bold text-xl text-white">Formulaire de Demande de Retrait</h3>
-            <p className="text-xs text-slate-400">Solde minimum requis : 100.00 € (Votre solde actuel : {soldeDisponible.toFixed(2)} €)</p>
+        <div className="space-y-6">
+          {/* Payout form */}
+          <div className="max-w-xl mx-auto glass-panel p-8 rounded-2xl border border-gold/30 space-y-6">
+            <div className="space-y-1">
+              <h3 className="font-display font-bold text-xl text-white">Formulaire de Demande de Retrait</h3>
+              <p className="text-xs text-slate-400">Solde minimum requis : 100.00 € (Votre solde actuel : {soldeDisponible.toFixed(2)} €)</p>
+            </div>
+
+            {payoutSuccess && (
+              <div className="p-4 rounded-xl bg-emerald/20 border border-emerald/40 text-emerald text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                <span>Demande de virement de {payoutAmount}€ soumise à l&apos;équipe financière avec succès !</span>
+              </div>
+            )}
+
+            <form onSubmit={handleRequestPayout} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Montant à retirer (€)</label>
+                <input
+                  type="number"
+                  min="100"
+                  max={soldeDisponible}
+                  required
+                  value={payoutAmount}
+                  onChange={e => setPayoutAmount(e.target.value)}
+                  className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-gold"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Mode de Paiement Préféré</label>
+                <select className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-gold">
+                  <option value="iban">Virement Bancaire (IBAN en ligne)</option>
+                  <option value="crypto">USDT / Crypto Wallet</option>
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3.5 rounded-xl font-display font-bold text-sm uppercase tracking-wider text-black bg-gold hover:bg-gold-light shadow-gold-glow transition-all"
+              >
+                Confirmer la Demande de Paiement
+              </button>
+            </form>
           </div>
 
-          {payoutSuccess && (
-            <div className="p-4 rounded-xl bg-emerald/20 border border-emerald/40 text-emerald text-xs flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-              <span>Demande de virement de {payoutAmount}€ soumise à l&apos;équipe financière avec succès !</span>
-            </div>
-          )}
-
-          <form onSubmit={handleRequestPayout} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300">Montant à retirer (€)</label>
-              <input
-                type="number"
-                min="250"
-                max={soldeDisponible}
-                required
-                value={payoutAmount}
-                onChange={e => setPayoutAmount(e.target.value)}
-                className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-gold"
-              />
+          {/* Refund request form */}
+          <div className="max-w-xl mx-auto glass-panel p-8 rounded-2xl border border-purple-500/30 space-y-6">
+            <div className="space-y-1">
+              <h3 className="font-display font-bold text-xl text-white flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-purple-400" />
+                Demande de Remboursement de Dépôt
+              </h3>
+              <p className="text-xs text-slate-400">Vous avez effectué un dépôt dans un casino partenaire ? Soumettez votre demande avec une preuve pour être remboursé.</p>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300">Mode de Paiement Préféré</label>
-              <select className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-gold">
-                <option value="iban">Virement Bancaire (IBAN en ligne)</option>
-                <option value="crypto">USDT / Crypto Wallet</option>
-              </select>
-            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                if (!refundForm.casinoId || !refundForm.amount || !refundForm.proofFile || !affiliateId) {
+                  toast.error('Veuillez remplir tous les champs et joindre une preuve.')
+                  return
+                }
+                setIsSubmittingRefund(true)
+                try {
+                  // Upload the proof file
+                  const fileExt = refundForm.proofFile.name.split('.').pop()
+                  const fileName = `${affiliateId}/${Date.now()}.${fileExt}`
+                  const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('proofs')
+                    .upload(fileName, refundForm.proofFile, { upsert: true })
+                  
+                  if (uploadError) {
+                    toast.error('Erreur lors de l\'envoi du fichier : ' + uploadError.message)
+                    setIsSubmittingRefund(false)
+                    return
+                  }
+                  
+                  const { data: { publicUrl } } = supabase.storage.from('proofs').getPublicUrl(fileName)
 
-            <button
-              type="submit"
-              className="w-full py-3.5 rounded-xl font-display font-bold text-sm uppercase tracking-wider text-black bg-gold hover:bg-gold-light shadow-gold-glow transition-all"
+                  const casino = casinosList.find(c => c.id === refundForm.casinoId)
+                  const casinoName = casino ? casino.name : refundForm.casinoId
+
+                  const { error: insertError } = await supabase.from('refund_requests').insert([{
+                    affiliate_id: affiliateId,
+                    casino_name: casinoName,
+                    amount: Number(refundForm.amount),
+                    proof_url: publicUrl,
+                    status: 'pending'
+                  }])
+
+                  if (insertError) {
+                    toast.error('Erreur lors de l\'envoi de la demande : ' + insertError.message)
+                  } else {
+                    toast.success('Demande de remboursement envoyée avec succès ! L\'équipe vous recontactera.')
+                    setRefundForm({ casinoId: '', amount: '', proofFile: null })
+                  }
+                } catch (err: any) {
+                  toast.error('Erreur réseau : ' + err.message)
+                } finally {
+                  setIsSubmittingRefund(false)
+                }
+              }}
+              className="space-y-4"
             >
-              Confirmer la Demande de Paiement
-            </button>
-          </form>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Casino concerné</label>
+                <select
+                  required
+                  value={refundForm.casinoId}
+                  onChange={e => setRefundForm({ ...refundForm, casinoId: e.target.value })}
+                  className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-400"
+                >
+                  <option value="">-- Sélectionner un casino --</option>
+                  {casinosList.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Montant du dépôt (€)</label>
+                <input
+                  type="number"
+                  min="1"
+                  required
+                  value={refundForm.amount}
+                  onChange={e => setRefundForm({ ...refundForm, amount: e.target.value })}
+                  placeholder="Ex: 200"
+                  className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-purple-400"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300">Preuve de dépôt (capture d&apos;écran / PDF)</label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    required
+                    accept="image/*,.pdf"
+                    onChange={e => setRefundForm({ ...refundForm, proofFile: e.target.files?.[0] || null })}
+                    className="w-full bg-surface border border-dashed border-slate-600 rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-purple-400 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-600/30 file:text-purple-200 hover:file:bg-purple-600/50 cursor-pointer"
+                  />
+                </div>
+                {refundForm.proofFile && (
+                  <p className="text-[11px] text-emerald flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Fichier sélectionné : {refundForm.proofFile.name}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmittingRefund}
+                className="w-full py-3.5 rounded-xl font-display font-bold text-sm uppercase tracking-wider text-white bg-gradient-to-r from-purple-600 to-primary hover:brightness-110 shadow-purple-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isSubmittingRefund ? <><Loader2 className="w-4 h-4 animate-spin" /> Envoi en cours...</> : 'Soumettre ma Demande de Remboursement'}
+              </button>
+            </form>
+          </div>
         </div>
       )}
+
 
       {/* 6. MON IBAN (SÉCURISÉ) */}
       {activeTab === 'iban' && (

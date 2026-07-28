@@ -1,14 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { Casino } from '@/lib/data/casinos'
 import { saveCasino, deleteCasino, updateCasinoOrder, autoFixLogos } from './actions'
-import { Plus, Edit2, Trash2, Save, X, GripVertical, ChevronUp, ChevronDown } from 'lucide-react'
+import { Plus, Edit2, Trash2, Save, X } from 'lucide-react'
+import { useConfirm } from '@/components/ui/ConfirmModal'
 
 export default function CasinosManager({ initialCasinos }: { initialCasinos: Casino[] }) {
   const [casinos, setCasinos] = useState<Casino[]>(initialCasinos)
   const [editing, setEditing] = useState<Casino | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   useEffect(() => {
     const needsFix = casinos.some(c => c.logoUrl && (c.logoUrl.startsWith('/casinos/') || c.logoUrl.includes('google.com/s2/favicons')));
@@ -30,24 +33,19 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
     const newCasinos = [...casinos];
     const current = newCasinos[index];
     const prev = newCasinos[index - 1];
-    
-    // Swap order
     const currentOrder = current.ordreClassement;
     current.ordreClassement = prev.ordreClassement;
     prev.ordreClassement = currentOrder;
-    
-    // Swap array position for immediate UI update
     newCasinos[index] = prev;
     newCasinos[index - 1] = current;
     setCasinos(newCasinos);
-    
     try {
       await updateCasinoOrder([
         { id: current.id, ordreClassement: current.ordreClassement },
         { id: prev.id, ordreClassement: prev.ordreClassement }
       ]);
     } catch (e: any) {
-      alert("Erreur lors de la sauvegarde de l'ordre.");
+      toast.error("Erreur lors de la sauvegarde de l'ordre.")
     } finally {
       setIsLoading(false);
     }
@@ -59,24 +57,19 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
     const newCasinos = [...casinos];
     const current = newCasinos[index];
     const next = newCasinos[index + 1];
-    
-    // Swap order
     const currentOrder = current.ordreClassement;
     current.ordreClassement = next.ordreClassement;
     next.ordreClassement = currentOrder;
-    
-    // Swap array position
     newCasinos[index] = next;
     newCasinos[index + 1] = current;
     setCasinos(newCasinos);
-    
     try {
       await updateCasinoOrder([
         { id: current.id, ordreClassement: current.ordreClassement },
         { id: next.id, ordreClassement: next.ordreClassement }
       ]);
     } catch (e: any) {
-      alert("Erreur lors de la sauvegarde de l'ordre.");
+      toast.error("Erreur lors de la sauvegarde de l'ordre.")
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +81,7 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
       name: '',
       slug: '',
       logoUrl: '/casinos/placeholder.webp',
-      licence: 'Curaçao',
+      licence: 'Curacao',
       noteFiabilite: 4.5,
       description: '',
       bonusSansDepot: null,
@@ -110,10 +103,10 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
     setIsLoading(true)
     try {
       await saveCasino(editing)
-      alert("Enregistré avec succès ! La modification est en ligne.")
+      toast.success("Casino enregistre avec succes ! La modification est en ligne.")
       window.location.reload()
     } catch (e: any) {
-      alert("Erreur lors de la sauvegarde: " + e.message)
+      toast.error("Erreur lors de la sauvegarde : " + e.message)
     } finally {
       setIsLoading(false)
     }
@@ -121,20 +114,27 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
 
   const handleDelete = async (id: string) => {
     if (id.length < 5) {
-      alert("Impossible de supprimer une donnée mock.")
+      toast.error("Impossible de supprimer une donnee systeme.")
       return
     }
-    if (confirm("Êtes-vous sûr de vouloir supprimer ce casino ?")) {
-      setIsLoading(true)
-      try {
-        await deleteCasino(id)
-        alert("Supprimé avec succès.")
-        window.location.reload()
-      } catch (e: any) {
-        alert("Erreur: " + e.message)
-      } finally {
-        setIsLoading(false)
-      }
+    const ok = await confirm({
+      title: 'Supprimer ce casino',
+      message: 'Etes-vous sur de vouloir supprimer definitivement ce casino ? Cette action est irreversible.',
+      confirmLabel: 'Supprimer',
+      cancelLabel: 'Annuler',
+      variant: 'danger',
+    })
+    if (!ok) return
+
+    setIsLoading(true)
+    try {
+      await deleteCasino(id)
+      toast.success("Casino supprime avec succes.")
+      window.location.reload()
+    } catch (e: any) {
+      toast.error("Erreur : " + e.message)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -157,39 +157,34 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
             <label className="text-xs text-slate-400">Slug (URL)</label>
             <input type="text" value={editing.slug} onChange={e => setEditing({...editing, slug: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" />
           </div>
-          
           <div className="space-y-1 md:col-span-2">
             <label className="text-xs text-slate-400">Lien d'affiliation</label>
             <input type="text" value={editing.lienAffilie} onChange={e => setEditing({...editing, lienAffilie: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" />
           </div>
-
           <div className="space-y-1 md:col-span-2">
             <label className="text-xs text-slate-400">URL du Logo (Image)</label>
             <input type="text" value={editing.logoUrl} onChange={e => setEditing({...editing, logoUrl: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm font-mono" placeholder="https://..." />
           </div>
-
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-400">Bonus Dépôt (Joueur)</label>
+            <label className="text-xs font-semibold text-slate-400">Bonus Depot (Joueur)</label>
             <input type="text" value={editing.bonusDepot} onChange={e => setEditing({...editing, bonusDepot: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-400">Commission Affilié (CPA)</label>
-            <input type="text" value={editing.commissionCpa || ''} onChange={e => setEditing({...editing, commissionCpa: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" placeholder="Ex: 50€ CPA" />
+            <label className="text-xs font-semibold text-slate-400">Commission Affilie (CPA)</label>
+            <input type="text" value={editing.commissionCpa || ''} onChange={e => setEditing({...editing, commissionCpa: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" placeholder="Ex: 50 CPA" />
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-slate-400">Bonus Sans Dépôt</label>
+            <label className="text-xs text-slate-400">Bonus Sans Depot</label>
             <input type="text" value={editing.bonusSansDepot || ''} onChange={e => setEditing({...editing, bonusSansDepot: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" />
           </div>
-          
           <div className="space-y-1">
             <label className="text-xs text-slate-400">Ordre de classement (1 = Premier)</label>
             <input type="number" value={editing.ordreClassement} onChange={e => setEditing({...editing, ordreClassement: Number(e.target.value)})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" />
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-slate-400">Note Fiabilité (ex: 4.8)</label>
+            <label className="text-xs text-slate-400">Note Fiabilite (ex: 4.8)</label>
             <input type="number" step="0.1" value={editing.noteFiabilite} onChange={e => setEditing({...editing, noteFiabilite: Number(e.target.value)})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" />
           </div>
-
           <div className="space-y-1.5 md:col-span-2 flex flex-col justify-center">
             <label className="text-xs font-semibold text-emerald-400 flex items-center gap-2 cursor-pointer bg-emerald-950/20 p-3 rounded-xl border border-emerald-900/50">
               <input
@@ -198,13 +193,13 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
                 onChange={e => setEditing({ ...editing, visible_affiliate: e.target.checked })}
                 className="rounded border-slate-700 text-emerald-400 focus:ring-emerald-400 bg-slate-900"
               />
-              <span>Visible Espace Affilié (Apparaît dans le tableau de bord des affiliés)</span>
+              <span>Visible Espace Affilie</span>
             </label>
           </div>
         </div>
 
-        <button 
-          onClick={handleSave} 
+        <button
+          onClick={handleSave}
           disabled={isLoading}
           className="mt-6 w-full py-3 bg-primary hover:bg-primary-hover text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
         >
@@ -216,19 +211,20 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
 
   return (
     <div className="space-y-4">
+      <ConfirmDialog />
       <div className="flex flex-col sm:flex-row gap-3">
         <button onClick={handleCreate} className="flex-1 py-3 border border-dashed border-slate-600 text-slate-300 hover:text-white hover:bg-surface-border rounded-xl flex items-center justify-center gap-2 font-medium transition-colors">
           <Plus className="w-5 h-5" /> Ajouter un nouveau Casino
         </button>
-        <button 
+        <button
           onClick={async () => {
             setIsLoading(true);
             try {
               await autoFixLogos();
-              alert("⚡ Tous les 24 logos ont été réinitialisés et synchronisés avec succès !");
+              toast.success("Tous les logos ont ete reinitialises avec succes !")
               window.location.reload();
             } catch(e: any) {
-              alert("Erreur: " + e.message);
+              toast.error("Erreur : " + e.message)
             } finally {
               setIsLoading(false);
             }
@@ -236,43 +232,36 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
           disabled={isLoading}
           className="px-4 py-3 bg-purple-600/30 border border-purple-500/50 hover:bg-purple-600/50 text-purple-200 rounded-xl flex items-center justify-center gap-2 font-medium transition-colors shrink-0"
         >
-          ⚡ Synchroniser Tous Les Logos HD
+          Synchroniser Tous Les Logos HD
         </button>
       </div>
 
       <div className="space-y-2">
         {casinos.map((casino, index) => (
           <div key={casino.id} className="flex items-center justify-between p-4 bg-surface rounded-xl border border-surface-border hover:border-slate-600 transition-colors">
-              <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
               <input
                 type="number"
                 defaultValue={casino.ordreClassement}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.currentTarget.blur();
-                  }
-                }}
+                onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
                 onBlur={async (e) => {
                   const newVal = parseInt(e.target.value);
                   if (newVal && newVal !== casino.ordreClassement) {
                     setIsLoading(true);
                     try {
                       const updates = [{ id: casino.id, ordreClassement: newVal }];
-                      // Swap with the casino that currently has this rank
                       const swappedCasino = casinos.find(c => c.ordreClassement === newVal);
-                      if (swappedCasino) {
-                         updates.push({ id: swappedCasino.id, ordreClassement: casino.ordreClassement });
-                      }
+                      if (swappedCasino) updates.push({ id: swappedCasino.id, ordreClassement: casino.ordreClassement });
                       await updateCasinoOrder(updates);
                       window.location.reload();
                     } catch (err) {
-                      alert("Erreur de sauvegarde");
+                      toast.error("Erreur lors de la mise a jour du classement.")
                     }
                   }
                 }}
                 disabled={isLoading}
                 className="w-16 bg-slate-900 border border-slate-700 text-white font-bold text-center py-2 rounded-lg hover:border-slate-500 focus:border-primary focus:outline-none transition-colors"
-                title="Modifier le classement (Entrée pour valider)"
+                title="Modifier le classement"
               />
               <div>
                 <h3 className="font-bold text-white text-lg">{casino.name}</h3>
