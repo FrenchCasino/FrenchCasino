@@ -34,6 +34,13 @@ import { createClient } from '@/lib/supabase/client'
 import { CASINOS_MOCK } from '@/lib/data/casinos'
 import { useConfirm } from '@/components/ui/ConfirmModal'
 
+function getVipInfo(total: number) {
+  if (total >= 10000) return { name: 'Diamond', icon: '💎', color: 'text-cyan-400', bg: 'bg-cyan-900/30', border: 'border-cyan-500/50' };
+  if (total >= 5000) return { name: 'Gold', icon: '🥇', color: 'text-yellow-400', bg: 'bg-yellow-900/30', border: 'border-yellow-500/50' };
+  if (total >= 1000) return { name: 'Silver', icon: '🥈', color: 'text-slate-300', bg: 'bg-slate-700/30', border: 'border-slate-500/50' };
+  return { name: 'Bronze', icon: '🥉', color: 'text-orange-400', bg: 'bg-orange-900/30', border: 'border-orange-500/50' };
+}
+
 export default function AdminDashboardPage() {
   const [adminTab, setAdminTab] = useState<'kpi' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'refunds' | 'support' | 'telegram' | 'logs'>('kpi')
   const [loading, setLoading] = useState(true)
@@ -887,9 +894,12 @@ export default function AdminDashboardPage() {
                           {(aff.profiles?.full_name || '?')[0]}
                         </div>
                         <div className="min-w-0">
-                          <div className="font-bold text-white text-sm truncate">
-                            {aff.profiles?.full_name || 'Sans Nom'}
-                            <span className="ml-2 text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-normal">{aff.profiles?.role}</span>
+                          <div className="font-bold text-white text-sm truncate flex items-center gap-2">
+                            <span>{aff.profiles?.full_name || 'Sans Nom'}</span>
+                            <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-normal">{aff.profiles?.role}</span>
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${getVipInfo(Number(aff.total_earned) || 0).border} ${getVipInfo(Number(aff.total_earned) || 0).bg} ${getVipInfo(Number(aff.total_earned) || 0).color}`}>
+                              {getVipInfo(Number(aff.total_earned) || 0).icon} {getVipInfo(Number(aff.total_earned) || 0).name}
+                            </span>
                           </div>
                           <div className="text-[11px] text-slate-500 truncate">{aff.profiles?.email || 'N/A'}</div>
                         </div>

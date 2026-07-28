@@ -35,6 +35,13 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
+function getVipInfo(total: number) {
+  if (total >= 10000) return { name: 'Diamond', icon: '💎', color: 'text-cyan-400', bg: 'bg-cyan-900/30', border: 'border-cyan-500/50', next: null, nextName: null, progress: 100 };
+  if (total >= 5000) return { name: 'Gold', icon: '🥇', color: 'text-yellow-400', bg: 'bg-yellow-900/30', border: 'border-yellow-500/50', next: 10000, nextName: 'Diamond', progress: (total / 10000) * 100 };
+  if (total >= 1000) return { name: 'Silver', icon: '🥈', color: 'text-slate-300', bg: 'bg-slate-700/30', border: 'border-slate-500/50', next: 5000, nextName: 'Gold', progress: (total / 5000) * 100 };
+  return { name: 'Bronze', icon: '🥉', color: 'text-orange-400', bg: 'bg-orange-900/30', border: 'border-orange-500/50', next: 1000, nextName: 'Silver', progress: (total / 1000) * 100 };
+}
+
 export default function DashboardPage() {
   const supabase = createClient()
   const [activeTab, setActiveTab] = useState<'overview' | 'links' | 'stats' | 'commissions' | 'payout' | 'iban' | 'support' | 'recruitment'>('overview')
@@ -55,6 +62,7 @@ export default function DashboardPage() {
   const [monthlyCommissions, setMonthlyCommissions] = useState(0)
   const [soldeMoisEnCours, setSoldeMoisEnCours] = useState(0)
   const [soldeDisponible, setSoldeDisponible] = useState(0)
+  const [totalHistoricalValid, setTotalHistoricalValid] = useState(0)
   const [chartData, setChartData] = useState<any[]>([])
   const [ticketsList, setTicketsList] = useState<any[]>([])
 
@@ -194,6 +202,7 @@ export default function DashboardPage() {
           })
           setMonthlyCommissions(currentMonthly)
           setSoldeMoisEnCours(currentMonthly)
+          setTotalHistoricalValid(totalValid)
         }
 
         // Process Payouts
@@ -601,15 +610,45 @@ export default function DashboardPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       
       {/* Header Dashboard */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-surface-border">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-surface-border relative overflow-hidden">
+        {/* Decorative VIP glow */}
+        <div className={`absolute top-0 right-1/2 w-64 h-64 blur-3xl pointer-events-none ${getVipInfo(totalHistoricalValid).bg} opacity-20`} />
+        
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-gold uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs font-semibold text-gold uppercase tracking-wider mb-2">
             <ShieldCheck className="w-4 h-4" />
-            <span>Compte Affilié Vérifié — Statut Actif (Commissions Fixes)</span>
+            <span>Compte Affilié Vérifié — Statut Actif</span>
           </div>
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white mt-1">
-            Tableau de Bord Affilié
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white mt-1">
+              Tableau de Bord
+            </h1>
+            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border ${getVipInfo(totalHistoricalValid).border} ${getVipInfo(totalHistoricalValid).bg}`}>
+              <span className="text-base">{getVipInfo(totalHistoricalValid).icon}</span>
+              <span className={`text-sm font-bold uppercase tracking-wider ${getVipInfo(totalHistoricalValid).color}`}>
+                {getVipInfo(totalHistoricalValid).name}
+              </span>
+            </div>
+          </div>
+          
+          {/* Progress Bar to next VIP */}
+          {getVipInfo(totalHistoricalValid).next && (
+            <div className="mt-4 w-full max-w-sm">
+              <div className="flex justify-between text-[10px] text-slate-400 uppercase tracking-wider mb-1.5">
+                <span>Total Généré : {totalHistoricalValid.toFixed(0)}€</span>
+                <span>Prochain Rang : {getVipInfo(totalHistoricalValid).next}€</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+                <div 
+                  className={`h-full ${getVipInfo(totalHistoricalValid).bg.replace('/30', '')} transition-all duration-1000 ease-out`}
+                  style={{ width: `${Math.min(100, getVipInfo(totalHistoricalValid).progress)}%` }}
+                />
+              </div>
+              <div className="text-[10px] text-slate-500 mt-1">
+                Plus que {(getVipInfo(totalHistoricalValid).next! - totalHistoricalValid).toFixed(0)}€ pour le rang {getVipInfo(totalHistoricalValid).nextName} !
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
