@@ -257,16 +257,18 @@ export default function AdminDashboardPage() {
       if (refundData) setRefundRequests(refundData)
 
       // Calculate KPIs
-      if (affData && payData && tksData) {
-        setKpi({
-          activeAffiliates: affData.filter(a => a.status === 'active').length,
-          pendingAffiliates: affData.filter(a => a.status === 'pending').length,
-          totalCommissions: affData.reduce((acc, a) => acc + (Number(a.total_earned) || 0), 0),
-          pendingPayouts: payData.filter(p => p.statut === 'pending').length,
-          pendingPayoutsAmount: payData.filter(p => p.statut === 'pending').reduce((acc, p) => acc + (Number(p.montant_demande) || 0), 0),
-          openTickets: tksData.filter(t => t.statut === 'open').length,
-        })
-      }
+      const validAffData = affData || []
+      const validPayData = payData || []
+      const validTksData = tksData || []
+
+      setKpi({
+        activeAffiliates: validAffData.filter(a => a.status === 'active').length,
+        pendingAffiliates: validAffData.filter(a => a.status === 'pending').length,
+        totalCommissions: validAffData.reduce((acc, a) => acc + (Number(a.total_earned) || 0), 0),
+        pendingPayouts: validPayData.filter(p => p.statut === 'pending').length,
+        pendingPayoutsAmount: validPayData.filter(p => p.statut === 'pending').reduce((acc, p) => acc + (Number(p.montant_demande) || 0), 0),
+        openTickets: validTksData.filter(t => t.statut === 'open').length,
+      })
 
     } catch (err) {
       console.error(err)
