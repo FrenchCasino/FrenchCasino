@@ -831,7 +831,6 @@ export default function AdminDashboardPage() {
                       <th className="p-4">Contacts</th>
                       <th className="p-4">Recruteur Assigné</th>
                       <th className="p-4">Code / Lien</th>
-                      <th className="p-4 text-center">Taux CPA</th>
                       <th className="p-4 text-right">Gains Totaux</th>
                       <th className="p-4 text-center">Statut</th>
                       <th className="p-4">Actions Admin</th>
@@ -873,15 +872,6 @@ export default function AdminDashboardPage() {
                           <span className="px-2 py-1 bg-purple-900/30 text-purple-300 font-mono text-[11px] rounded border border-purple-800/50">
                             {aff.referral_code}
                           </span>
-                        </td>
-                        <td className="p-4 text-center">
-                          <button 
-                            onClick={() => handleUpdateCommissionRate(aff.id, aff.commission_rate)}
-                            className="font-mono font-bold text-emerald hover:text-emerald-300 hover:underline cursor-pointer px-2 py-1 rounded bg-emerald/10 border border-emerald/20 transition-all"
-                            title="Modifier le taux"
-                          >
-                            {(aff.commission_rate * 100).toFixed(0)}%
-                          </button>
                         </td>
                         <td className="p-4 font-mono text-gold font-bold text-right">{(Number(aff.total_earned) || 0).toLocaleString()} €</td>
                         <td className="p-4 text-center">
