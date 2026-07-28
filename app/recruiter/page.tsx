@@ -29,7 +29,7 @@ export default function RecruiterDashboard() {
           return
         }
         setRecruiterName(profile.full_name || 'Recruteur')
-        setRecruiterLink(`${window.location.origin}/inscription`) // Placeholder for now, could be ?ref=recruiterId
+        setRecruiterLink(`${window.location.origin}/inscription?ref=${user.id}`)
       }
 
       // Fetch assigned affiliates
@@ -160,7 +160,7 @@ export default function RecruiterDashboard() {
           <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
             <h3 className="font-display font-bold text-lg text-white">Mon Lien de Recrutement</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Demandez à vos prospects de s'inscrire en utilisant l'adresse de la page d'inscription de FrenchCasino. Ils vous seront assignés manuellement par l'Admin après l'entretien.
+              Partagez ce lien à vos prospects. Grâce à ce lien unique, tout affilié qui s'inscrira sera **automatiquement ajouté à votre équipe** et vous toucherez une commission sur ses performances.
             </p>
             <div className="flex items-center gap-2 bg-[#0a0a0f] p-3 rounded-xl border border-slate-700">
               <span className="text-xs font-mono text-gold truncate flex-1">{recruiterLink}</span>

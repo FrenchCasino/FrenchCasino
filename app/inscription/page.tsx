@@ -2,12 +2,15 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Lock, Mail, User, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Suspense } from 'react'
 
-export default function InscriptionPage() {
+function InscriptionForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const ref = searchParams.get('ref')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -25,17 +28,20 @@ export default function InscriptionPage() {
     setLoading(true)
 
     const supabase = createClient()
+    const signUpData: any = {
+      full_name: fullName,
+      role: 'affiliate',
+      contact_telegram: contactTelegram,
+      contact_whatsapp: contactWhatsapp,
+      contact_phone: contactPhone,
+    }
+    if (ref) signUpData.recruiter_id = ref
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: {
-          full_name: fullName,
-          role: 'affiliate',
-          contact_telegram: contactTelegram,
-          contact_whatsapp: contactWhatsapp,
-          contact_phone: contactPhone,
-        },
+        data: signUpData,
       },
     })
 
@@ -198,5 +204,17 @@ export default function InscriptionPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function InscriptionPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[85vh] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-4 border-gold border-t-transparent animate-spin"></div>
+      </div>
+    }>
+      <InscriptionForm />
+    </Suspense>
   )
 }
