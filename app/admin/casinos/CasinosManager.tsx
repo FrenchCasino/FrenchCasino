@@ -163,6 +163,11 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
             <input type="text" value={editing.lienAffilie} onChange={e => setEditing({...editing, lienAffilie: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" />
           </div>
 
+          <div className="space-y-1 md:col-span-2">
+            <label className="text-xs text-slate-400">URL du Logo (Image)</label>
+            <input type="text" value={editing.logoUrl} onChange={e => setEditing({...editing, logoUrl: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm font-mono" placeholder="https://..." />
+          </div>
+
           <div className="space-y-1">
             <label className="text-xs text-slate-400">Bonus de Dépôt</label>
             <input type="text" value={editing.bonusDepot} onChange={e => setEditing({...editing, bonusDepot: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" />
