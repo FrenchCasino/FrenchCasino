@@ -43,6 +43,8 @@ export default function DashboardPage() {
   const [affiliateCode, setAffiliateCode] = useState<string>('EN_ATTENTE')
   const [affiliateId, setAffiliateId] = useState<string | null>(null)
   const [affiliateStatus, setAffiliateStatus] = useState<string>('pending')
+  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean>(false)
+  const [onboardingStep, setOnboardingStep] = useState<1 | 2>(1)
   const [casinosList, setCasinosList] = useState<any[]>([])
   const [clicksData, setClicksData] = useState<Record<string, number>>({})
   
@@ -67,7 +69,7 @@ export default function DashboardPage() {
 
       const { data: aff } = await supabase
         .from('affiliates')
-        .select('id, referral_code, status')
+        .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic')
         .eq('id', user.id)
         .single()
       
@@ -75,6 +77,19 @@ export default function DashboardPage() {
         setAffiliateCode(aff.referral_code)
         setAffiliateId(aff.id)
         setAffiliateStatus(aff.status)
+        
+        // Handle postgres error gracefully if column doesn't exist yet by defaulting to false
+        setOnboardingCompleted(aff.onboarding_completed === true)
+        
+        if (aff.iban) {
+          setIbanForm({
+            holder: aff.iban_holder || '',
+            iban: aff.iban || '',
+            bic: aff.bic || ''
+          })
+        } else if (profile?.full_name) {
+          setIbanForm(prev => ({ ...prev, holder: profile.full_name }))
+        }
 
         // Load Casinos
         let casData: any[] | null = null
@@ -385,6 +400,35 @@ export default function DashboardPage() {
 
   const maskedIban = ibanForm.iban ? `${ibanForm.iban.slice(0, 4)} •••• •••• •••• •••• ${ibanForm.iban.slice(-4)}` : ''
 
+  const [isOnboardingSaving, setIsOnboardingSaving] = useState(false)
+  const handleCompleteOnboarding = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!affiliateId || !ibanForm.holder || !ibanForm.iban || !ibanForm.bic) {
+      alert("Veuillez remplir tous les champs bancaires.")
+      return
+    }
+    
+    setIsOnboardingSaving(true)
+    const { error } = await supabase
+      .from('affiliates')
+      .update({
+        iban_holder: ibanForm.holder,
+        iban: ibanForm.iban,
+        bic: ibanForm.bic,
+        onboarding_completed: true
+      })
+      .eq('id', affiliateId)
+      
+    if (error) {
+      alert("Erreur lors de la sauvegarde : " + error.message)
+      setIsOnboardingSaving(false)
+      return
+    }
+    
+    setOnboardingCompleted(true)
+    setIsOnboardingSaving(false)
+  }
+
   if (loadingData) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center">
@@ -410,6 +454,120 @@ export default function DashboardPage() {
               Statut : EN ATTENTE
             </span>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (affiliateStatus === 'active' && !onboardingCompleted) {
+    return (
+      <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+        <div className="glass-panel p-8 sm:p-12 rounded-3xl border border-gold/30 space-y-8 relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-gold/5 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div className="text-center space-y-3 relative z-10">
+            <h1 className="font-display text-3xl font-extrabold text-white">
+              Bienvenue sur French<span className="text-gradient-gold">Casino</span>
+            </h1>
+            <p className="text-slate-400 text-sm">
+              Votre compte a été validé ! Pour finaliser votre inscription et accéder à votre tableau de bord, veuillez compléter ces deux étapes rapides.
+            </p>
+          </div>
+
+          <div className="space-y-6 relative z-10">
+            {/* Étape 1 : Telegram */}
+            <div className={`p-6 rounded-2xl border transition-all duration-300 ${onboardingStep === 1 ? 'border-primary bg-primary/5 shadow-purple-glow' : 'border-slate-800 bg-surface/50 opacity-50'}`}>
+              <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center flex-shrink-0">
+                  <Send className="w-6 h-6" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <h3 className="font-display font-bold text-lg text-white">Étape 1 : Rejoindre le Canal Telegram</h3>
+                  <p className="text-sm text-slate-400">
+                    Obligatoire pour suivre nos annonces, les concours affiliés et être informé des paiements de commissions.
+                  </p>
+                </div>
+                <a 
+                  href="https://t.me/+-a9LF-suXS81NTk0" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  onClick={() => setOnboardingStep(2)}
+                  className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-sm text-center transition-colors shadow-lg shadow-blue-900/50"
+                >
+                  Rejoindre le canal
+                </a>
+              </div>
+            </div>
+
+            {/* Étape 2 : IBAN */}
+            <div className={`p-6 rounded-2xl border transition-all duration-300 ${onboardingStep === 2 ? 'border-gold bg-gold/5 shadow-gold-glow' : 'border-slate-800 bg-surface/50 opacity-50 pointer-events-none'}`}>
+              <div className="flex flex-col sm:flex-row gap-6 items-start">
+                <div className="w-12 h-12 rounded-xl bg-emerald/20 text-emerald flex items-center justify-center flex-shrink-0">
+                  <CreditCard className="w-6 h-6" />
+                </div>
+                <div className="flex-1 space-y-4 w-full">
+                  <div>
+                    <h3 className="font-display font-bold text-lg text-white">Étape 2 : Vos coordonnées bancaires</h3>
+                    <p className="text-sm text-slate-400">
+                      Renseignez votre IBAN pour que nous puissions vous virer vos commissions chaque mois.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleCompleteOnboarding} className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-300">Titulaire du compte</label>
+                      <input
+                        type="text"
+                        required
+                        value={ibanForm.holder}
+                        onChange={e => setIbanForm({ ...ibanForm, holder: e.target.value })}
+                        placeholder="Ex: Jean Dupont"
+                        className="w-full bg-black/40 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-gold"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-300">IBAN</label>
+                        <input
+                          type="text"
+                          required
+                          value={ibanForm.iban}
+                          onChange={e => setIbanForm({ ...ibanForm, iban: e.target.value })}
+                          placeholder="FR76 ...."
+                          className="w-full bg-black/40 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-gold uppercase"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-300">Code BIC/SWIFT</label>
+                        <input
+                          type="text"
+                          required
+                          value={ibanForm.bic}
+                          onChange={e => setIbanForm({ ...ibanForm, bic: e.target.value })}
+                          placeholder="Ex: BNPAFRPP"
+                          className="w-full bg-black/40 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-gold uppercase"
+                        />
+                      </div>
+                    </div>
+                    
+                    <button
+                      type="submit"
+                      disabled={isOnboardingSaving}
+                      className="w-full mt-4 py-3.5 rounded-xl font-display font-bold text-sm uppercase tracking-wider text-black bg-gold hover:bg-gold-light shadow-gold-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {isOnboardingSaving ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Enregistrement...</>
+                      ) : (
+                        <><CheckCircle2 className="w-4 h-4" /> Enregistrer et accéder au Dashboard</>
+                      )}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          
         </div>
       </div>
     )
