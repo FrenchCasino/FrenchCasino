@@ -8,6 +8,7 @@ export interface Casino {
   description: string;
   bonusSansDepot: string | null;
   bonusDepot: string;
+  commissionCpa?: string;
   fraisRetrait: string;
   delaiRetrait: string;
   wager: string;
@@ -598,6 +599,7 @@ export async function getCasinos(): Promise<Casino[]> {
       description: c.description,
       bonusSansDepot: c.bonus_sans_depot,
       bonusDepot: c.bonus_depot,
+      commissionCpa: c.commission_cpa,
       fraisRetrait: c.frais_retrait,
       delaiRetrait: c.delai_retrait,
       wager: c.wager,

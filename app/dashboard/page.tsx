@@ -95,13 +95,13 @@ export default function DashboardPage() {
         let casData: any[] | null = null
         const res = await supabase
           .from('casinos')
-          .select('id, name, slug, remboursement_depot, commission_conditions, bonus_depot, minimum_depot, visible_affiliate')
+          .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot, visible_affiliate')
           .eq('is_active', true)
         
         if (res.error) {
           const { data: fallbackData } = await supabase
             .from('casinos')
-            .select('id, name, slug, remboursement_depot, commission_conditions, bonus_depot, minimum_depot')
+            .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot')
             .eq('is_active', true)
           casData = fallbackData
         } else {
@@ -739,12 +739,12 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   
-                  {(casino.commission_conditions || casino.remboursement_depot || casino.bonus_depot || casino.minimum_depot) && (
+                  {(casino.commission_conditions || casino.remboursement_depot || casino.commission_cpa || casino.bonus_depot || casino.minimum_depot) && (
                     <div className="flex gap-2 mb-2 flex-wrap">
-                      {casino.bonus_depot && (
+                      {casino.commission_cpa && (
                         <span className="text-[10px] bg-gold/20 text-gold px-2 py-0.5 rounded font-mono border border-gold/30 flex items-center gap-1">
                           <DollarSign className="w-3 h-3" />
-                          {casino.bonus_depot}
+                          {casino.commission_cpa}
                         </span>
                       )}
                       {casino.minimum_depot && (

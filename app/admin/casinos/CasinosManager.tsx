@@ -169,8 +169,12 @@ export default function CasinosManager({ initialCasinos }: { initialCasinos: Cas
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs text-slate-400">Bonus de Dépôt</label>
+            <label className="text-xs font-semibold text-slate-400">Bonus Dépôt (Joueur)</label>
             <input type="text" value={editing.bonusDepot} onChange={e => setEditing({...editing, bonusDepot: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-slate-400">Commission Affilié (CPA)</label>
+            <input type="text" value={editing.commissionCpa || ''} onChange={e => setEditing({...editing, commissionCpa: e.target.value})} className="w-full bg-surface-border text-white px-3 py-2 rounded-lg text-sm" placeholder="Ex: 50€ CPA" />
           </div>
           <div className="space-y-1">
             <label className="text-xs text-slate-400">Bonus Sans Dépôt</label>

@@ -17,6 +17,7 @@ export async function saveCasino(data: any) {
     description: data.description,
     bonus_sans_depot: data.bonusSansDepot || null,
     bonus_depot: data.bonusDepot,
+    commission_cpa: data.commissionCpa || null,
     frais_retrait: data.fraisRetrait,
     delai_retrait: data.delaiRetrait,
     wager: data.wager,
