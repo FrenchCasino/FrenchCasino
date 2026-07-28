@@ -31,7 +31,7 @@ import { createClient } from '@/lib/supabase/client'
 import { CASINOS_MOCK } from '@/lib/data/casinos'
 
 export default function AdminDashboardPage() {
-  const [adminTab, setAdminTab] = useState<'kpi' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'support' | 'logs'>('kpi')
+  const [adminTab, setAdminTab] = useState<'kpi' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'support' | 'telegram' | 'logs'>('kpi')
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
@@ -117,6 +117,35 @@ export default function AdminDashboardPage() {
   const [newChatMessage, setNewChatMessage] = useState('')
   const [isSendingMessage, setIsSendingMessage] = useState(false)
   const [adminId, setAdminId] = useState<string | null>(null)
+  
+  // Telegram State
+  const [telegramMessage, setTelegramMessage] = useState('')
+  const [isSendingTelegram, setIsSendingTelegram] = useState(false)
+
+  const handleSendTelegramBroadcast = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!telegramMessage.trim()) return
+
+    setIsSendingTelegram(true)
+    try {
+      const res = await fetch('/api/telegram/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: telegramMessage })
+      })
+      const data = await res.json()
+      if (data.success) {
+        alert("Message envoyé au canal avec succès !")
+        setTelegramMessage('')
+      } else {
+        alert("Erreur lors de l'envoi : " + data.error)
+      }
+    } catch (err) {
+      alert("Erreur réseau")
+    } finally {
+      setIsSendingTelegram(false)
+    }
+  }
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -606,6 +635,7 @@ export default function AdminDashboardPage() {
             { id: 'partners', label: 'Mes Partenaires', icon: Building },
             { id: 'payouts', label: 'Paiements & Exports', icon: CreditCard },
             { id: 'support', label: 'Tickets Support', icon: Clock },
+            { id: 'telegram', label: 'Diffusion Telegram', icon: Send },
             { id: 'logs', label: 'Logs & Alertes', icon: FileText },
           ].map(tab => {
             const Icon = tab.icon
@@ -637,6 +667,68 @@ export default function AdminDashboardPage() {
 
         {/* CONTENU PRINCIPAL */}
         <div className="flex-1 w-full min-w-0">
+
+          {/* TELEGRAM BROADCAST TAB */}
+          {adminTab === 'telegram' && (
+            <div className="space-y-6">
+              <div className="glass-panel p-6 rounded-2xl border border-surface-border bg-surface relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+                <h2 className="text-xl font-display font-bold text-white mb-6 flex items-center gap-2 relative z-10">
+                  <Send className="w-5 h-5 text-blue-400" />
+                  Diffuser un message (Telegram)
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 relative z-10">
+                  <button 
+                    onClick={() => setTelegramMessage("🎰 <b>Nouvelle Promo Commission !</b>\n\nChers affiliés, nous venons de booster les commissions sur [Nom du Casino].\n\nProfitez-en pour envoyer du trafic dès maintenant !\n\nL'équipe FrenchCasino")}
+                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
+                  >
+                    <span className="text-xl mb-2 block">🎰</span>
+                    <h3 className="font-bold text-white text-sm mb-1">Nouvelle Promo</h3>
+                    <p className="text-xs text-slate-400">Annonce d'une hausse de CPA/RS</p>
+                  </button>
+
+                  <button 
+                    onClick={() => setTelegramMessage("🔥 <b>Boostez vos troupes !</b>\n\nLe mois se termine bientôt ! Continuez vos efforts pour atteindre les paliers VIP et débloquer vos primes bonus.\n\nBon courage à tous ! 💪")}
+                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
+                  >
+                    <span className="text-xl mb-2 block">🔥</span>
+                    <h3 className="font-bold text-white text-sm mb-1">Booster les troupes</h3>
+                    <p className="text-xs text-slate-400">Message de motivation</p>
+                  </button>
+
+                  <button 
+                    onClick={() => setTelegramMessage("🏆 <b>Félicitations aux meilleurs !</b>\n\nBravo à notre top 3 de la semaine pour leurs performances exceptionnelles. Vos commissions viennent d'être validées !\n\nÀ qui le tour ? 😉")}
+                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
+                  >
+                    <span className="text-xl mb-2 block">🏆</span>
+                    <h3 className="font-bold text-white text-sm mb-1">Félicitations</h3>
+                    <p className="text-xs text-slate-400">Récompenser les Tops Affiliés</p>
+                  </button>
+                </div>
+
+                <form onSubmit={handleSendTelegramBroadcast} className="relative z-10">
+                  <div className="mb-4">
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Message (Supporte le HTML Telegram &lt;b&gt;, &lt;i&gt;, &lt;a href=""&gt;)</label>
+                    <textarea 
+                      value={telegramMessage}
+                      onChange={(e) => setTelegramMessage(e.target.value)}
+                      className="w-full h-48 bg-[#0a0a0f] border border-slate-700 rounded-xl p-4 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-y font-mono text-sm"
+                      placeholder="Saisissez votre message ici..."
+                      required
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    disabled={isSendingTelegram || !telegramMessage.trim()}
+                    className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSendingTelegram ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-5 h-5" /> Envoyer à tous les affiliés (Canal)</>}
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
 
       {/* Loading State */}
       {loading ? (
