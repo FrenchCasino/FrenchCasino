@@ -28,7 +28,8 @@ import {
   Handshake,
   Percent,
   Eye,
-  RefreshCw
+  RefreshCw,
+  TrendingUp
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { CASINOS_MOCK } from '@/lib/data/casinos'
@@ -48,6 +49,13 @@ export default function AdminDashboardPage() {
   const { confirm, ConfirmDialog } = useConfirm()
   const [refundRequests, setRefundRequests] = useState<any[]>([])
   const [selectedAff, setSelectedAff] = useState<any>(null)
+  const [selectedAffStats, setSelectedAffStats] = useState<{
+    loading: boolean;
+    totalClicks: number;
+    conversionRate: number;
+    clicksByCasino: Record<string, { clicks: number, commissions: number }>;
+    recentCommissions: any[];
+  } | null>(null)
 
   // State
   const [affiliates, setAffiliates] = useState<any[]>([])
@@ -280,6 +288,58 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  useEffect(() => {
+    if (!selectedAff) {
+      setSelectedAffStats(null)
+      return
+    }
+
+    async function fetchAffStats() {
+      setSelectedAffStats({ loading: true, totalClicks: 0, conversionRate: 0, clicksByCasino: {}, recentCommissions: [] })
+      
+      const { data: clicksData } = await supabase
+        .from('casino_clicks')
+        .select('casino_id')
+        .eq('affiliate_id', selectedAff.id)
+
+      const { data: commsData } = await supabase
+        .from('commissions')
+        .select('*')
+        .eq('affiliate_id', selectedAff.id)
+        .order('created_at', { ascending: false })
+      
+      const clicks = clicksData || []
+      const comms = commsData || []
+
+      const totalClicks = clicks.length
+      const validComms = comms.filter(c => c.statut === 'validated' || c.statut === 'paid')
+      const totalConversions = validComms.length
+      const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
+
+      const statsByCasino: Record<string, { clicks: number, commissions: number }> = {}
+      
+      clicks.forEach(c => {
+        if (!statsByCasino[c.casino_id]) statsByCasino[c.casino_id] = { clicks: 0, commissions: 0 }
+        statsByCasino[c.casino_id].clicks += 1
+      })
+
+      validComms.forEach(c => {
+        if (!statsByCasino[c.casino_id]) statsByCasino[c.casino_id] = { clicks: 0, commissions: 0 }
+        statsByCasino[c.casino_id].commissions += 1
+      })
+
+      setSelectedAffStats({
+        loading: false,
+        totalClicks,
+        conversionRate,
+        clicksByCasino: statsByCasino,
+        recentCommissions: comms.slice(0, 5)
+      })
+    }
+
+    fetchAffStats()
+  }, [selectedAff])
 
   // Actions Affiliés
   const handleAssignRecruiter = async (affiliateId: string, recruiterId: string) => {
@@ -2011,6 +2071,64 @@ export default function AdminDashboardPage() {
                 </section>
               </div>
 
+              {/* Bottom Section - Deep Statistics */}
+              {selectedAffStats && !selectedAffStats.loading && (
+                <section className="space-y-3 pt-4 border-t border-slate-800">
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                    <TrendingUp className="w-3 h-3" /> Performances & Statistiques
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="glass-panel p-4 rounded-xl border border-slate-800">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Total Clics</div>
+                      <div className="text-2xl font-bold font-mono text-white">{selectedAffStats.totalClicks}</div>
+                    </div>
+                    <div className="glass-panel p-4 rounded-xl border border-slate-800">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Conversion</div>
+                      <div className="text-2xl font-bold font-mono text-gold">{selectedAffStats.conversionRate.toFixed(1)}%</div>
+                    </div>
+                    <div className="glass-panel p-4 rounded-xl border border-slate-800">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">CPA Validés</div>
+                      <div className="text-2xl font-bold font-mono text-emerald">{Object.values(selectedAffStats.clicksByCasino).reduce((acc, c) => acc + c.commissions, 0)}</div>
+                    </div>
+                    <div className="glass-panel p-4 rounded-xl border border-slate-800">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Dernière Activité</div>
+                      <div className="text-xl font-bold font-mono text-white mt-1">
+                        {selectedAffStats.recentCommissions.length > 0 
+                          ? new Date(selectedAffStats.recentCommissions[0].created_at).toLocaleDateString('fr-FR') 
+                          : '—'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {Object.keys(selectedAffStats.clicksByCasino).length > 0 && (
+                    <div className="mt-4 glass-panel rounded-xl border border-slate-800 overflow-hidden">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-900/50 border-b border-slate-800">
+                            <th className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">Casino</th>
+                            <th className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Clics</th>
+                            <th className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Conversions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/50">
+                          {Object.entries(selectedAffStats.clicksByCasino)
+                            .sort((a, b) => b[1].clicks - a[1].clicks)
+                            .map(([casinoId, stats]) => {
+                              const casino = casinos.find(c => c.id === casinoId)
+                              return (
+                                <tr key={casinoId} className="hover:bg-slate-800/20 transition-colors">
+                                  <td className="px-4 py-2 text-sm text-white font-medium">{casino ? casino.name : casinoId}</td>
+                                  <td className="px-4 py-2 text-sm text-slate-300 font-mono text-center">{stats.clicks}</td>
+                                  <td className="px-4 py-2 text-sm text-emerald font-mono text-center font-bold">{stats.commissions}</td>
+                                </tr>
+                              )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </section>
+              )}
             </div>
           </div>
         </div>
