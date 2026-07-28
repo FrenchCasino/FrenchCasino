@@ -1074,14 +1074,14 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Colonne 3 : Casinos Reliés (xl:col-span-4) */}
-                    <div className="xl:col-span-4 min-w-0">
-                      <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1 flex items-center justify-between">
+                    {/* Colonne 3 : Casinos Reliés (xl:col-span-3) */}
+                    <div className="xl:col-span-3 min-w-0 pr-2">
+                      <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1 flex items-center gap-2">
                         <span className="flex items-center gap-1">
                           <Handshake className="w-3.5 h-3.5 text-purple-400 shrink-0" />
                           Casinos Reliés
                         </span>
-                        <span className="font-mono text-gold text-[10px]">({partner.casinos_relies?.length || 0})</span>
+                        <span className="font-mono text-gold text-[10px] bg-gold/10 px-1.5 py-0.5 rounded-full">({partner.casinos_relies?.length || 0})</span>
                       </div>
                       <div className="flex flex-wrap gap-1 max-h-14 overflow-y-auto pr-1">
                         {partner.casinos_relies && partner.casinos_relies.length > 0 ? (
@@ -1097,8 +1097,8 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Colonne 4 : Actions (xl:col-span-2) — Alignée à Droite */}
-                    <div className="xl:col-span-2 flex items-center justify-end gap-2 pt-2 xl:pt-0 border-t xl:border-t-0 border-slate-800/80 shrink-0">
+                    {/* Colonne 4 : Actions (xl:col-span-3) — Alignée à Droite */}
+                    <div className="xl:col-span-3 flex items-center justify-end gap-2 pt-2 xl:pt-0 border-t xl:border-t-0 border-slate-800/80 shrink-0">
                       <button 
                         onClick={() => openEditPartnerModal(partner)}
                         className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 hover:text-white flex items-center gap-1 transition-colors shrink-0"
