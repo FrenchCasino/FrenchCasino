@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   // Fetch active casinos
   const { data: casinos } = await supabase
