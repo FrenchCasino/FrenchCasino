@@ -453,6 +453,17 @@ export default function DashboardPage() {
       setIsOnboardingSaving(false)
       return
     }
+
+    try {
+      await fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'iban_completed',
+          message: `L'affilié <b>${ibanForm.holder}</b> (${affiliateId}) vient de renseigner ses coordonnées bancaires avec succès.`
+        })
+      })
+    } catch (err) {}
     
     setOnboardingCompleted(true)
     setIsOnboardingSaving(false)
@@ -1021,6 +1032,16 @@ export default function DashboardPage() {
                   if (insertError) {
                     toast.error('Erreur lors de l\'envoi de la demande : ' + insertError.message)
                   } else {
+                    try {
+                      await fetch('/api/telegram', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          type: 'refund_request',
+                          message: `Casino : <b>${casinoName}</b>\nMontant : <b>${refundForm.amount} €</b>\nAffilié ID : ${affiliateId}\n\n<i>Connectez-vous pour voir la preuve de dépôt et valider la demande.</i>`
+                        })
+                      })
+                    } catch (err) {}
                     toast.success('Demande de remboursement envoyée avec succès ! L\'équipe vous recontactera.')
                     setRefundForm({ casinoId: '', amount: '', proofFile: null })
                   }

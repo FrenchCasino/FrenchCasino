@@ -15,8 +15,23 @@ export default function LitigePage() {
     message: '',
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Notification Telegram Admin
+    try {
+      await fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'litige_player',
+          message: `Joueur : <b>${formData.pseudo}</b> (${formData.email})\nCasino : <b>${formData.casinoName}</b>\nSujet : <b>${formData.subject}</b>\n\n<i>${formData.message}</i>`
+        })
+      })
+    } catch (err) {
+      console.error('Failed to send litige notification', err)
+    }
+
     setSubmitted(true)
   }
 

@@ -586,6 +586,17 @@ export default function AdminDashboardPage() {
           body: JSON.stringify({ type: 'payout', email: affiliateEmail, name: affiliateName, amount, status: newStatus })
         })
       } catch (err) { console.error('Email API Error:', err) }
+
+      try {
+        await fetch('/api/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            type: newStatus === 'paid' ? 'payout_approved' : 'payout_rejected', 
+            message: `Affilié : <b>${affiliateName}</b>\nMontant : <b>${amount} €</b>`
+          })
+        })
+      } catch (err) {}
     } else {
       toast.error('Erreur lors de la mise à jour du paiement')
     }

@@ -12,13 +12,23 @@ export async function POST(request: Request) {
     let prefix = '🔔 <b>Notification Admin</b>\n\n'
     
     if (type === 'new_affiliate') {
-      prefix = '🎉 <b>Nouvel Affilié Inscript !</b>\n\n'
+      prefix = '🎉 <b>Nouvel Affilié Inscrit !</b>\n\n'
     } else if (type === 'payout_request') {
       prefix = '💰 <b>Nouvelle Demande de Paiement</b>\n\n'
     } else if (type === 'new_ticket') {
       prefix = '🎫 <b>Nouveau Ticket Support</b>\n\n'
     } else if (type === 'deposit_declaration') {
       prefix = '💵 <b>Nouveau Dépôt Déclaré</b>\n\n'
+    } else if (type === 'litige_player') {
+      prefix = '🚨 <b>NOUVEAU LITIGE JOUEUR</b>\n\n'
+    } else if (type === 'refund_request') {
+      prefix = '💸 <b>Demande de Remboursement</b>\n\n'
+    } else if (type === 'iban_completed') {
+      prefix = '🏦 <b>Coordonnées Bancaires Ajoutées</b>\n\n'
+    } else if (type === 'payout_approved') {
+      prefix = '✅ <b>Paiement Validé (Audit)</b>\n\n'
+    } else if (type === 'payout_rejected') {
+      prefix = '❌ <b>Paiement Refusé (Audit)</b>\n\n'
     }
 
     const fullMessage = `${prefix}${message}`
