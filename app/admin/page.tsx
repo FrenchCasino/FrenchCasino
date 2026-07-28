@@ -678,14 +678,23 @@ export default function AdminDashboardPage() {
                   Diffuser un message (Telegram)
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 relative z-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 relative z-10">
                   <button 
                     onClick={() => setTelegramMessage("🎰 <b>Nouvelle Promo Commission !</b>\n\nChers affiliés, nous venons de booster les commissions sur [Nom du Casino].\n\nProfitez-en pour envoyer du trafic dès maintenant !\n\nL'équipe FrenchCasino")}
                     className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
                   >
                     <span className="text-xl mb-2 block">🎰</span>
                     <h3 className="font-bold text-white text-sm mb-1">Nouvelle Promo</h3>
-                    <p className="text-xs text-slate-400">Annonce d'une hausse de CPA/RS</p>
+                    <p className="text-[10px] text-slate-400">Hausse de commission CPA/RS</p>
+                  </button>
+
+                  <button 
+                    onClick={() => setTelegramMessage("🆕 <b>Nouveau Casino Intégré !</b>\n\nBonne nouvelle, [Nom du Casino] est maintenant disponible sur votre tableau de bord.\n\nRécupérez vite votre lien et commencez l'acquisition !\n\nL'équipe FrenchCasino")}
+                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
+                  >
+                    <span className="text-xl mb-2 block">🆕</span>
+                    <h3 className="font-bold text-white text-sm mb-1">Nouveau Casino</h3>
+                    <p className="text-[10px] text-slate-400">Annonce d'une nouvelle marque</p>
                   </button>
 
                   <button 
@@ -694,7 +703,16 @@ export default function AdminDashboardPage() {
                   >
                     <span className="text-xl mb-2 block">🔥</span>
                     <h3 className="font-bold text-white text-sm mb-1">Booster les troupes</h3>
-                    <p className="text-xs text-slate-400">Message de motivation</p>
+                    <p className="text-[10px] text-slate-400">Message de motivation fin de mois</p>
+                  </button>
+
+                  <button 
+                    onClick={() => setTelegramMessage("💰 <b>Rappel : Demandes de Paiement</b>\n\nN'oubliez pas, les demandes de paiement pour ce mois-ci se terminent le [Date].\n\nRendez-vous sur votre tableau de bord pour valider votre facture.\n\nL'équipe FrenchCasino")}
+                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
+                  >
+                    <span className="text-xl mb-2 block">💰</span>
+                    <h3 className="font-bold text-white text-sm mb-1">Rappel Paiement</h3>
+                    <p className="text-[10px] text-slate-400">Facturation & encaissements</p>
                   </button>
 
                   <button 
@@ -703,7 +721,16 @@ export default function AdminDashboardPage() {
                   >
                     <span className="text-xl mb-2 block">🏆</span>
                     <h3 className="font-bold text-white text-sm mb-1">Félicitations</h3>
-                    <p className="text-xs text-slate-400">Récompenser les Tops Affiliés</p>
+                    <p className="text-[10px] text-slate-400">Récompenser les Tops Affiliés</p>
+                  </button>
+                  
+                  <button 
+                    onClick={() => setTelegramMessage("🚨 <b>Qualité du Trafic</b>\n\nPetit rappel important : tout trafic frauduleux ou non conforme sera pénalisé.\n\nNous surveillons de près la qualité des joueurs envoyés, merci de respecter nos conditions !\n\nL'équipe FrenchCasino")}
+                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
+                  >
+                    <span className="text-xl mb-2 block">🚨</span>
+                    <h3 className="font-bold text-white text-sm mb-1">Qualité & Règles</h3>
+                    <p className="text-[10px] text-slate-400">Alerte Fraude ou KPI</p>
                   </button>
                 </div>
 
