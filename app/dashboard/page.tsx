@@ -20,7 +20,8 @@ import {
   Eye,
   EyeOff,
   XCircle,
-  Loader2
+  Loader2,
+  AlertCircle
 } from 'lucide-react'
 import {
   ResponsiveContainer,
@@ -52,6 +53,7 @@ export default function DashboardPage() {
   const [totalClicks, setTotalClicks] = useState(0)
   const [commissionsList, setCommissionsList] = useState<any[]>([])
   const [monthlyCommissions, setMonthlyCommissions] = useState(0)
+  const [soldeMoisEnCours, setSoldeMoisEnCours] = useState(0)
   const [soldeDisponible, setSoldeDisponible] = useState(0)
   const [chartData, setChartData] = useState<any[]>([])
   const [ticketsList, setTicketsList] = useState<any[]>([])
@@ -164,21 +166,34 @@ export default function DashboardPage() {
 
         // Process Commissions
         let currentMonthly = 0
+        let pastCommissions = 0
         let totalValid = 0
         const commsByDay: Record<string, number> = {}
+        
+        const now = new Date()
+        const currentMonth = now.getMonth()
+        const currentYear = now.getFullYear()
 
         if (comms) {
           setCommissionsList(comms)
           comms.forEach(c => {
             if (c.statut === 'validated' || c.statut === 'paid') {
-              totalValid += Number(c.montant)
-              currentMonthly += Number(c.montant)
+              const amount = Number(c.montant)
+              totalValid += amount
+              
               const date = new Date(c.created_at)
+              if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+                currentMonthly += amount
+              } else {
+                pastCommissions += amount
+              }
+
               const day = date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
-              commsByDay[day] = (commsByDay[day] || 0) + Number(c.montant)
+              commsByDay[day] = (commsByDay[day] || 0) + amount
             }
           })
           setMonthlyCommissions(currentMonthly)
+          setSoldeMoisEnCours(currentMonthly)
         }
 
         // Process Payouts
@@ -191,7 +206,7 @@ export default function DashboardPage() {
           })
         }
 
-        setSoldeDisponible(Math.max(0, totalValid - totalPaidOrPending))
+        setSoldeDisponible(Math.max(0, pastCommissions - totalPaidOrPending))
 
         // Build Chart Data (Last 7 days roughly based on weekday)
         const days = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim']
@@ -578,6 +593,10 @@ export default function DashboardPage() {
     )
   }
 
+  const currentDay = new Date().getDate()
+  const isPayoutWindow = currentDay >= 15 && currentDay <= 20
+  const canRequestPayout = isPayoutWindow && soldeDisponible >= 100
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       
@@ -668,13 +687,13 @@ export default function DashboardPage() {
               <span className="text-2xl font-bold font-mono text-gradient-gold">{commissionsList.length}</span>
             </div>
 
-            <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
+            <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden">
               <div className="flex justify-between text-slate-400 text-xs">
-                <span>Gains Générés</span>
+                <span className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> Mois en Cours</span>
                 <DollarSign className="w-4 h-4 text-emerald" />
               </div>
-              <span className="text-2xl font-bold font-mono text-emerald">{monthlyCommissions.toFixed(2)} €</span>
-              <span className="text-[11px] text-slate-400">Total Validé</span>
+              <span className="text-2xl font-bold font-mono text-emerald">{soldeMoisEnCours.toFixed(2)} €</span>
+              <span className="text-[10px] text-emerald/80">Sera débloqué le mois prochain</span>
             </div>
 
             <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
@@ -890,10 +909,28 @@ export default function DashboardPage() {
 
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-xl font-display font-bold text-sm uppercase tracking-wider text-black bg-gold hover:bg-gold-light shadow-gold-glow transition-all"
+                disabled={!canRequestPayout}
+                className={`w-full py-3.5 rounded-xl font-display font-bold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                  canRequestPayout 
+                    ? 'text-black bg-gold hover:bg-gold-light shadow-gold-glow' 
+                    : 'text-slate-400 bg-slate-800/80 cursor-not-allowed border border-slate-700'
+                }`}
               >
-                Confirmer la Demande de Paiement
+                {canRequestPayout ? 'Confirmer la Demande de Paiement' : (soldeDisponible < 100 && isPayoutWindow) ? 'Solde insuffisant' : 'Paiements fermés'}
               </button>
+              
+              {!isPayoutWindow && (
+                <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <p>Les soldes disponibles peuvent être retirés uniquement <strong>entre le 15 et le 20 du mois</strong>. En dehors de cette période, les demandes sont bloquées pour comptabilité.</p>
+                </div>
+              )}
+              {isPayoutWindow && soldeDisponible < 100 && (
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <p>Votre solde débloqué est inférieur au minimum requis de <strong>100€</strong>.</p>
+                </div>
+              )}
             </form>
           </div>
 

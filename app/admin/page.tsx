@@ -98,6 +98,7 @@ export default function AdminDashboardPage() {
   // Commission Modal state
   const [commissionModal, setCommissionModal] = useState<{isOpen: boolean, affiliateId: string, affiliateName: string}>({ isOpen: false, affiliateId: '', affiliateName: '' })
   const [commissionAmount, setCommissionAmount] = useState('')
+  const [commissionType, setCommissionType] = useState<'add' | 'deduct'>('add')
   const [commissionNote, setCommissionNote] = useState('Dépôt Joueur')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -325,20 +326,24 @@ export default function AdminDashboardPage() {
     
     setIsSubmitting(true)
     try {
+      const amount = parseFloat(commissionAmount)
+      const finalAmount = commissionType === 'deduct' ? -Math.abs(amount) : Math.abs(amount)
+
       const res = await fetch('/api/admin/commissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           affiliateId: commissionModal.affiliateId,
-          amount: parseFloat(commissionAmount),
+          amount: finalAmount,
           periode: commissionNote
         })
       })
       const data = await res.json()
       if (data.success) {
-        toast.success('Commission ajoutée avec succès !')
+        toast.success(commissionType === 'deduct' ? 'Commission déduite avec succès !' : 'Commission ajoutée avec succès !')
         setCommissionModal({ isOpen: false, affiliateId: '', affiliateName: '' })
         setCommissionAmount('')
+        setCommissionType('add')
         loadData()
       } else {
         toast.error('Erreur : ' + data.error)
@@ -1383,34 +1388,61 @@ export default function AdminDashboardPage() {
               <XCircle className="w-6 h-6" />
             </button>
             <h3 className="text-xl font-bold text-white mb-2 font-display flex items-center gap-2">
-              <DollarSign className="text-gold w-6 h-6" /> Ajouter Commission
+              <DollarSign className={commissionType === 'add' ? "text-gold w-6 h-6" : "text-red-500 w-6 h-6"} /> 
+              {commissionType === 'add' ? 'Ajouter Commission' : 'Déduire Commission'}
             </h3>
             <p className="text-xs text-slate-400 mb-6">
-              Créditez manuellement le solde de l&apos;affilié <strong className="text-white">{commissionModal.affiliateName}</strong> suite à un dépôt vérifié.
+              {commissionType === 'add' ? 'Créditez manuellement le solde de l\'affilié' : 'Retirez un montant du solde de l\'affilié'} <strong className="text-white">{commissionModal.affiliateName}</strong>.
             </p>
             
             <form onSubmit={handleAddCommission} className="space-y-4">
+              
+              {/* Toggle Add / Deduct */}
+              <div className="flex bg-[#0a0a0f] border border-slate-700 rounded-xl p-1 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setCommissionType('add')}
+                  className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
+                    commissionType === 'add' ? 'bg-gold/20 text-gold shadow-sm' : 'text-slate-500 hover:text-slate-300'
+                  }`}
+                >
+                  + Ajouter
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCommissionType('deduct')}
+                  className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
+                    commissionType === 'deduct' ? 'bg-red-500/20 text-red-500 shadow-sm' : 'text-slate-500 hover:text-slate-300'
+                  }`}
+                >
+                  - Déduire
+                </button>
+              </div>
+
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Montant de la Commission (€)</label>
+                <label className="text-xs font-semibold text-slate-300">Montant ({commissionType === 'add' ? '+' : '-'})</label>
                 <input
                   type="number"
                   step="0.01"
+                  min="0"
                   required
                   value={commissionAmount}
                   onChange={e => setCommissionAmount(e.target.value)}
                   placeholder="Ex: 50.00"
-                  className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-gold"
+                  className={`w-full bg-[#0a0a0f] border rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none ${
+                    commissionType === 'add' ? 'border-slate-700 focus:border-gold' : 'border-red-900/50 focus:border-red-500'
+                  }`}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Note / Référence du Dépôt</label>
+                <label className="text-xs font-semibold text-slate-300">Note / Raison</label>
                 <input
                   type="text"
                   required
                   value={commissionNote}
                   onChange={e => setCommissionNote(e.target.value)}
-                  placeholder="Ex: Dépôt 100€ Joueur X (Cresus)"
+                  placeholder={commissionType === 'add' ? "Ex: Dépôt 100€ Joueur X" : "Ex: Annulation de paiement / Frais"}
                   className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-gold"
                 />
               </div>
@@ -1418,9 +1450,13 @@ export default function AdminDashboardPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3.5 mt-2 rounded-xl font-bold text-sm uppercase tracking-wider text-black bg-gold hover:bg-gold-light shadow-gold-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className={`w-full py-3.5 rounded-xl font-display font-bold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50 ${
+                  commissionType === 'add' 
+                    ? 'text-black bg-gold hover:bg-gold-light shadow-gold-glow' 
+                    : 'text-white bg-red-600 hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.3)]'
+                }`}
               >
-                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Créditer l\'Affilié'}
+                {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> En cours...</> : (commissionType === 'add' ? 'Valider l\'ajout' : 'Valider la déduction')}
               </button>
             </form>
           </div>
