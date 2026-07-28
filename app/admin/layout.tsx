@@ -27,12 +27,12 @@ export default function AdminLayout({
         
         <div className="flex items-center gap-4">
           <Link href="/admin" className="flex items-center gap-2">
-            <span className="font-display font-extrabold text-base text-white">
-              French<span className="text-gradient-gold">Casino</span>
+            <div className="flex items-center gap-3">
+              <img src="/logo.png" alt="French Casino Partners" className="h-8 w-auto object-contain" />
               <span className="text-[10px] uppercase font-mono text-red-400 bg-red-950 border border-red-800 px-1.5 py-0.2 rounded ml-1.5">
                 Admin Console
               </span>
-            </span>
+            </div>
           </Link>
         </div>
 

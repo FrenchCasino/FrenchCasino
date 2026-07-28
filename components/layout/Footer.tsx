@@ -25,13 +25,8 @@ export function Footer() {
           
           {/* Col 1 & 2: Branding & Mission */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-purple-900 border border-primary-light/30 flex items-center justify-center shadow-purple-glow">
-                <span className="text-lg">🎰</span>
-              </div>
-              <span className="font-display font-bold text-xl text-white">
-                French<span className="text-gradient-gold">Casino</span>
-              </span>
+            <Link href="/">
+              <img src="/logo.png" alt="French Casino Partners" className="h-10 sm:h-12 w-auto object-contain" />
             </Link>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed pr-4">
               FrenchCasino est le guide comparateur N°1 de la communauté francophone. Nous analysons de manière indépendante les casinos en ligne les plus fiables (licences, délais de retrait, qualité du service client) et négocions des bonus sans dépôt et bonus de bienvenue exclusifs.

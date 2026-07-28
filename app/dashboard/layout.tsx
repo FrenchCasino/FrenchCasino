@@ -30,12 +30,12 @@ export default function DashboardLayout({
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="flex items-center gap-2 group">
             <div className="flex flex-col">
-              <span className="font-display font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
-                French<span className="text-gradient-gold">Casino</span>
+              <div className="flex items-center gap-3">
+                <img src="/logo.png" alt="French Casino Partners" className="h-8 w-auto object-contain" />
                 <span className="text-[9px] uppercase font-mono text-emerald bg-emerald/10 border border-emerald/30 px-1.5 py-0.2 rounded font-bold">
                   App Affilié
                 </span>
-              </span>
+              </div>
             </div>
           </Link>
 

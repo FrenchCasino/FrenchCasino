@@ -52,10 +52,7 @@ export function Header() {
           
           {/* Logo Minimaliste & Épuré */}
           <Link href="/" className="flex items-center gap-2 group">
-            <Crown className="w-5 h-5 text-gold group-hover:rotate-12 transition-transform duration-300 shrink-0" />
-            <span className="font-display font-extrabold text-lg sm:text-xl tracking-tight text-white group-hover:text-gold transition-colors">
-              French<span className="text-gradient-gold">Casino</span>
-            </span>
+            <img src="/logo.png" alt="French Casino Partners" className="h-8 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105" />
           </Link>
 
           {/* Desktop Navigation — Épurée, Fine, Sans Gros Blocs */}

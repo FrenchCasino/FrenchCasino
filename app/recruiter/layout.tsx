@@ -28,12 +28,12 @@ export default function RecruiterLayout({
         {/* Logo & Recruiter Badge */}
         <div className="flex items-center gap-4">
           <Link href="/recruiter" className="flex items-center gap-2">
-            <span className="font-display font-extrabold text-base text-white">
-              French<span className="text-gradient-gold">Casino</span>
+            <div className="flex items-center gap-3">
+              <img src="/logo.png" alt="French Casino Partners" className="h-8 w-auto object-contain" />
               <span className="text-[10px] uppercase font-mono text-amber-400 bg-amber-950/80 border border-amber-800/60 px-1.5 py-0.5 rounded ml-1.5 font-bold">
                 Espace Recruteur
               </span>
-            </span>
+            </div>
           </Link>
 
           <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-amber-950/30 border border-amber-800/30 text-[11px] text-amber-200">
