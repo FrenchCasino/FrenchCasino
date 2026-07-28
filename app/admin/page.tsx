@@ -2073,7 +2073,7 @@ export default function AdminDashboardPage() {
 
               {/* Bottom Section - Deep Statistics */}
               {selectedAffStats && !selectedAffStats.loading && (
-                <section className="space-y-3 pt-4 border-t border-slate-800">
+                <section className="md:col-span-2 space-y-3 pt-4 border-t border-slate-800">
                   <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
                     <TrendingUp className="w-3 h-3" /> Performances & Statistiques
                   </h4>
