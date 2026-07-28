@@ -266,9 +266,34 @@ export default function DashboardPage() {
     setTimeout(() => setCopiedCode(null), 2000)
   }
 
-  const handleSaveIban = (e: React.FormEvent) => {
+  const handleSaveIban = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!affiliateId) return
+    const ibanStr = ibanForm.iban.replace(/\s+/g, '').toUpperCase()
+    
+    if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(ibanStr)) {
+      toast.error("Le format de l'IBAN est invalide.")
+      return
+    }
+
+    const { error } = await supabase
+      .from('affiliates')
+      .update({
+        iban_holder: ibanForm.holder,
+        iban: ibanStr,
+        bic: ibanForm.bic
+      })
+      .eq('id', affiliateId)
+
+    if (error) {
+      toast.error('Erreur lors de la sauvegarde : ' + error.message)
+      return
+    }
+
+    setIbanForm(prev => ({ ...prev, iban: ibanStr }))
     setIbanSaved(true)
+    toast.success('IBAN enregistré avec succès.')
     setTimeout(() => setIbanSaved(false), 3000)
   }
 
@@ -437,12 +462,18 @@ export default function DashboardPage() {
       return
     }
     
+    const ibanStr = ibanForm.iban.replace(/\s+/g, '').toUpperCase()
+    if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(ibanStr)) {
+      toast.error("Le format de l'IBAN est invalide.")
+      return
+    }
+    
     setIsOnboardingSaving(true)
     const { error } = await supabase
       .from('affiliates')
       .update({
         iban_holder: ibanForm.holder,
-        iban: ibanForm.iban,
+        iban: ibanStr,
         bic: ibanForm.bic,
         onboarding_completed: true
       })

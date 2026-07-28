@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Casino } from '@/lib/data/casinos'
 import { Star, ShieldCheck, Zap, Gift, ExternalLink, ChevronRight, Check } from 'lucide-react'
 
@@ -39,11 +40,14 @@ export function CasinoCard({ casino, rank }: CasinoCardProps) {
 
           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-purple-900/40 to-slate-900 border border-slate-700/80 p-2 flex items-center justify-center text-center font-bold text-lg text-white shadow-md group-hover:border-primary/50 transition-colors relative overflow-hidden shrink-0">
             {casino.logoUrl && !imgError ? (
-              <img 
+              <Image 
                 src={casino.logoUrl} 
                 alt={`Logo ${casino.name}`}
-                className="object-contain w-full h-full drop-shadow-md rounded"
+                fill
+                sizes="(max-width: 768px) 80px, 80px"
+                className="object-contain p-1 drop-shadow-md rounded"
                 onError={() => setImgError(true)}
+                unoptimized={casino.logoUrl.endsWith('.gif')}
               />
             ) : (
               <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-purple-800 to-indigo-950 p-1 rounded">
