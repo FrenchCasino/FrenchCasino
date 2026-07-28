@@ -2077,22 +2077,22 @@ export default function AdminDashboardPage() {
                   <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
                     <TrendingUp className="w-3 h-3" /> Performances & Statistiques
                   </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="glass-panel p-4 rounded-xl border border-slate-800">
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Total Clics</div>
-                      <div className="text-2xl font-bold font-mono text-white">{selectedAffStats.totalClicks}</div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="glass-panel p-3 rounded-xl border border-slate-800 flex flex-col justify-center">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1 truncate" title="Total Clics">Clics</div>
+                      <div className="text-xl font-bold font-mono text-white truncate">{selectedAffStats.totalClicks}</div>
                     </div>
-                    <div className="glass-panel p-4 rounded-xl border border-slate-800">
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Conversion</div>
-                      <div className="text-2xl font-bold font-mono text-gold">{selectedAffStats.conversionRate.toFixed(1)}%</div>
+                    <div className="glass-panel p-3 rounded-xl border border-slate-800 flex flex-col justify-center">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1 truncate" title="Taux de Conversion">Taux Conv.</div>
+                      <div className="text-xl font-bold font-mono text-gold truncate">{selectedAffStats.conversionRate.toFixed(1)}%</div>
                     </div>
-                    <div className="glass-panel p-4 rounded-xl border border-slate-800">
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">CPA Validés</div>
-                      <div className="text-2xl font-bold font-mono text-emerald">{Object.values(selectedAffStats.clicksByCasino).reduce((acc, c) => acc + c.commissions, 0)}</div>
+                    <div className="glass-panel p-3 rounded-xl border border-slate-800 flex flex-col justify-center">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1 truncate" title="CPA Validés">CPA Validés</div>
+                      <div className="text-xl font-bold font-mono text-emerald truncate">{Object.values(selectedAffStats.clicksByCasino).reduce((acc, c) => acc + c.commissions, 0)}</div>
                     </div>
-                    <div className="glass-panel p-4 rounded-xl border border-slate-800">
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Dernière Activité</div>
-                      <div className="text-xl font-bold font-mono text-white mt-1">
+                    <div className="glass-panel p-3 rounded-xl border border-slate-800 flex flex-col justify-center">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5 truncate" title="Dernière Activité">Dernier CPA</div>
+                      <div className="text-[13px] font-bold font-mono text-white truncate">
                         {selectedAffStats.recentCommissions.length > 0 
                           ? new Date(selectedAffStats.recentCommissions[0].created_at).toLocaleDateString('fr-FR') 
                           : '—'}
