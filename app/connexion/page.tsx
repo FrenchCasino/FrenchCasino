@@ -92,9 +92,9 @@ function ConnexionForm() {
 
         <div className="text-center space-y-2 relative z-10">
           <div className="flex justify-center mb-4">
-             <Link href="/">
-               <img src="/logo.png" alt="French Casino Partners" className="h-10 sm:h-12 w-auto mx-auto object-contain transition-transform hover:scale-105" />
-             </Link>
+             <div className={`w-12 h-12 rounded-2xl bg-surface border border-slate-700 flex items-center justify-center shadow-lg`}>
+               <Icon className={`w-6 h-6 ${iconColor}`} />
+             </div>
           </div>
           
           <h1 className="font-display font-bold text-2xl text-white pt-2">

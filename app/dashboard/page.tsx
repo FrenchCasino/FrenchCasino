@@ -467,9 +467,9 @@ export default function DashboardPage() {
           <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-gold/5 rounded-full blur-3xl pointer-events-none"></div>
           
           <div className="text-center space-y-3 relative z-10">
-            <div className="flex justify-center mb-4">
-              <img src="/logo.png" alt="French Casino Partners" className="h-12 sm:h-16 w-auto object-contain" />
-            </div>
+            <h1 className="font-display text-3xl font-extrabold text-white">
+              Bienvenue sur French<span className="text-gradient-gold">Casino</span>
+            </h1>
             <p className="text-slate-400 text-sm">
               Votre compte a été validé ! Pour finaliser votre inscription et accéder à votre tableau de bord, veuillez compléter ces deux étapes rapides.
             </p>

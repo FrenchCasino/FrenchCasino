@@ -77,7 +77,12 @@ function InscriptionForm() {
       <div className="w-full max-w-md space-y-8 glass-panel p-8 sm:p-10 rounded-3xl border border-gold/30 relative overflow-hidden shadow-2xl">
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex items-center gap-2 group">
-            <img src="/logo.png" alt="French Casino Partners" className="h-10 sm:h-12 w-auto mx-auto object-contain" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-900 border border-primary-light/30 flex items-center justify-center shadow-purple-glow">
+              <span className="text-xl">🎰</span>
+            </div>
+            <span className="font-display font-bold text-2xl text-white">
+              French<span className="text-gradient-gold">Casino</span>
+            </span>
           </Link>
           <h1 className="font-display font-bold text-xl text-white pt-2">
             Rejoindre le Réseau d&apos;Affiliation
