@@ -1,6 +1,8 @@
 import { getCasinos } from '@/lib/data/casinos'
 import CasinosManager from './CasinosManager'
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminCasinosPage() {
   const casinos = await getCasinos()
 
