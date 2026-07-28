@@ -6,6 +6,7 @@ import { Zap, ShieldCheck, Filter } from 'lucide-react'
 import { PageHero } from '@/components/ui/PageHero'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export const metadata = {
   title: 'Meilleurs Bonus de Dépôt Casino (2026) — Packages de Bienvenue Exclusifs',
