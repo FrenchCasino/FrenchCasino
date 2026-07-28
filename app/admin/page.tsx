@@ -903,148 +903,6 @@ export default function AdminDashboardPage() {
                     </div>
                   ))}
                 </div>
-
-                {/* Side Drawer */}
-                {selectedAff && (
-                  <div className="fixed inset-0 z-50 flex">
-                    {/* Backdrop */}
-                    <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedAff(null)} />
-
-                    {/* Panel */}
-                    <div className="w-full max-w-md bg-[#0d0d18] border-l border-slate-800 flex flex-col shadow-2xl overflow-y-auto">
-                      {/* Header */}
-                      <div className="flex items-center justify-between p-5 border-b border-slate-800 sticky top-0 bg-[#0d0d18] z-10">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center font-bold text-primary uppercase text-base">
-                            {(selectedAff.profiles?.full_name || '?')[0]}
-                          </div>
-                          <div>
-                            <div className="text-[10px] text-gold font-semibold uppercase tracking-widest">Fiche Affilié</div>
-                            <h3 className="font-display font-bold text-white text-base leading-tight">{selectedAff.profiles?.full_name || 'Sans Nom'}</h3>
-                          </div>
-                        </div>
-                        <button onClick={() => setSelectedAff(null)} className="p-2 text-slate-500 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
-                          <XCircle className="w-5 h-5" />
-                        </button>
-                      </div>
-
-                      {/* Body */}
-                      <div className="flex-1 p-5 space-y-5">
-
-                        {/* Identity */}
-                        <section className="space-y-2">
-                          <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Identité</h4>
-                          <div className="glass-panel rounded-xl p-4 space-y-1.5 border border-slate-800">
-                            <Row label="Email" value={selectedAff.profiles?.email || 'N/A'} mono />
-                            <Row label="Rôle" value={selectedAff.profiles?.role || 'N/A'} />
-                            <Row label="Statut" value={
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                                selectedAff.status === 'active' ? 'bg-emerald/20 text-emerald' :
-                                selectedAff.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
-                                'bg-red-500/20 text-red-400'
-                              }`}>{selectedAff.status}</span>
-                            } />
-                            <Row label="Gains Totaux" value={<span className="text-gold font-bold font-mono">{(Number(selectedAff.total_earned) || 0).toLocaleString()} €</span>} />
-                          </div>
-                        </section>
-
-                        {/* Contacts */}
-                        <section className="space-y-2">
-                          <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Contacts</h4>
-                          <div className="glass-panel rounded-xl p-4 space-y-1.5 border border-slate-800">
-                            <Row label="Telegram" value={selectedAff.contact_telegram || '—'} color="text-blue-400" />
-                            <Row label="WhatsApp" value={selectedAff.contact_whatsapp || '—'} color="text-green-400" />
-                            <Row label="Téléphone" value={selectedAff.contact_phone || '—'} />
-                          </div>
-                        </section>
-
-                        {/* Lien & Recruteur */}
-                        <section className="space-y-2">
-                          <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Affiliation</h4>
-                          <div className="glass-panel rounded-xl p-4 space-y-1.5 border border-slate-800">
-                            <Row label="Code Parrainage" value={<span className="font-mono text-purple-300 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-800/50 text-[11px]">{selectedAff.referral_code}</span>} />
-                            <div className="pt-1">
-                              <label className="text-[10px] text-slate-500 block mb-1">Recruteur Assigné</label>
-                              <select
-                                value={selectedAff.recruiter_id || ''}
-                                onChange={(e) => {
-                                  handleAssignRecruiter(selectedAff.id, e.target.value)
-                                  setSelectedAff({ ...selectedAff, recruiter_id: e.target.value })
-                                }}
-                                className="w-full bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300"
-                              >
-                                <option value="">Aucun</option>
-                                {recruiters.map(r => (
-                                  <option key={r.id} value={r.id}>{r.full_name}</option>
-                                ))}
-                              </select>
-                            </div>
-                          </div>
-                        </section>
-
-                        {/* IBAN */}
-                        <section className="space-y-2">
-                          <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Coordonnées Bancaires</h4>
-                          <div className="glass-panel rounded-xl p-4 space-y-1.5 border border-slate-800">
-                            {selectedAff.iban ? (
-                              <>
-                                <Row label="Titulaire" value={selectedAff.iban_holder || 'N/A'} color="text-gold" />
-                                <Row label="IBAN" value={selectedAff.iban} mono />
-                                {selectedAff.bic && <Row label="BIC" value={selectedAff.bic} mono />}
-                              </>
-                            ) : (
-                              <p className="text-[11px] text-slate-600 italic">Aucun IBAN renseigné par cet affilié.</p>
-                            )}
-                          </div>
-                        </section>
-
-                        {/* Actions */}
-                        <section className="space-y-2">
-                          <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Actions Admin</h4>
-                          <div className="space-y-2">
-                            {selectedAff.status === 'pending' && (
-                              <button
-                                onClick={() => { handleUpdateAffiliateStatus(selectedAff.id, 'active'); setSelectedAff({ ...selectedAff, status: 'active' }) }}
-                                className="w-full py-2.5 rounded-xl bg-emerald/20 text-emerald border border-emerald/30 font-bold text-sm hover:bg-emerald/30 transition-colors"
-                              >
-                                ✓ Valider cet Affilié
-                              </button>
-                            )}
-                            {selectedAff.status === 'active' && (
-                              <button
-                                onClick={() => setCommissionModal({ isOpen: true, affiliateId: selectedAff.id, affiliateName: selectedAff.profiles?.full_name || 'Inconnu' })}
-                                className="w-full py-2.5 rounded-xl bg-gold/20 text-gold border border-gold/30 font-bold text-sm hover:bg-gold/30 transition-colors flex items-center justify-center gap-2"
-                              >
-                                <DollarSign className="w-4 h-4" /> Ajouter une Commission
-                              </button>
-                            )}
-                            {selectedAff.profiles?.role !== 'recruiter' ? (
-                              <button
-                                onClick={() => { handleUpdateRole(selectedAff.id, 'recruiter'); setSelectedAff({ ...selectedAff, profiles: { ...selectedAff.profiles, role: 'recruiter' } }) }}
-                                className="w-full py-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold text-sm hover:bg-amber-500/20 transition-colors"
-                              >
-                                Passer en Recruteur
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => { handleUpdateRole(selectedAff.id, 'affiliate'); setSelectedAff({ ...selectedAff, profiles: { ...selectedAff.profiles, role: 'affiliate' } }) }}
-                                className="w-full py-2.5 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-bold text-sm hover:bg-slate-700 transition-colors"
-                              >
-                                Retirer le rôle Recruteur
-                              </button>
-                            )}
-                            <button
-                              onClick={() => { handleUpdateAffiliateStatus(selectedAff.id, selectedAff.status === 'suspended' ? 'active' : 'suspended'); setSelectedAff({ ...selectedAff, status: selectedAff.status === 'suspended' ? 'active' : 'suspended' }) }}
-                              className="w-full py-2.5 rounded-xl bg-red-950/50 text-red-400 border border-red-900/50 font-bold text-sm hover:bg-red-900/60 transition-colors"
-                            >
-                              {selectedAff.status === 'suspended' ? '↩ Réactiver' : '⊘ Suspendre'}
-                            </button>
-                          </div>
-                        </section>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
           )}
 
@@ -1939,6 +1797,154 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL FICHE AFFILIÉ */}
+      {selectedAff && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border border-slate-800 p-0 rounded-2xl max-w-2xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto overflow-hidden">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-800 sticky top-0 bg-surface/95 backdrop-blur-md z-10">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center font-bold text-primary uppercase text-xl">
+                  {(selectedAff.profiles?.full_name || '?')[0]}
+                </div>
+                <div>
+                  <div className="text-[10px] text-gold font-semibold uppercase tracking-widest mb-0.5">Fiche Affilié détaillée</div>
+                  <h3 className="font-display font-bold text-white text-xl leading-tight">{selectedAff.profiles?.full_name || 'Sans Nom'}</h3>
+                </div>
+              </div>
+              <button onClick={() => setSelectedAff(null)} className="p-2 text-slate-500 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Body - 2 Columns Grid */}
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              {/* Column 1 */}
+              <div className="space-y-6">
+                <section className="space-y-3">
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                    <Users className="w-3 h-3" /> Identité
+                  </h4>
+                  <div className="glass-panel rounded-xl p-4 space-y-2 border border-slate-800">
+                    <Row label="Email" value={selectedAff.profiles?.email || 'N/A'} mono />
+                    <Row label="Rôle" value={selectedAff.profiles?.role || 'N/A'} />
+                    <Row label="Statut" value={
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                        selectedAff.status === 'active' ? 'bg-emerald/20 text-emerald' :
+                        selectedAff.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
+                        'bg-red-500/20 text-red-400'
+                      }`}>{selectedAff.status}</span>
+                    } />
+                    <Row label="Gains Totaux" value={<span className="text-gold font-bold font-mono text-base">{(Number(selectedAff.total_earned) || 0).toLocaleString()} €</span>} />
+                  </div>
+                </section>
+
+                <section className="space-y-3">
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                    <Handshake className="w-3 h-3" /> Contacts
+                  </h4>
+                  <div className="glass-panel rounded-xl p-4 space-y-2 border border-slate-800">
+                    <Row label="Telegram" value={selectedAff.contact_telegram || '—'} color="text-blue-400" />
+                    <Row label="WhatsApp" value={selectedAff.contact_whatsapp || '—'} color="text-green-400" />
+                    <Row label="Téléphone" value={selectedAff.contact_phone || '—'} />
+                  </div>
+                </section>
+              </div>
+
+              {/* Column 2 */}
+              <div className="space-y-6">
+                <section className="space-y-3">
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                    <Building className="w-3 h-3" /> Affiliation & Bancaire
+                  </h4>
+                  <div className="glass-panel rounded-xl p-4 space-y-2 border border-slate-800">
+                    <Row label="Code Parrainage" value={<span className="font-mono text-purple-300 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-800/50 text-[11px]">{selectedAff.referral_code}</span>} />
+                    <div className="pt-2">
+                      <label className="text-[10px] text-slate-500 block mb-1">Recruteur Assigné</label>
+                      <select
+                        value={selectedAff.recruiter_id || ''}
+                        onChange={(e) => {
+                          handleAssignRecruiter(selectedAff.id, e.target.value)
+                          setSelectedAff({ ...selectedAff, recruiter_id: e.target.value })
+                        }}
+                        className="w-full bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300"
+                      >
+                        <option value="">Aucun</option>
+                        {recruiters.map(r => (
+                          <option key={r.id} value={r.id}>{r.full_name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div className="pt-2 mt-2 border-t border-slate-800/50">
+                      {selectedAff.iban ? (
+                        <div className="space-y-2">
+                          <Row label="Titulaire" value={selectedAff.iban_holder || 'N/A'} color="text-gold" />
+                          <Row label="IBAN" value={selectedAff.iban} mono />
+                          {selectedAff.bic && <Row label="BIC" value={selectedAff.bic} mono />}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-slate-600 italic">Aucun IBAN renseigné par cet affilié.</p>
+                      )}
+                    </div>
+                  </div>
+                </section>
+
+                <section className="space-y-3">
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                    <ShieldAlert className="w-3 h-3 text-red-400" /> Actions Admin
+                  </h4>
+                  <div className="space-y-2">
+                    {selectedAff.status === 'pending' && (
+                      <button
+                        onClick={() => { handleUpdateAffiliateStatus(selectedAff.id, 'active'); setSelectedAff({ ...selectedAff, status: 'active' }) }}
+                        className="w-full py-2.5 rounded-xl bg-emerald/20 text-emerald border border-emerald/30 font-bold text-sm hover:bg-emerald/30 transition-colors"
+                      >
+                        ✓ Valider cet Affilié
+                      </button>
+                    )}
+                    {selectedAff.status === 'active' && (
+                      <button
+                        onClick={() => setCommissionModal({ isOpen: true, affiliateId: selectedAff.id, affiliateName: selectedAff.profiles?.full_name || 'Inconnu' })}
+                        className="w-full py-2.5 rounded-xl bg-gold/20 text-gold border border-gold/30 font-bold text-sm hover:bg-gold/30 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <DollarSign className="w-4 h-4" /> Ajouter une Commission
+                      </button>
+                    )}
+                    <div className="grid grid-cols-2 gap-2">
+                      {selectedAff.profiles?.role !== 'recruiter' ? (
+                        <button
+                          onClick={() => { handleUpdateRole(selectedAff.id, 'recruiter'); setSelectedAff({ ...selectedAff, profiles: { ...selectedAff.profiles, role: 'recruiter' } }) }}
+                          className="w-full py-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold text-[11px] hover:bg-amber-500/20 transition-colors"
+                        >
+                          Passer Recruteur
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => { handleUpdateRole(selectedAff.id, 'affiliate'); setSelectedAff({ ...selectedAff, profiles: { ...selectedAff.profiles, role: 'affiliate' } }) }}
+                          className="w-full py-2 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-bold text-[11px] hover:bg-slate-700 transition-colors"
+                        >
+                          Retirer Recruteur
+                        </button>
+                      )}
+                      <button
+                        onClick={() => { handleUpdateAffiliateStatus(selectedAff.id, selectedAff.status === 'suspended' ? 'active' : 'suspended'); setSelectedAff({ ...selectedAff, status: selectedAff.status === 'suspended' ? 'active' : 'suspended' }) }}
+                        className="w-full py-2 rounded-xl bg-red-950/50 text-red-400 border border-red-900/50 font-bold text-[11px] hover:bg-red-900/60 transition-colors"
+                      >
+                        {selectedAff.status === 'suspended' ? '↩ Réactiver' : '⊘ Suspendre'}
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+            </div>
           </div>
         </div>
       )}
