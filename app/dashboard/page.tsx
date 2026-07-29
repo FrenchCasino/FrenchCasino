@@ -158,7 +158,7 @@ export default function DashboardPage() {
         // Load Clicks
         const { data: clicks } = await supabase
           .from('casino_clicks')
-          .select('casino_id, created_at')
+          .select('casino_slug, created_at')
           .eq('affiliate_id', affData.id)
         
         // Load Commissions
@@ -191,7 +191,7 @@ export default function DashboardPage() {
         if (clicks) {
           currentClicks = clicks.length
           clicks.forEach(c => {
-            counts[c.casino_id] = (counts[c.casino_id] || 0) + 1
+            counts[c.casino_slug] = (counts[c.casino_slug] || 0) + 1
             const date = new Date(c.created_at)
             const day = date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
             clicksByDay[day] = (clicksByDay[day] || 0) + 1
