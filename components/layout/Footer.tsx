@@ -4,7 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ResponsibleGamingBanner } from './ResponsibleGamingBanner'
-import { ShieldCheck, HeartHandshake, FileText, Scale } from 'lucide-react'
+import { ShieldCheck, HeartHandshake, FileText, Scale, Facebook } from 'lucide-react'
 
 export function Footer() {
   const pathname = usePathname()
@@ -39,6 +39,12 @@ export function Footer() {
             <div className="flex items-center gap-2 text-xs text-slate-400 pt-2">
               <ShieldCheck className="w-4 h-4 text-emerald" />
               <span>Transparence & Rédaction 100% Indépendante</span>
+            </div>
+            <div className="pt-4">
+              <a href="https://www.facebook.com/profile.php?id=61581513551107" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1877F2]/10 hover:bg-[#1877F2]/20 border border-[#1877F2]/20 text-[#1877F2] transition-colors text-sm font-medium">
+                <Facebook className="w-4 h-4" />
+                Rejoignez-nous sur Facebook
+              </a>
             </div>
           </div>
 
