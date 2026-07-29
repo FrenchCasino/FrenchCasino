@@ -749,6 +749,80 @@ export default function AdminDashboardPage() {
     }
   }
 
+  // Export CSV functions for Admin
+  const downloadCSVAdmin = (headers: string[], rows: any[][], filename: string) => {
+    const csvContent = [
+      headers.join(';'),
+      ...rows.map(row => row.map(val => {
+        if (val === null || val === undefined) return '';
+        const str = String(val).replace(/"/g, '""');
+        return str.includes(';') || str.includes('\n') || str.includes('"') ? `"${str}"` : str;
+      }).join(';'))
+    ].join('\n');
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportPayouts = () => {
+    if (payouts.length === 0) return toast.error("Aucune demande de paiement à exporter.");
+    const headers = [
+      "Date Demande",
+      "Nom de l'affilié",
+      "Email de l'affilié",
+      "Montant (€)",
+      "Titulaire de compte",
+      "IBAN",
+      "BIC",
+      "Statut"
+    ];
+    const rows = payouts.map(p => [
+      new Date(p.created_at).toLocaleDateString(),
+      p.affiliates?.profiles?.full_name || 'Inconnu',
+      p.affiliates?.profiles?.email || '',
+      p.montant_demande,
+      p.affiliates?.iban_holder || '',
+      p.affiliates?.iban || '',
+      p.affiliates?.bic || '',
+      p.statut
+    ]);
+    downloadCSVAdmin(headers, rows, `comptabilite_retraits_frenchcasino_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const handleExportAffiliates = () => {
+    if (affiliates.length === 0) return toast.error("Aucun affilié à exporter.");
+    const headers = [
+      "Nom",
+      "Email",
+      "Rôle",
+      "Taux de commission",
+      "Total accumulé (€)",
+      "Statut",
+      "IBAN Titulaire",
+      "IBAN",
+      "BIC"
+    ];
+    const rows = affiliates.map(aff => [
+      aff.profiles?.full_name || 'Sans nom',
+      aff.profiles?.email || '',
+      aff.profiles?.role || 'affiliate',
+      aff.commission_rate,
+      aff.total_earned,
+      aff.status,
+      aff.iban_holder || '',
+      aff.iban || '',
+      aff.bic || ''
+    ]);
+    downloadCSVAdmin(headers, rows, `affilies_frenchcasino_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
   const handleUpdateTicketStatus = async (id: string, newStatus: string) => {
     const oldTicket = tickets.find(t => t.id === id)
     const oldStatus = oldTicket?.statut
@@ -1027,10 +1101,19 @@ export default function AdminDashboardPage() {
           {/* 2. GESTION DES AFFILIÉS */}
           {adminTab === 'affiliates' && (
               <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4 relative">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-display font-bold text-lg text-white">Gestion des Affiliés</h3>
-                  <span className="text-xs text-slate-500 font-mono">{affiliates.length} membre(s)</span>
-                </div>
+                 <div className="flex items-center justify-between">
+                   <h3 className="font-display font-bold text-lg text-white">Gestion des Affiliés</h3>
+                   <div className="flex items-center gap-3">
+                     <button
+                       onClick={handleExportAffiliates}
+                       className="px-3 py-1.5 rounded-lg bg-surface border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors"
+                     >
+                       <Download className="w-3.5 h-3.5 text-gold shrink-0" />
+                       <span>Exporter CSV</span>
+                     </button>
+                     <span className="text-xs text-slate-500 font-mono">{affiliates.length} membre(s)</span>
+                   </div>
+                 </div>
 
                 {/* Compact list */}
                 <div className="space-y-2">
@@ -1393,13 +1476,16 @@ export default function AdminDashboardPage() {
           {/* 4. GESTION DES PAIEMENTS */}
           {adminTab === 'payouts' && (
             <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="font-display font-bold text-lg text-white">Demandes de Retrait & Paiements</h3>
-                <button className="px-3 py-1.5 rounded-lg bg-surface border border-slate-700 text-xs text-slate-300 flex items-center gap-1.5 hover:text-white transition-colors">
-                  <Download className="w-4 h-4 text-gold" />
-                  <span>Export CSV Comptabilité</span>
-                </button>
-              </div>
+               <div className="flex justify-between items-center">
+                 <h3 className="font-display font-bold text-lg text-white">Demandes de Retrait & Paiements</h3>
+                 <button
+                   onClick={handleExportPayouts}
+                   className="px-3 py-1.5 rounded-lg bg-surface border border-slate-700 text-xs text-slate-300 flex items-center gap-1.5 hover:text-white transition-colors"
+                 >
+                   <Download className="w-4 h-4 text-gold" />
+                   <span>Export CSV Comptabilité</span>
+                 </button>
+               </div>
 
               <div className="overflow-x-auto rounded-xl border border-slate-800/50">
                 <table className="w-full text-left text-xs text-slate-300">

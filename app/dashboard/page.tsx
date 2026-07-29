@@ -71,6 +71,12 @@ export default function DashboardPage() {
   const [totalHistoricalValid, setTotalHistoricalValid] = useState(0)
   const [chartData, setChartData] = useState<any[]>([])
   const [ticketsList, setTicketsList] = useState<any[]>([])
+  
+  // Custom Time Range Filter for Stats
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'all'>('7d')
+  const [rawClicksList, setRawClicksList] = useState<any[]>([])
+  const [payoutsList, setPayoutsList] = useState<any[]>([])
+  const [refundsList, setRefundsList] = useState<any[]>([])
 
   // Refund form state
   const [refundForm, setRefundForm] = useState({ casinoId: '', amount: '', proofFile: null as File | null })
@@ -165,6 +171,8 @@ export default function DashboardPage() {
           .select('casino_id, created_at')
           .eq('affiliate_id', affData.id)
         
+        if (clicks) setRawClicksList(clicks)
+
         // Load Commissions
         const { data: comms } = await supabase
           .from('commissions')
@@ -172,11 +180,15 @@ export default function DashboardPage() {
           .eq('affiliate_id', affData.id)
           .order('created_at', { ascending: false })
 
+        if (comms) setCommissionsList(comms)
+
         // Load Payouts
         const { data: payouts } = await supabase
           .from('payout_requests')
           .select('*')
           .eq('affiliate_id', affData.id)
+        
+        if (payouts) setPayoutsList(payouts)
 
         // Load Tickets
         const { data: tks } = await supabase
@@ -187,107 +199,164 @@ export default function DashboardPage() {
 
         if (tks) setTicketsList(tks)
 
-        // Process Clicks
-        let currentClicks = 0
-        const counts: Record<string, number> = {}
-        const clicksByDay: Record<string, number> = {}
+        // Load Refund Requests
+        const { data: refunds } = await supabase
+          .from('refund_requests')
+          .select('*')
+          .eq('affiliate_id', affData.id)
+          .order('created_at', { ascending: false })
 
-        if (clicks) {
-          currentClicks = clicks.length
-          clicks.forEach(c => {
-            // Map casino_id -> slug using already-loaded casinos list
-            const casino = casData?.find((cas: any) => cas.id === c.casino_id)
-            const slug = casino ? casino.slug : 'autre'
-            counts[slug] = (counts[slug] || 0) + 1
-            const date = new Date(c.created_at)
-            const day = date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
-            clicksByDay[day] = (clicksByDay[day] || 0) + 1
-          })
-          setClicksData(counts)
-          setTotalClicks(currentClicks)
-        }
-
-        // Process Commissions
-        let currentMonthly = 0
-        let pastCommissions = 0
-        let totalValid = 0
-        let totalConversions = 0
-        const commsByDay: Record<string, number> = {}
-        const commsCountByCasino: Record<string, number> = {}
-        
-        const now = new Date()
-        const currentMonth = now.getMonth()
-        const currentYear = now.getFullYear()
-
-        if (comms) {
-          setCommissionsList(comms)
-          comms.forEach(c => {
-            if (c.statut === 'validated' || c.statut === 'paid') {
-              const amount = Number(c.montant)
-              totalValid += amount
-              totalConversions += 1
-              
-              const date = new Date(c.created_at)
-              if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
-                currentMonthly += amount
-              } else {
-                pastCommissions += amount
-              }
-
-              const day = date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
-              commsByDay[day] = (commsByDay[day] || 0) + amount
-              
-              const key = c.casino_slug || c.casino_name || 'Inconnu'
-              commsCountByCasino[key] = (commsCountByCasino[key] || 0) + 1
-            }
-          })
-          setMonthlyCommissions(currentMonthly)
-          setSoldeMoisEnCours(currentMonthly)
-          setTotalHistoricalValid(totalValid)
-          setStatsCommsByCasino(commsCountByCasino)
-          
-          if (currentClicks > 0) {
-            setStatsCR((totalConversions / currentClicks) * 100)
-            setStatsEPC(totalValid / currentClicks)
-          }
-          
-          let bestCasino = 'N/A'
-          let maxComms = 0
-          Object.keys(commsCountByCasino).forEach(cas => {
-             if (commsCountByCasino[cas] > maxComms) {
-                maxComms = commsCountByCasino[cas]
-                bestCasino = cas
-             }
-          })
-          setStatsTopCasino(bestCasino)
-        }
-
-        // Process Payouts
-        let totalPaidOrPending = 0
-        if (payouts) {
-          payouts.forEach(p => {
-            if (p.statut !== 'rejected') {
-              totalPaidOrPending += Number(p.montant_demande)
-            }
-          })
-        }
-
-        setSoldeDisponible(Math.max(0, pastCommissions - totalPaidOrPending))
-
-        // Build Chart Data (Last 7 days roughly based on weekday)
-        const days = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim']
-        const finalChart = days.map(d => ({
-          day: d.charAt(0).toUpperCase() + d.slice(1, 3),
-          clics: clicksByDay[d] || 0,
-          commissions: commsByDay[d] || 0
-        }))
-        setChartData(finalChart)
+        if (refunds) setRefundsList(refunds)
       }
       
       setLoadingData(false)
     }
     loadAffiliateData()
   }, [])
+
+  // Dynamic statistics calculator based on timeRange
+  React.useEffect(() => {
+    if (loadingData) return
+
+    const now = new Date()
+    let filteredClicks = rawClicksList
+    let filteredComms = commissionsList
+
+    if (timeRange === '7d') {
+      const limit = new Date()
+      limit.setDate(now.getDate() - 7)
+      filteredClicks = rawClicksList.filter(c => new Date(c.created_at) >= limit)
+      filteredComms = commissionsList.filter(c => new Date(c.created_at) >= limit)
+    } else if (timeRange === '30d') {
+      const limit = new Date()
+      limit.setDate(now.getDate() - 30)
+      filteredClicks = rawClicksList.filter(c => new Date(c.created_at) >= limit)
+      filteredComms = commissionsList.filter(c => new Date(c.created_at) >= limit)
+    }
+
+    // Process Clicks counts by casino
+    const counts: Record<string, number> = {}
+    filteredClicks.forEach(c => {
+      const casino = casinosList?.find((cas: any) => cas.id === c.casino_id)
+      const slug = casino ? casino.slug : 'autre'
+      counts[slug] = (counts[slug] || 0) + 1
+    })
+    setClicksData(counts)
+    setTotalClicks(filteredClicks.length)
+
+    // Process Commissions
+    let currentMonthly = 0
+    let pastCommissions = 0
+    let totalValid = 0
+    let totalConversions = 0
+    const commsCountByCasino: Record<string, number> = {}
+    
+    const currentMonth = now.getMonth()
+    const currentYear = now.getFullYear()
+
+    filteredComms.forEach(c => {
+      if (c.statut === 'validated' || c.statut === 'paid') {
+        const amount = Number(c.montant)
+        totalValid += amount
+        totalConversions += 1
+        
+        const date = new Date(c.created_at)
+        if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+          currentMonthly += amount
+        } else {
+          pastCommissions += amount
+        }
+        
+        const key = c.casino_slug || c.casino_name || 'Inconnu'
+        commsCountByCasino[key] = (commsCountByCasino[key] || 0) + 1
+      }
+    })
+
+    // Compute monthly and general commissions totals
+    // If not filtered (all time), pastCommissions represents all commissions
+    // Solde Disponible calculation always uses all historical commissions minus payouts
+    let allValidCommsAmount = 0
+    let allMonthlyCommsAmount = 0
+    commissionsList.forEach(c => {
+      if (c.statut === 'validated' || c.statut === 'paid') {
+        const amount = Number(c.montant)
+        allValidCommsAmount += amount
+        const date = new Date(c.created_at)
+        if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+          allMonthlyCommsAmount += amount
+        }
+      }
+    })
+
+    setMonthlyCommissions(allMonthlyCommsAmount)
+    setSoldeMoisEnCours(allMonthlyCommsAmount)
+    setTotalHistoricalValid(allValidCommsAmount)
+    setStatsCommsByCasino(commsCountByCasino)
+
+    // EPC and CR calculation
+    if (filteredClicks.length > 0) {
+      setStatsCR((totalConversions / filteredClicks.length) * 100)
+      setStatsEPC(totalValid / filteredClicks.length)
+    } else {
+      setStatsCR(0)
+      setStatsEPC(0)
+    }
+
+    // Top Casino
+    let bestCasino = 'N/A'
+    let maxComms = 0
+    Object.keys(commsCountByCasino).forEach(cas => {
+      if (commsCountByCasino[cas] > maxComms) {
+        maxComms = commsCountByCasino[cas]
+        bestCasino = cas
+      }
+    })
+    setStatsTopCasino(bestCasino)
+
+    // Process Payouts for Solde Disponible
+    let totalPaidOrPending = 0
+    payoutsList.forEach(p => {
+      if (p.statut !== 'rejected') {
+        totalPaidOrPending += Number(p.montant_demande)
+      }
+    })
+    // Solde disponible = Total Validated commissions (past months) - payout requests
+    const pastValidCommsAmount = allValidCommsAmount - allMonthlyCommsAmount
+    setSoldeDisponible(Math.max(0, pastValidCommsAmount - totalPaidOrPending))
+
+    // Build Chart Data (Daily breakdown)
+    const rangeDays = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 15
+    const chart = []
+
+    for (let i = rangeDays - 1; i >= 0; i--) {
+      const date = new Date()
+      date.setDate(now.getDate() - i)
+      const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+      
+      const dayStart = new Date(date)
+      dayStart.setHours(0,0,0,0)
+      const dayEnd = new Date(date)
+      dayEnd.setHours(23,59,59,999)
+
+      const dayClicks = rawClicksList.filter(c => {
+        const d = new Date(c.created_at)
+        return d >= dayStart && d <= dayEnd
+      }).length
+
+      const dayComms = commissionsList.filter(c => {
+        const d = new Date(c.created_at)
+        return d >= dayStart && d <= dayEnd && (c.statut === 'validated' || c.statut === 'paid')
+      }).reduce((acc, curr) => acc + Number(curr.montant), 0)
+
+      chart.push({
+        day: dateStr,
+        clics: dayClicks,
+        commissions: dayComms
+      })
+    }
+    setChartData(chart)
+
+  }, [timeRange, rawClicksList, commissionsList, payoutsList, loadingData])
   
   // State IBAN Masqué
   const [showFullIban, setShowFullIban] = useState(false)
@@ -401,8 +470,77 @@ export default function DashboardPage() {
 
     setSoldeDisponible(prev => prev - amount)
     setPayoutSuccess(true)
+    // Reload payouts list
+    if (affiliateId) {
+      const { data: payouts } = await supabase.from('payout_requests').select('*').eq('affiliate_id', affiliateId)
+      if (payouts) setPayoutsList(payouts)
+    }
     setTimeout(() => setPayoutSuccess(false), 4000)
   }
+
+  // CSV Export Utils
+  const downloadCSV = (headers: string[], rows: any[][], filename: string) => {
+    const csvContent = [
+      headers.join(';'),
+      ...rows.map(row => row.map(val => {
+        if (val === null || val === undefined) return '';
+        const str = String(val).replace(/"/g, '""');
+        return str.includes(';') || str.includes('\n') || str.includes('"') ? `"${str}"` : str;
+      }).join(';'))
+    ].join('\n');
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportCommissions = () => {
+    if (commissionsList.length === 0) return toast.error("Aucune commission à exporter.");
+    const headers = ["Date", "Casino/Période", "Montant", "Statut"];
+    const rows = commissionsList.map(c => [
+      new Date(c.created_at).toLocaleDateString(),
+      c.periode || 'N/A',
+      `${c.montant} €`,
+      c.statut
+    ]);
+    downloadCSV(headers, rows, `commissions_frenchcasino_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const handleExportPayouts = () => {
+    if (payoutsList.length === 0) return toast.error("Aucun retrait à exporter.");
+    const headers = ["Date Demande", "Montant", "Statut"];
+    const rows = payoutsList.map(p => [
+      new Date(p.created_at).toLocaleDateString(),
+      `${p.montant_demande} €`,
+      p.statut
+    ]);
+    downloadCSV(headers, rows, `retraits_frenchcasino_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const handleExportRefunds = () => {
+    if (refundsList.length === 0) return toast.error("Aucun remboursement à exporter.");
+    const headers = ["Date Demande", "Casino", "Montant", "Statut"];
+    const rows = refundsList.map(r => [
+      new Date(r.created_at).toLocaleDateString(),
+      r.casino_name,
+      `${r.amount} €`,
+      r.status
+    ]);
+    downloadCSV(headers, rows, `remboursements_frenchcasino_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const handleExportClicksStats = () => {
+    if (chartData.length === 0) return toast.error("Aucune statistique à exporter.");
+    const headers = ["Date", "Clics", "Commissions"];
+    const rows = chartData.map(d => [d.day, d.clics, `${d.commissions} €`]);
+    downloadCSV(headers, rows, `performances_frenchcasino_${timeRange}_${new Date().toISOString().split('T')[0]}.csv`);
+  };
 
   const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -912,7 +1050,26 @@ export default function DashboardPage() {
 
           {/* Graphique Aperçu */}
           <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-            <h3 className="font-display font-bold text-lg text-white">Performance 7 Derniers Jours</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <h3 className="font-display font-bold text-lg text-white">
+                Performance {timeRange === '7d' ? '7 Derniers Jours' : timeRange === '30d' ? '30 Derniers Jours' : 'Globale'}
+              </h3>
+              <div className="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800 self-start sm:self-auto shrink-0">
+                {(['7d', '30d', 'all'] as const).map(range => (
+                  <button
+                    key={range}
+                    onClick={() => setTimeRange(range)}
+                    className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-all ${
+                      timeRange === range
+                        ? 'bg-primary text-white shadow-purple-glow'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {range === '7d' ? '7j' : range === '30d' ? '30j' : 'Tout'}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
@@ -1053,7 +1210,33 @@ export default function DashboardPage() {
       {/* 3. STATISTIQUES RECHARTS */}
       {activeTab === 'stats' && (
         <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
-          <h3 className="font-display font-bold text-lg text-white">Statistiques Détaillées (Clics vs Conversions)</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h3 className="font-display font-bold text-lg text-white">Statistiques Clics & Conversions</h3>
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <div className="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800">
+                {(['7d', '30d', 'all'] as const).map(range => (
+                  <button
+                    key={range}
+                    onClick={() => setTimeRange(range)}
+                    className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-all ${
+                      timeRange === range
+                        ? 'bg-primary text-white shadow-purple-glow'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {range === '7d' ? '7j' : range === '30d' ? '30j' : 'Tout'}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={handleExportClicksStats}
+                className="px-3 py-1.5 rounded-lg bg-surface border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors shrink-0"
+              >
+                <Download className="w-3.5 h-3.5 text-gold" />
+                <span>Exporter CSV</span>
+              </button>
+            </div>
+          </div>
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
@@ -1072,7 +1255,16 @@ export default function DashboardPage() {
       {/* 4. HISTORIQUE COMMISSIONS */}
       {activeTab === 'commissions' && (
         <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-          <h3 className="font-display font-bold text-lg text-white">Historique des Commissions</h3>
+          <div className="flex justify-between items-center">
+            <h3 className="font-display font-bold text-lg text-white">Historique des Commissions</h3>
+            <button
+              onClick={handleExportCommissions}
+              className="px-3 py-1.5 rounded-lg bg-surface border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5 text-gold" />
+              <span>Exporter CSV</span>
+            </button>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-300">
               <thead className="bg-surface uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
@@ -1302,6 +1494,93 @@ export default function DashboardPage() {
                 {isSubmittingRefund ? <><Loader2 className="w-4 h-4 animate-spin" /> Envoi en cours...</> : 'Soumettre ma Demande de Remboursement'}
               </button>
             </form>
+          </div>
+
+          {/* Historique des transactions */}
+          <div className="max-w-xl md:max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+            {/* Payouts list */}
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <div className="flex justify-between items-center">
+                <h4 className="font-display font-bold text-sm text-white">Vos Retraits</h4>
+                <button
+                  onClick={handleExportPayouts}
+                  className="px-2.5 py-1 rounded bg-surface hover:text-white border border-slate-800 text-slate-400 text-[10px] transition-all flex items-center gap-1"
+                >
+                  <Download className="w-3 h-3 text-gold" />
+                  <span>Exporter</span>
+                </button>
+              </div>
+              <div className="overflow-x-auto text-[11px]">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-400 font-mono text-[9px] uppercase">
+                      <th className="pb-2">Date</th>
+                      <th className="pb-2 text-right">Montant</th>
+                      <th className="pb-2 text-center">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/40">
+                    {payoutsList.length === 0 ? (
+                      <tr><td colSpan={3} className="py-4 text-center text-slate-500">Aucun retrait.</td></tr>
+                    ) : payoutsList.map(p => (
+                      <tr key={p.id}>
+                        <td className="py-2.5 text-slate-300 font-mono">{new Date(p.created_at).toLocaleDateString()}</td>
+                        <td className="py-2.5 text-right text-white font-mono font-semibold">{p.montant_demande} €</td>
+                        <td className="py-2.5 text-center">
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${
+                            p.statut === 'paid' ? 'bg-emerald/20 text-emerald' : 
+                            p.statut === 'pending' ? 'bg-amber-500/20 text-amber-500' : 'bg-red-500/20 text-red-500'
+                          }`}>{p.statut}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Refunds list */}
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <div className="flex justify-between items-center">
+                <h4 className="font-display font-bold text-sm text-white">Vos Remboursements</h4>
+                <button
+                  onClick={handleExportRefunds}
+                  className="px-2.5 py-1 rounded bg-surface hover:text-white border border-slate-800 text-slate-400 text-[10px] transition-all flex items-center gap-1"
+                >
+                  <Download className="w-3 h-3 text-gold" />
+                  <span>Exporter</span>
+                </button>
+              </div>
+              <div className="overflow-x-auto text-[11px]">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-400 font-mono text-[9px] uppercase">
+                      <th className="pb-2">Date</th>
+                      <th className="pb-2">Casino</th>
+                      <th className="pb-2 text-right">Montant</th>
+                      <th className="pb-2 text-center">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/40">
+                    {refundsList.length === 0 ? (
+                      <tr><td colSpan={4} className="py-4 text-center text-slate-500">Aucun remboursement.</td></tr>
+                    ) : refundsList.map(r => (
+                      <tr key={r.id}>
+                        <td className="py-2.5 text-slate-300 font-mono">{new Date(r.created_at).toLocaleDateString()}</td>
+                        <td className="py-2.5 text-white truncate max-w-[80px]">{r.casino_name}</td>
+                        <td className="py-2.5 text-right text-white font-mono font-semibold">{r.amount} €</td>
+                        <td className="py-2.5 text-center">
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${
+                            r.status === 'approved' ? 'bg-emerald/20 text-emerald' : 
+                            r.status === 'pending' ? 'bg-amber-500/20 text-amber-500' : 'bg-red-500/20 text-red-500'
+                          }`}>{r.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       )}
