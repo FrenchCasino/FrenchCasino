@@ -910,7 +910,7 @@ export default function DashboardPage() {
             ) : casinosList.map((casino) => {
               // URL Tracking interne (Redirection dynamique)
               const linkUrl = `${window.location.origin}/go/${casino.slug}?ref=${affiliateCode}`
-              const clickCount = clicksData[casino.id] || 0
+              const clickCount = clicksData[casino.slug] || 0
 
               return (
                 <div key={casino.id} className="glass-panel p-5 rounded-xl border border-slate-800 space-y-3">
