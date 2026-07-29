@@ -2178,7 +2178,7 @@ export default function AdminDashboardPage() {
                             onClick={async () => {
                               const newEarned = await handleUpdateTotalEarned(selectedAff.id, Number(selectedAff.total_earned) || 0)
                               if (newEarned !== undefined) {
-                                setSelectedAff(prev => ({ ...prev, total_earned: newEarned }))
+                                setSelectedAff({ ...selectedAff, total_earned: newEarned })
                               }
                             }}
                             className="px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-400 hover:text-white border border-slate-700 transition-colors"
@@ -2222,7 +2222,7 @@ export default function AdminDashboardPage() {
                               // Refresh modal state
                               const updated = affiliates.find(a => a.id === selectedAff.id)
                               if (updated) {
-                                setSelectedAff(prev => ({ ...prev, commission_rate: updated.commission_rate }))
+                                setSelectedAff({ ...selectedAff, commission_rate: updated.commission_rate })
                               }
                             }}
                             className="px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-400 hover:text-white border border-slate-700 transition-colors"
