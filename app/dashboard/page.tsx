@@ -21,7 +21,8 @@ import {
   EyeOff,
   XCircle,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Download
 } from 'lucide-react'
 import {
   ResponsiveContainer,
