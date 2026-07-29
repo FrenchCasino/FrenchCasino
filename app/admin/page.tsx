@@ -341,6 +341,24 @@ export default function AdminDashboardPage() {
     fetchAffStats()
   }, [selectedAff])
 
+  const [isAdminMessageSaving, setIsAdminMessageSaving] = useState(false)
+
+  const handleSaveAdminMessage = async (affiliateId: string, message: string) => {
+    setIsAdminMessageSaving(true)
+    const { error } = await supabase
+      .from('affiliates')
+      .update({ admin_message: message || null })
+      .eq('id', affiliateId)
+    
+    setIsAdminMessageSaving(false)
+    if (error) {
+      toast.error('Erreur lors de la sauvegarde du message')
+    } else {
+      toast.success(message ? 'Message publié sur le dashboard !' : 'Message retiré.')
+      setSelectedAff({ ...selectedAff, admin_message: message || null })
+    }
+  }
+
   // Actions Affiliés
   const handleAssignRecruiter = async (affiliateId: string, recruiterId: string) => {
     try {
@@ -2018,6 +2036,41 @@ export default function AdminDashboardPage() {
                         </div>
                       ) : (
                         <p className="text-[11px] text-slate-600 italic">Aucun IBAN renseigné par cet affilié.</p>
+                      )}
+                    </div>
+                  </div>
+                </section>
+
+                <section className="space-y-3">
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                    <MessageSquare className="w-3 h-3 text-purple-400" /> Bannière Affilié
+                  </h4>
+                  <div className="glass-panel rounded-xl p-4 space-y-3 border border-purple-900/30">
+                    <textarea 
+                      placeholder="Laisser un message d'alerte sur le tableau de bord de cet affilié..."
+                      className="w-full bg-slate-900/50 border border-slate-700 text-xs rounded-lg p-3 text-slate-300 min-h-[80px]"
+                      value={selectedAff.admin_message || ''}
+                      onChange={(e) => setSelectedAff({...selectedAff, admin_message: e.target.value})}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleSaveAdminMessage(selectedAff.id, selectedAff.admin_message)}
+                        disabled={isAdminMessageSaving}
+                        className="flex-1 py-2 rounded-lg bg-purple-600/20 text-purple-300 border border-purple-500/30 font-bold text-[11px] hover:bg-purple-600/30 transition-colors"
+                      >
+                        {isAdminMessageSaving ? 'Enregistrement...' : 'Publier le Message'}
+                      </button>
+                      {selectedAff.admin_message && (
+                        <button
+                          onClick={() => {
+                            setSelectedAff({...selectedAff, admin_message: ''})
+                            handleSaveAdminMessage(selectedAff.id, '')
+                          }}
+                          className="px-3 py-2 rounded-lg bg-slate-800 text-slate-400 hover:text-red-400 transition-colors border border-slate-700"
+                          title="Effacer le message"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
                   </div>

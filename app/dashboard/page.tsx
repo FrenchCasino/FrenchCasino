@@ -52,6 +52,7 @@ export default function DashboardPage() {
   const [affiliateCode, setAffiliateCode] = useState<string>('EN_ATTENTE')
   const [affiliateId, setAffiliateId] = useState<string | null>(null)
   const [affiliateStatus, setAffiliateStatus] = useState<string>('pending')
+  const [adminMessage, setAdminMessage] = useState<string | null>(null)
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean>(false)
   const [onboardingStep, setOnboardingStep] = useState<1 | 2>(1)
   const [casinosList, setCasinosList] = useState<any[]>([])
@@ -84,7 +85,7 @@ export default function DashboardPage() {
 
       const { data: aff } = await supabase
         .from('affiliates')
-        .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic')
+        .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic, admin_message')
         .eq('id', user.id)
         .single()
       
@@ -92,6 +93,7 @@ export default function DashboardPage() {
         setAffiliateCode(aff.referral_code)
         setAffiliateId(aff.id)
         setAffiliateStatus(aff.status)
+        setAdminMessage(aff.admin_message)
         
         // Handle postgres error gracefully if column doesn't exist yet by defaulting to false
         setOnboardingCompleted(aff.onboarding_completed === true)
@@ -746,6 +748,22 @@ export default function DashboardPage() {
 
         {/* TABS CONTENT */}
         <div className="flex-1 w-full min-w-0">
+          
+          {adminMessage && (
+            <div className="mb-8 p-4 md:p-6 rounded-2xl glass-panel border border-purple-500/30 bg-purple-900/10 shadow-purple-glow relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-purple-500 to-indigo-500" />
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0 border border-purple-500/30">
+                  <MessageSquare className="w-5 h-5 text-purple-400" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-purple-300">Nouveau message de votre Manager</h3>
+                  <p className="text-sm text-slate-300 whitespace-pre-wrap">{adminMessage}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
 
       {/* 1. VUE D'ENSEMBLE */}
       {activeTab === 'overview' && (
