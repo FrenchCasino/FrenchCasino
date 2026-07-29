@@ -28,6 +28,8 @@ import {
   Handshake,
   Percent,
   Eye,
+  EyeOff,
+  Award,
   RefreshCw,
   TrendingUp
 } from 'lucide-react'
@@ -1094,50 +1096,67 @@ export default function AdminDashboardPage() {
                 {casinos.length === 0 ? (
                   <p className="text-slate-400 font-mono text-sm p-4">Aucun casino trouvé dans la base.</p>
                 ) : casinos.map((casino) => (
-                  <div key={casino.id} className="glass-panel p-5 rounded-xl border border-slate-800 space-y-3 relative overflow-hidden group">
+                  <div key={casino.id} className="glass-panel p-4 rounded-xl border border-slate-800/60 hover:border-slate-700 space-y-4 relative overflow-hidden group transition-all hover:shadow-xl hover:shadow-black/20">
+                    
+                    {/* Header: Title and Rank */}
                     <div className="flex justify-between items-start">
-                      <div>
+                      <div className="flex flex-col">
                         <h4 className="font-bold text-white text-base flex items-center gap-2">
                           {casino.name}
-                          {!casino.is_active && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-500/20 text-red-500">Inactif</span>}
+                          {!casino.is_active && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">
+                              Inactif
+                            </span>
+                          )}
                         </h4>
-                        <span className="text-[10px] text-slate-500 font-mono">{casino.slug}</span>
+                        <span className="text-[10px] text-slate-500 font-mono mt-0.5">{casino.slug}</span>
                       </div>
-                      <span className="text-xs font-mono font-bold text-gold bg-gold/10 border border-gold/30 px-2 py-1 rounded shadow-sm">
-                        Rang Top Casino: #{casino.ordre_classement || 1}
-                      </span>
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-gold/20 to-amber-500/10 border border-gold/30 shadow-sm">
+                        <Award className="w-3.5 h-3.5 text-gold" />
+                        <span className="text-xs font-bold text-gold">#{casino.ordre_classement || 1}</span>
+                      </div>
                     </div>
                     
-                    <div className="space-y-1.5 text-[11px]">
-                      <p className="text-slate-300"><span className="text-slate-500">Licence:</span> {casino.licence}</p>
-                      <p className="text-emerald font-semibold"><span className="text-slate-500 font-normal">Sans dépôt:</span> {casino.bonus_sans_depot}</p>
-                      <p className="text-purple-300 font-semibold"><span className="text-slate-500 font-normal">Commission:</span> {casino.commission_cpa || 'Non défini'}</p>
-                      <p className="text-blue-300 font-semibold"><span className="text-slate-500 font-normal">Min. Dépôt:</span> {casino.minimum_depot || 'Non défini'}</p>
-                      <div className="pt-1 flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleAffiliateVisibility(casino)}
-                          className={`px-2 py-1 rounded text-[10px] font-bold transition-colors flex items-center gap-1 cursor-pointer hover:brightness-125 ${casino.visible_affiliate !== false ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60' : 'bg-red-950/40 text-red-400 border border-red-900/50'}`}
-                          title="Cliquer pour masquer ou afficher ce casino aux affiliés"
-                        >
-                          {casino.visible_affiliate !== false ? '✓ Visible Espace Affilié (Cliquer pour masquer)' : '✕ Masqué Espace Affilié (Cliquer pour afficher)'}
-                        </button>
+                    {/* Grid Stats */}
+                    <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-900/50 p-3 rounded-lg border border-slate-800/50">
+                      <div className="space-y-1">
+                        <p className="text-slate-400 flex justify-between"><span>Licence:</span> <span className="text-slate-200 ml-2 truncate" title={casino.licence}>{casino.licence || 'N/A'}</span></p>
+                        <p className="text-slate-400 flex justify-between"><span>Dépôt Min:</span> <span className="text-blue-300 font-semibold ml-2 truncate" title={casino.minimum_depot}>{casino.minimum_depot || 'N/A'}</span></p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-slate-400 flex justify-between"><span>Sans dépôt:</span> <span className="text-emerald-400 font-semibold truncate ml-2" title={casino.bonus_sans_depot}>{casino.bonus_sans_depot || 'N/A'}</span></p>
+                        <p className="text-slate-400 flex justify-between"><span>CPA:</span> <span className="text-purple-300 font-semibold ml-2 truncate" title={casino.commission_cpa}>{casino.commission_cpa || 'N/A'}</span></p>
                       </div>
                     </div>
 
-                    <div className="flex gap-2 pt-3 border-t border-slate-800/60 mt-4 opacity-60 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={() => openEditCasinoModal(casino)}
-                        className="flex-1 px-3 py-1.5 rounded-lg bg-surface border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 flex items-center justify-center gap-1.5 transition-colors"
+                    {/* Actions */}
+                    <div className="flex flex-col gap-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleAffiliateVisibility(casino)}
+                        className={`w-full px-3 py-2 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${casino.visible_affiliate !== false ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-700/50'}`}
                       >
-                        <Edit className="w-3 h-3" /> Éditer
+                        {casino.visible_affiliate !== false ? (
+                          <><Eye className="w-3.5 h-3.5" /> Visible pour les affiliés</>
+                        ) : (
+                          <><EyeOff className="w-3.5 h-3.5" /> Masqué pour les affiliés</>
+                        )}
                       </button>
-                      <button 
-                        onClick={() => handleToggleCasinoActive(casino.id, casino.is_active)}
-                        className="flex-1 px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-900/50 text-xs font-semibold text-red-400 hover:bg-red-900 flex items-center justify-center gap-1.5 transition-colors"
-                      >
-                        <Trash2 className="w-3 h-3" /> {casino.is_active ? 'Désactiver' : 'Activer'}
-                      </button>
+
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => openEditCasinoModal(casino)}
+                          className="flex-1 px-3 py-2 rounded-lg bg-surface border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 hover:border-slate-600 flex items-center justify-center gap-1.5 transition-all"
+                        >
+                          <Edit className="w-3.5 h-3.5" /> Éditer
+                        </button>
+                        <button 
+                          onClick={() => handleToggleCasinoActive(casino.id, casino.is_active)}
+                          className="flex-1 px-3 py-2 rounded-lg bg-red-500/5 border border-red-500/20 text-xs font-semibold text-red-400 hover:bg-red-500/10 hover:border-red-500/30 flex items-center justify-center gap-1.5 transition-all"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> {casino.is_active ? 'Désactiver' : 'Activer'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
