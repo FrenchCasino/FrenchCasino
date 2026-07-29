@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getCasinos } from '@/lib/data/casinos'
 import { Star, ShieldCheck, Zap, Gift, ExternalLink, Check, Clock, FileText, ArrowLeft } from 'lucide-react'
+import ReviewSection from '@/components/casino/ReviewSection'
 
 interface Props {
   params: {
@@ -145,6 +146,9 @@ export default async function CasinoDetailPage({ params }: Props) {
         </div>
 
       </div>
+
+      {/* Section des Avis Joueurs */}
+      <ReviewSection casinoSlug={casino.slug} />
 
     </div>
   )
