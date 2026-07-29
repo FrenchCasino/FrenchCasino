@@ -4,8 +4,8 @@ import { cookies, headers } from 'next/headers'
 
 // Initialiser le client Supabase avec la clé service_role pour outrepasser RLS si besoin, 
 // ou la clé anon pour respecter les règles (ici on va insérer via anon et RLS s'occupera du reste)
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://pxbngvmnfsxvbmvxnbsq.supabase.co'
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_fZTXmdvRiz7jKprwItGPfg_MkHaqKy2'
 
 export async function POST(request: Request) {
   try {
