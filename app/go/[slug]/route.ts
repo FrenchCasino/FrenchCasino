@@ -30,7 +30,7 @@ export async function GET(
     // 1. Récupérer le lien maître du casino via son slug
     const { data: casino } = await supabase
       .from('casinos')
-      .select('id, lien_affilie')
+      .select('id, slug, lien_affilie')
       .eq('slug', slug)
       .eq('is_active', true)
       .single()
@@ -69,7 +69,7 @@ export async function GET(
           // Enregistrer le clic dans la nouvelle table de tracking
           const { error: insertError } = await supabase.from('casino_clicks').insert({
             affiliate_id: affiliateId,
-            casino_id: casino.id,
+            casino_slug: casino.slug,
           })
 
           console.log(`[TRACKING] Insert Result:`, { insertError })

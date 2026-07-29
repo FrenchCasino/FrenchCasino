@@ -361,7 +361,7 @@ export default function AdminDashboardPage() {
       
       const { data: clicksData } = await supabase
         .from('casino_clicks')
-        .select('casino_id')
+        .select('casino_slug')
         .eq('affiliate_id', selectedAff.id)
 
       const { data: commsData } = await supabase
@@ -369,10 +369,6 @@ export default function AdminDashboardPage() {
         .select('*')
         .eq('affiliate_id', selectedAff.id)
         .order('created_at', { ascending: false })
-
-      const { data: casData } = await supabase
-        .from('casinos')
-        .select('id, slug')
       
       const clicks = clicksData || []
       const comms = commsData || []
@@ -385,8 +381,7 @@ export default function AdminDashboardPage() {
       const statsByCasino: Record<string, { clicks: number, commissions: number }> = {}
       
       clicks.forEach(c => {
-        const cas = casData?.find((cas: any) => cas.id === c.casino_id)
-        const slug = cas ? cas.slug : c.casino_id
+        const slug = c.casino_slug || 'inconnu'
         if (!statsByCasino[slug]) statsByCasino[slug] = { clicks: 0, commissions: 0 }
         statsByCasino[slug].clicks += 1
       })
