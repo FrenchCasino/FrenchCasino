@@ -101,29 +101,41 @@ export default function DashboardPage() {
       }
       
       if (casData) {
-        setCasinosList(casData)
+        setCasinosList(casData.filter((c: any) => c.visible_affiliate !== false))
       }
 
-      const { data: aff } = await supabase
+      let affData: any = null
+      const affRes = await supabase
         .from('affiliates')
         .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic, admin_message')
         .eq('id', user.id)
         .single()
       
-      if (aff) {
-        setAffiliateCode(aff.referral_code)
-        setAffiliateId(aff.id)
-        setAffiliateStatus(aff.status)
-        setAdminMessage(aff.admin_message)
+      if (affRes.error) {
+        const fallbackAffRes = await supabase
+          .from('affiliates')
+          .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic')
+          .eq('id', user.id)
+          .single()
+        affData = fallbackAffRes.data
+      } else {
+        affData = affRes.data
+      }
+      
+      if (affData) {
+        setAffiliateCode(affData.referral_code)
+        setAffiliateId(affData.id)
+        setAffiliateStatus(affData.status)
+        setAdminMessage(affData.admin_message || null)
         
         // Handle postgres error gracefully if column doesn't exist yet by defaulting to false
-        setOnboardingCompleted(aff.onboarding_completed === true)
+        setOnboardingCompleted(affData.onboarding_completed === true)
         
-        if (aff.iban) {
+        if (affData.iban) {
           setIbanForm({
-            holder: aff.iban_holder || '',
-            iban: aff.iban || '',
-            bic: aff.bic || ''
+            holder: affData.iban_holder || '',
+            iban: affData.iban || '',
+            bic: affData.bic || ''
           })
         } else if (profile?.full_name) {
           setIbanForm(prev => ({ ...prev, holder: profile.full_name }))
@@ -133,26 +145,26 @@ export default function DashboardPage() {
         const { data: clicks } = await supabase
           .from('casino_clicks')
           .select('casino_id, created_at')
-          .eq('affiliate_id', aff.id)
+          .eq('affiliate_id', affData.id)
         
         // Load Commissions
         const { data: comms } = await supabase
           .from('commissions')
           .select('*')
-          .eq('affiliate_id', aff.id)
+          .eq('affiliate_id', affData.id)
           .order('created_at', { ascending: false })
 
         // Load Payouts
         const { data: payouts } = await supabase
           .from('payout_requests')
           .select('*')
-          .eq('affiliate_id', aff.id)
+          .eq('affiliate_id', affData.id)
 
         // Load Tickets
         const { data: tks } = await supabase
           .from('tickets')
           .select('*')
-          .eq('affiliate_id', aff.id)
+          .eq('affiliate_id', affData.id)
           .order('created_at', { ascending: false })
 
         if (tks) setTicketsList(tks)
