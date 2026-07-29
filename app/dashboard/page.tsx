@@ -101,7 +101,7 @@ export default function DashboardPage() {
       }
       
       if (casData) {
-        setCasinosList(casData.filter((c: any) => c.visible_affiliate !== false))
+        setCasinosList(casData)
       }
 
       const { data: aff } = await supabase
