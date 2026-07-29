@@ -271,11 +271,21 @@ export default function DashboardPage() {
   const handleSaveIban = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!affiliateId) return
     const ibanStr = ibanForm.iban.replace(/\s+/g, '').toUpperCase()
     
     if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(ibanStr)) {
       toast.error("Le format de l'IBAN est invalide.")
+      return
+    }
+
+    if (!affiliateId) {
+      if (affiliateCode === 'MODE_TEST') {
+        setIbanForm(prev => ({ ...prev, iban: ibanStr }))
+        setIbanSaved(true)
+        toast.success('Mode Test: IBAN simulé avec succès.')
+        setTimeout(() => setIbanSaved(false), 3000)
+        return
+      }
       return
     }
 
@@ -459,7 +469,7 @@ export default function DashboardPage() {
   const [isOnboardingSaving, setIsOnboardingSaving] = useState(false)
   const handleCompleteOnboarding = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!affiliateId || !ibanForm.holder || !ibanForm.iban || !ibanForm.bic) {
+    if (!ibanForm.holder || !ibanForm.iban || !ibanForm.bic) {
       toast.error('Veuillez remplir tous les champs bancaires.')
       return
     }
@@ -467,6 +477,16 @@ export default function DashboardPage() {
     const ibanStr = ibanForm.iban.replace(/\s+/g, '').toUpperCase()
     if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(ibanStr)) {
       toast.error("Le format de l'IBAN est invalide.")
+      return
+    }
+
+    if (!affiliateId) {
+      if (affiliateCode === 'MODE_TEST') {
+        toast.success("Mode Test: IBAN simulé avec succès.")
+        setOnboardingCompleted(true)
+        return
+      }
+      toast.error('Erreur: Compte affilié introuvable.')
       return
     }
     
