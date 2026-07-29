@@ -159,10 +159,10 @@ export default function DashboardPage() {
           setIbanForm(prev => ({ ...prev, holder: profile.full_name }))
         }
 
-        // Load Clicks
+        // Load Clicks (the table uses casino_id UUID)
         const { data: clicks } = await supabase
           .from('casino_clicks')
-          .select('casino_slug, created_at')
+          .select('casino_id, created_at')
           .eq('affiliate_id', affData.id)
         
         // Load Commissions
@@ -195,7 +195,9 @@ export default function DashboardPage() {
         if (clicks) {
           currentClicks = clicks.length
           clicks.forEach(c => {
-            const slug = c.casino_slug || 'inconnu'
+            // Map casino_id -> slug using already-loaded casinos list
+            const casino = casData?.find((cas: any) => cas.id === c.casino_id)
+            const slug = casino ? casino.slug : 'autre'
             counts[slug] = (counts[slug] || 0) + 1
             const date = new Date(c.created_at)
             const day = date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
