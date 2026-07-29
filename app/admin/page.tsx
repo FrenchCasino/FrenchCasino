@@ -898,6 +898,263 @@ export default function AdminDashboardPage() {
     setIsSendingMessage(false)
   }
 
+  if (selectedAff) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+        <ConfirmDialog />
+        
+        {/* Back Button & Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 glass-panel p-6 rounded-2xl border border-slate-800 bg-surface/50">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setSelectedAff(null)}
+              className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 flex items-center gap-1.5 transition-colors"
+            >
+              ← Retour aux affiliés
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center font-bold text-primary uppercase text-lg">
+                {(selectedAff.profiles?.full_name || '?')[0]}
+              </div>
+              <div>
+                <h1 className="font-display font-bold text-xl text-white flex items-center gap-2">
+                  <span>{selectedAff.profiles?.full_name || 'Sans Nom'}</span>
+                  <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-normal">{selectedAff.profiles?.role}</span>
+                </h1>
+                <p className="text-xs text-slate-500">{selectedAff.profiles?.email}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className={`px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider ${
+              selectedAff.status === 'active' ? 'bg-emerald/20 text-emerald border border-emerald/30' :
+              selectedAff.status === 'pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+              'bg-red-500/20 text-red-400 border border-red-500/30'
+            }`}>{selectedAff.status}</span>
+          </div>
+        </div>
+
+        {/* 3-Column Layout for Full-Width Space */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Column 1: Identity & Contacts */}
+          <div className="space-y-6">
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
+                <Users className="w-4 h-4 text-purple-400" />
+                Profil & Identité
+              </h3>
+              <div className="space-y-3 text-xs text-slate-300">
+                <Row label="ID Unique" value={selectedAff.id} mono />
+                <Row label="Email" value={selectedAff.profiles?.email || 'N/A'} mono />
+                <Row label="Rôle Actuel" value={selectedAff.profiles?.role || 'N/A'} />
+                <Row 
+                  label="Gains Leaderboard" 
+                  value={
+                    <div className="flex items-center gap-2">
+                      <span className="text-gold font-bold font-mono text-sm">{(Number(selectedAff.total_earned) || 0).toLocaleString()} €</span>
+                      <button
+                        onClick={async () => {
+                          const newEarned = await handleUpdateTotalEarned(selectedAff.id, Number(selectedAff.total_earned) || 0)
+                          if (newEarned !== undefined) {
+                            setSelectedAff({ ...selectedAff, total_earned: newEarned })
+                          }
+                        }}
+                        className="px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-400 hover:text-white border border-slate-700 transition-colors"
+                      >
+                        Modifier
+                      </button>
+                    </div>
+                  } 
+                />
+              </div>
+            </div>
+
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
+                <Handshake className="w-4 h-4 text-emerald" />
+                Coordonnées de Contact
+              </h3>
+              <div className="space-y-3 text-xs text-slate-300">
+                <Row label="Telegram" value={selectedAff.contact_telegram || '—'} color="text-blue-400" />
+                <Row label="WhatsApp" value={selectedAff.contact_whatsapp || '—'} color="text-green-400" />
+                <Row label="Téléphone" value={selectedAff.contact_phone || '—'} />
+              </div>
+            </div>
+          </div>
+
+          {/* Column 2: Affiliation & Bank */}
+          <div className="space-y-6">
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
+                <Building className="w-4 h-4 text-blue-400" />
+                Affiliation & Coordonnées Bancaires
+              </h3>
+              <div className="space-y-3 text-xs text-slate-300">
+                <Row label="Code Parrainage" value={<span className="font-mono text-purple-300 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-800/50 text-[11px]">{selectedAff.referral_code}</span>} />
+                
+                <div className="pt-2 border-t border-slate-800/60">
+                  <label className="text-[10px] text-slate-500 block mb-1">Recruteur Assigné</label>
+                  <select
+                    value={selectedAff.recruiter_id || ''}
+                    onChange={(e) => {
+                      handleAssignRecruiter(selectedAff.id, e.target.value)
+                      setSelectedAff({ ...selectedAff, recruiter_id: e.target.value })
+                    }}
+                    className="w-full bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300 focus:outline-none focus:border-gold"
+                  >
+                    <option value="">Aucun</option>
+                    {recruiters.map(r => (
+                      <option key={r.id} value={r.id}>{r.full_name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="pt-2 mt-2 border-t border-slate-800/60 space-y-2">
+                  <label className="text-[10px] text-slate-500 block">IBAN de Virement</label>
+                  {selectedAff.iban ? (
+                    <div className="space-y-1.5">
+                      <Row label="Titulaire" value={selectedAff.iban_holder || 'N/A'} color="text-gold" />
+                      <Row label="IBAN" value={selectedAff.iban} mono />
+                      {selectedAff.bic && <Row label="BIC" value={selectedAff.bic} mono />}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-slate-500 italic">Aucun IBAN renseigné par cet affilié.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Admin message editor inside column 2 */}
+            <AdminMessageEditor 
+              affiliate={selectedAff} 
+              onSave={async (id, msg) => {
+                await handleSaveAdminMessage(id, msg)
+              }} 
+            />
+          </div>
+
+          {/* Column 3: Actions Admin & Stats summary */}
+          <div className="space-y-6">
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-red-500" />
+                Actions Administrateur
+              </h3>
+              <div className="space-y-3">
+                {selectedAff.status === 'pending' && (
+                  <button
+                    onClick={() => { handleUpdateAffiliateStatus(selectedAff.id, 'active'); setSelectedAff({ ...selectedAff, status: 'active' }) }}
+                    className="w-full py-2.5 rounded-xl bg-emerald/20 text-emerald border border-emerald/30 font-bold text-sm hover:bg-emerald/30 transition-colors"
+                  >
+                    ✓ Valider cet Affilié
+                  </button>
+                )}
+                {selectedAff.status === 'active' && (
+                  <button
+                    onClick={() => setCommissionModal({ isOpen: true, affiliateId: selectedAff.id, affiliateName: selectedAff.profiles?.full_name || 'Inconnu' })}
+                    className="w-full py-2.5 rounded-xl bg-gold/20 text-gold border border-gold/30 font-bold text-sm hover:bg-gold/30 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <DollarSign className="w-4 h-4" /> Ajouter une Commission (CPA)
+                  </button>
+                )}
+                
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/60">
+                  {selectedAff.profiles?.role !== 'recruiter' ? (
+                    <button
+                      onClick={() => { handleUpdateRole(selectedAff.id, 'recruiter'); setSelectedAff({ ...selectedAff, profiles: { ...selectedAff.profiles, role: 'recruiter' } }) }}
+                      className="w-full py-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold text-[11px] hover:bg-amber-500/20 transition-colors"
+                    >
+                      Passer Recruteur
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => { handleUpdateRole(selectedAff.id, 'affiliate'); setSelectedAff({ ...selectedAff, profiles: { ...selectedAff.profiles, role: 'affiliate' } }) }}
+                      className="w-full py-2 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-bold text-[11px] hover:bg-slate-700 transition-colors"
+                    >
+                      Retirer Recruteur
+                    </button>
+                  )}
+                  <button
+                    onClick={() => { handleUpdateAffiliateStatus(selectedAff.id, selectedAff.status === 'suspended' ? 'active' : 'suspended'); setSelectedAff({ ...selectedAff, status: selectedAff.status === 'suspended' ? 'active' : 'suspended' }) }}
+                    className="w-full py-2 rounded-xl bg-red-950/50 text-red-400 border border-red-900/50 font-bold text-[11px] hover:bg-red-900/60 transition-colors"
+                  >
+                    {selectedAff.status === 'suspended' ? '↩ Réactiver' : '⊘ Suspendre'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Stat summary card */}
+            {selectedAffStats && !selectedAffStats.loading && (
+              <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-purple-400" />
+                  Indicateurs de Performance
+                </h3>
+                <div className="grid grid-cols-2 gap-3 text-center">
+                  <div className="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
+                    <div className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">Clics</div>
+                    <div className="text-base font-bold font-mono text-white">{selectedAffStats.totalClicks}</div>
+                  </div>
+                  <div className="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
+                    <div className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">Taux Conv.</div>
+                    <div className="text-base font-bold font-mono text-gold">{selectedAffStats.conversionRate.toFixed(1)}%</div>
+                  </div>
+                  <div className="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
+                    <div className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">CPA Validés</div>
+                    <div className="text-base font-bold font-mono text-emerald">{Object.values(selectedAffStats.clicksByCasino).reduce((acc, c) => acc + c.commissions, 0)}</div>
+                  </div>
+                  <div className="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
+                    <div className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">Dernier CPA</div>
+                    <div className="text-xs font-bold font-mono text-white truncate pt-0.5">
+                      {selectedAffStats.recentCommissions.length > 0 
+                        ? new Date(selectedAffStats.recentCommissions[0].created_at).toLocaleDateString('fr-FR') 
+                        : '—'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Detailed Statistics Table (Full Width Bottom) */}
+        {selectedAffStats && !selectedAffStats.loading && Object.keys(selectedAffStats.clicksByCasino).length > 0 && (
+          <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <h3 className="font-display font-bold text-base text-white">Répartition de la Performance par Casino</h3>
+            <div className="overflow-x-auto rounded-xl border border-slate-800">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-slate-900/50 border-b border-slate-800">
+                    <th className="px-6 py-3 font-bold uppercase tracking-widest text-slate-500">Casino</th>
+                    <th className="px-6 py-3 font-bold uppercase tracking-widest text-slate-500 text-center">Clics Enregistrés</th>
+                    <th className="px-6 py-3 font-bold uppercase tracking-widest text-slate-500 text-center">Commissions (CPA) Validées</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/50">
+                  {Object.entries(selectedAffStats.clicksByCasino)
+                    .sort((a, b) => b[1].clicks - a[1].clicks)
+                    .map(([casinoId, stats]) => {
+                      const casino = casinos.find(c => c.id === casinoId)
+                      return (
+                        <tr key={casinoId} className="hover:bg-slate-800/10 transition-colors">
+                          <td className="px-6 py-3 text-sm text-white font-medium">{casino ? casino.name : casinoId}</td>
+                          <td className="px-6 py-3 text-sm text-slate-300 font-mono text-center">{stats.clicks}</td>
+                          <td className="px-6 py-3 text-sm text-emerald font-mono text-center font-bold">{stats.commissions}</td>
+                        </tr>
+                      )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       <ConfirmDialog />
@@ -2129,257 +2386,7 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* MODAL FICHE AFFILIÉ */}
-      {selectedAff && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-surface border border-slate-800 p-0 rounded-2xl max-w-2xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto overflow-hidden">
-            
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-800 sticky top-0 bg-surface/95 backdrop-blur-md z-10">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center font-bold text-primary uppercase text-xl">
-                  {(selectedAff.profiles?.full_name || '?')[0]}
-                </div>
-                <div>
-                  <div className="text-[10px] text-gold font-semibold uppercase tracking-widest mb-0.5">Fiche Affilié détaillée</div>
-                  <h3 className="font-display font-bold text-white text-xl leading-tight">{selectedAff.profiles?.full_name || 'Sans Nom'}</h3>
-                </div>
-              </div>
-              <button onClick={() => setSelectedAff(null)} className="p-2 text-slate-500 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
-                <XCircle className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Modal Body - 2 Columns Grid */}
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              {/* Column 1 */}
-              <div className="space-y-6">
-                <section className="space-y-3">
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    <Users className="w-3 h-3" /> Identité
-                  </h4>
-                  <div className="glass-panel rounded-xl p-4 space-y-2 border border-slate-800">
-                    <Row label="Email" value={selectedAff.profiles?.email || 'N/A'} mono />
-                    <Row label="Rôle" value={selectedAff.profiles?.role || 'N/A'} />
-                    <Row label="Statut" value={
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                        selectedAff.status === 'active' ? 'bg-emerald/20 text-emerald' :
-                        selectedAff.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
-                        'bg-red-500/20 text-red-400'
-                      }`}>{selectedAff.status}</span>
-                    } />
-                    <Row 
-                      label="Gains Totaux" 
-                      value={
-                        <div className="flex items-center gap-2">
-                          <span className="text-gold font-bold font-mono text-base">{(Number(selectedAff.total_earned) || 0).toLocaleString()} €</span>
-                          <button
-                            onClick={async () => {
-                              const newEarned = await handleUpdateTotalEarned(selectedAff.id, Number(selectedAff.total_earned) || 0)
-                              if (newEarned !== undefined) {
-                                setSelectedAff({ ...selectedAff, total_earned: newEarned })
-                              }
-                            }}
-                            className="px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-400 hover:text-white border border-slate-700 transition-colors"
-                          >
-                            Modifier
-                          </button>
-                        </div>
-                      } 
-                    />
-                  </div>
-                </section>
-
-                <section className="space-y-3">
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    <Handshake className="w-3 h-3" /> Contacts
-                  </h4>
-                  <div className="glass-panel rounded-xl p-4 space-y-2 border border-slate-800">
-                    <Row label="Telegram" value={selectedAff.contact_telegram || '—'} color="text-blue-400" />
-                    <Row label="WhatsApp" value={selectedAff.contact_whatsapp || '—'} color="text-green-400" />
-                    <Row label="Téléphone" value={selectedAff.contact_phone || '—'} />
-                  </div>
-                </section>
-              </div>
-
-              {/* Column 2 */}
-              <div className="space-y-6">
-                <section className="space-y-3">
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    <Building className="w-3 h-3" /> Affiliation & Bancaire
-                  </h4>
-                  <div className="glass-panel rounded-xl p-4 space-y-2 border border-slate-800">
-                    <Row label="Code Parrainage" value={<span className="font-mono text-purple-300 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-800/50 text-[11px]">{selectedAff.referral_code}</span>} />
-                    <Row 
-                      label="Taux de Commission" 
-                      value={
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-white">{(Number(selectedAff.commission_rate) * 100).toFixed(0)} %</span>
-                          <button
-                            onClick={async () => {
-                              await handleUpdateCommissionRate(selectedAff.id, Number(selectedAff.commission_rate) || 0.30)
-                              // Refresh modal state
-                              const updated = affiliates.find(a => a.id === selectedAff.id)
-                              if (updated) {
-                                setSelectedAff({ ...selectedAff, commission_rate: updated.commission_rate })
-                              }
-                            }}
-                            className="px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-400 hover:text-white border border-slate-700 transition-colors"
-                          >
-                            Modifier
-                          </button>
-                        </div>
-                      }
-                    />
-                    <div className="pt-2">
-                      <label className="text-[10px] text-slate-500 block mb-1">Recruteur Assigné</label>
-                      <select
-                        value={selectedAff.recruiter_id || ''}
-                        onChange={(e) => {
-                          handleAssignRecruiter(selectedAff.id, e.target.value)
-                          setSelectedAff({ ...selectedAff, recruiter_id: e.target.value })
-                        }}
-                        className="w-full bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300"
-                      >
-                        <option value="">Aucun</option>
-                        {recruiters.map(r => (
-                          <option key={r.id} value={r.id}>{r.full_name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <div className="pt-2 mt-2 border-t border-slate-800/50">
-                      {selectedAff.iban ? (
-                        <div className="space-y-2">
-                          <Row label="Titulaire" value={selectedAff.iban_holder || 'N/A'} color="text-gold" />
-                          <Row label="IBAN" value={selectedAff.iban} mono />
-                          {selectedAff.bic && <Row label="BIC" value={selectedAff.bic} mono />}
-                        </div>
-                      ) : (
-                        <p className="text-[11px] text-slate-600 italic">Aucun IBAN renseigné par cet affilié.</p>
-                      )}
-                    </div>
-                  </div>
-                </section>
-
-                <AdminMessageEditor 
-                  affiliate={selectedAff} 
-                  onSave={async (id, msg) => {
-                    await handleSaveAdminMessage(id, msg)
-                  }} 
-                />
-
-                <section className="space-y-3">
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    <ShieldAlert className="w-3 h-3 text-red-400" /> Actions Admin
-                  </h4>
-                  <div className="space-y-2">
-                    {selectedAff.status === 'pending' && (
-                      <button
-                        onClick={() => { handleUpdateAffiliateStatus(selectedAff.id, 'active'); setSelectedAff({ ...selectedAff, status: 'active' }) }}
-                        className="w-full py-2.5 rounded-xl bg-emerald/20 text-emerald border border-emerald/30 font-bold text-sm hover:bg-emerald/30 transition-colors"
-                      >
-                        ✓ Valider cet Affilié
-                      </button>
-                    )}
-                    {selectedAff.status === 'active' && (
-                      <button
-                        onClick={() => setCommissionModal({ isOpen: true, affiliateId: selectedAff.id, affiliateName: selectedAff.profiles?.full_name || 'Inconnu' })}
-                        className="w-full py-2.5 rounded-xl bg-gold/20 text-gold border border-gold/30 font-bold text-sm hover:bg-gold/30 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <DollarSign className="w-4 h-4" /> Ajouter une Commission
-                      </button>
-                    )}
-                    <div className="grid grid-cols-2 gap-2">
-                      {selectedAff.profiles?.role !== 'recruiter' ? (
-                        <button
-                          onClick={() => { handleUpdateRole(selectedAff.id, 'recruiter'); setSelectedAff({ ...selectedAff, profiles: { ...selectedAff.profiles, role: 'recruiter' } }) }}
-                          className="w-full py-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold text-[11px] hover:bg-amber-500/20 transition-colors"
-                        >
-                          Passer Recruteur
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => { handleUpdateRole(selectedAff.id, 'affiliate'); setSelectedAff({ ...selectedAff, profiles: { ...selectedAff.profiles, role: 'affiliate' } }) }}
-                          className="w-full py-2 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-bold text-[11px] hover:bg-slate-700 transition-colors"
-                        >
-                          Retirer Recruteur
-                        </button>
-                      )}
-                      <button
-                        onClick={() => { handleUpdateAffiliateStatus(selectedAff.id, selectedAff.status === 'suspended' ? 'active' : 'suspended'); setSelectedAff({ ...selectedAff, status: selectedAff.status === 'suspended' ? 'active' : 'suspended' }) }}
-                        className="w-full py-2 rounded-xl bg-red-950/50 text-red-400 border border-red-900/50 font-bold text-[11px] hover:bg-red-900/60 transition-colors"
-                      >
-                        {selectedAff.status === 'suspended' ? '↩ Réactiver' : '⊘ Suspendre'}
-                      </button>
-                    </div>
-                  </div>
-                </section>
-              </div>
-
-              {/* Bottom Section - Deep Statistics */}
-              {selectedAffStats && !selectedAffStats.loading && (
-                <section className="md:col-span-2 space-y-3 pt-4 border-t border-slate-800">
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    <TrendingUp className="w-3 h-3" /> Performances & Statistiques
-                  </h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="glass-panel p-3 rounded-xl border border-slate-800 flex flex-col justify-center">
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1 truncate" title="Total Clics">Clics</div>
-                      <div className="text-xl font-bold font-mono text-white truncate">{selectedAffStats.totalClicks}</div>
-                    </div>
-                    <div className="glass-panel p-3 rounded-xl border border-slate-800 flex flex-col justify-center">
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1 truncate" title="Taux de Conversion">Taux Conv.</div>
-                      <div className="text-xl font-bold font-mono text-gold truncate">{selectedAffStats.conversionRate.toFixed(1)}%</div>
-                    </div>
-                    <div className="glass-panel p-3 rounded-xl border border-slate-800 flex flex-col justify-center">
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1 truncate" title="CPA Validés">CPA Validés</div>
-                      <div className="text-xl font-bold font-mono text-emerald truncate">{Object.values(selectedAffStats.clicksByCasino).reduce((acc, c) => acc + c.commissions, 0)}</div>
-                    </div>
-                    <div className="glass-panel p-3 rounded-xl border border-slate-800 flex flex-col justify-center">
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5 truncate" title="Dernière Activité">Dernier CPA</div>
-                      <div className="text-[13px] font-bold font-mono text-white truncate">
-                        {selectedAffStats.recentCommissions.length > 0 
-                          ? new Date(selectedAffStats.recentCommissions[0].created_at).toLocaleDateString('fr-FR') 
-                          : '—'}
-                      </div>
-                    </div>
-                  </div>
-
-                  {Object.keys(selectedAffStats.clicksByCasino).length > 0 && (
-                    <div className="mt-4 glass-panel rounded-xl border border-slate-800 overflow-hidden">
-                      <table className="w-full text-left border-collapse">
-                        <thead>
-                          <tr className="bg-slate-900/50 border-b border-slate-800">
-                            <th className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">Casino</th>
-                            <th className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Clics</th>
-                            <th className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Conversions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800/50">
-                          {Object.entries(selectedAffStats.clicksByCasino)
-                            .sort((a, b) => b[1].clicks - a[1].clicks)
-                            .map(([casinoId, stats]) => {
-                              const casino = casinos.find(c => c.id === casinoId)
-                              return (
-                                <tr key={casinoId} className="hover:bg-slate-800/20 transition-colors">
-                                  <td className="px-4 py-2 text-sm text-white font-medium">{casino ? casino.name : casinoId}</td>
-                                  <td className="px-4 py-2 text-sm text-slate-300 font-mono text-center">{stats.clicks}</td>
-                                  <td className="px-4 py-2 text-sm text-emerald font-mono text-center font-bold">{stats.commissions}</td>
-                                </tr>
-                              )
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </section>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Removed old modal */}
 
     </div>
   )
