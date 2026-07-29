@@ -54,8 +54,8 @@ export async function GET(
 
       console.log(`[TRACKING] IP: ${ip}, lastClick: ${lastClick}, hasClickedCookie: ${hasClickedCookie}`)
 
-      // Pour le test, on désactive temporairement le blocage IP et Cookie
-      // if (!hasClickedCookie && (!lastClick || Date.now() - lastClick > MIN_DELAY)) {
+      // On loggue uniquement si pas de clic récent (IP) ET pas de cookie
+      if (!hasClickedCookie && (!lastClick || Date.now() - lastClick > MIN_DELAY)) {
         // Appeler la fonction RPC pour contourner la RLS et récupérer l'ID
         const { data: affiliateId, error: rpcError } = await supabase.rpc('get_affiliate_id_by_ref', {
           p_ref: refCode
@@ -64,7 +64,7 @@ export async function GET(
         console.log(`[TRACKING] RPC Result:`, { affiliateId, rpcError })
 
         if (affiliateId) {
-          // ipCache.set(cacheKey, Date.now())
+          ipCache.set(cacheKey, Date.now())
           
           // Enregistrer le clic dans la nouvelle table de tracking
           const { error: insertError } = await supabase.from('casino_clicks').insert({
@@ -79,9 +79,9 @@ export async function GET(
         } else {
           console.log(`[TRACKING] Affiliate NOT FOUND for ref: ${refCode}`)
         }
-      // } else {
-      //   console.log(`[TRACKING] Click ignored due to rate limit or cookie`)
-      // }
+      } else {
+        console.log(`[TRACKING] Click ignored due to rate limit or cookie`)
+      }
 
       // On ajoute toujours le "ref" en paramètre pour le casino (subid)
       const paramSeparator = finalLink.includes('?') ? '&' : '?'
