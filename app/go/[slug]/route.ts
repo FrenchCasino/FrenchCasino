@@ -46,34 +46,42 @@ export async function GET(
 
     // 2. Si on a un code affilié (ref), on logge le clic
     if (refCode) {
+      console.log(`[TRACKING] Processing click for ref: ${refCode}, slug: ${slug}`)
       const ip = request.headers.get('x-forwarded-for') || 'unknown'
       const cacheKey = `${ip}_${slug}_${refCode}`
       const lastClick = ipCache.get(cacheKey)
       const hasClickedCookie = cookieStore.get(`clk_${slug}`)
 
-      // On loggue uniquement si pas de clic récent (IP) ET pas de cookie
-      if (!hasClickedCookie && (!lastClick || Date.now() - lastClick > MIN_DELAY)) {
-        // Chercher l'affilié correspondant
-        const { data: affiliate } = await supabase
-          .from('affiliates')
-          .select('id')
-          .eq('referral_code', refCode)
-          .eq('status', 'active')
-          .single()
+      console.log(`[TRACKING] IP: ${ip}, lastClick: ${lastClick}, hasClickedCookie: ${hasClickedCookie}`)
 
-        if (affiliate) {
-          ipCache.set(cacheKey, Date.now())
+      // Pour le test, on désactive temporairement le blocage IP et Cookie
+      // if (!hasClickedCookie && (!lastClick || Date.now() - lastClick > MIN_DELAY)) {
+        // Appeler la fonction RPC pour contourner la RLS et récupérer l'ID
+        const { data: affiliateId, error: rpcError } = await supabase.rpc('get_affiliate_id_by_ref', {
+          p_ref: refCode
+        })
+
+        console.log(`[TRACKING] RPC Result:`, { affiliateId, rpcError })
+
+        if (affiliateId) {
+          // ipCache.set(cacheKey, Date.now())
           
           // Enregistrer le clic dans la nouvelle table de tracking
-          await supabase.from('casino_clicks').insert({
-            affiliate_id: affiliate.id,
+          const { error: insertError } = await supabase.from('casino_clicks').insert({
+            affiliate_id: affiliateId,
             casino_id: casino.id,
           })
 
+          console.log(`[TRACKING] Insert Result:`, { insertError })
+
           // Set cookie to prevent tracking again for 24h
           response.cookies.set(`clk_${slug}`, '1', { maxAge: 60 * 60 * 24 })
+        } else {
+          console.log(`[TRACKING] Affiliate NOT FOUND for ref: ${refCode}`)
         }
-      }
+      // } else {
+      //   console.log(`[TRACKING] Click ignored due to rate limit or cookie`)
+      // }
 
       // On ajoute toujours le "ref" en paramètre pour le casino (subid)
       const paramSeparator = finalLink.includes('?') ? '&' : '?'
