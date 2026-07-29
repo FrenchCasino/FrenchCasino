@@ -22,7 +22,8 @@ import {
   XCircle,
   Loader2,
   AlertCircle,
-  Download
+  Download,
+  Trophy
 } from 'lucide-react'
 import {
   ResponsiveContainer,
@@ -78,6 +79,7 @@ export default function DashboardPage() {
   const [rawClicksList, setRawClicksList] = useState<any[]>([])
   const [payoutsList, setPayoutsList] = useState<any[]>([])
   const [refundsList, setRefundsList] = useState<any[]>([])
+  const [leaderboard, setLeaderboard] = useState<any[]>([])
 
   // Refund form state
   const [refundForm, setRefundForm] = useState({ casinoId: '', amount: '', proofFile: null as File | null })
@@ -208,6 +210,12 @@ export default function DashboardPage() {
           .order('created_at', { ascending: false })
 
         if (refunds) setRefundsList(refunds)
+
+        // Load Leaderboard from secure RPC
+        const { data: topAffs } = await supabase
+          .rpc('get_top_affiliates_leaderboard')
+        
+        if (topAffs) setLeaderboard(topAffs)
       }
       
       setLoadingData(false)
@@ -1049,44 +1057,79 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Graphique Aperçu */}
-          <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <h3 className="font-display font-bold text-lg text-white">
-                Performance {timeRange === '7d' ? '7 Derniers Jours' : timeRange === '30d' ? '30 Derniers Jours' : 'Globale'}
-              </h3>
-              <div className="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800 self-start sm:self-auto shrink-0">
-                {(['7d', '30d', 'all'] as const).map(range => (
-                  <button
-                    key={range}
-                    onClick={() => setTimeRange(range)}
-                    className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-all ${
-                      timeRange === range
-                        ? 'bg-primary text-white shadow-purple-glow'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    {range === '7d' ? '7j' : range === '30d' ? '30j' : 'Tout'}
-                  </button>
-                ))}
+          {/* Graphique & Leaderboard */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Graphique Aperçu */}
+            <div className="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <h3 className="font-display font-bold text-lg text-white">
+                  Performance {timeRange === '7d' ? '7 Derniers Jours' : timeRange === '30d' ? '30 Derniers Jours' : 'Globale'}
+                </h3>
+                <div className="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800 self-start sm:self-auto shrink-0">
+                  {(['7d', '30d', 'all'] as const).map(range => (
+                    <button
+                      key={range}
+                      onClick={() => setTimeRange(range)}
+                      className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-all ${
+                        timeRange === range
+                          ? 'bg-primary text-white shadow-purple-glow'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {range === '7d' ? '7j' : range === '30d' ? '30j' : 'Tout'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorComm" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#2c2845" />
+                    <XAxis dataKey="day" stroke="#94A3B8" />
+                    <YAxis stroke="#94A3B8" />
+                    <Tooltip contentStyle={{ backgroundColor: '#12111c', borderColor: '#2c2845', borderRadius: '12px', color: '#fff' }} />
+                    <Area type="monotone" dataKey="commissions" stroke="#7C3AED" fillOpacity={1} fill="url(#colorComm)" />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
             </div>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient id="colorComm" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#2c2845" />
-                  <XAxis dataKey="day" stroke="#94A3B8" />
-                  <YAxis stroke="#94A3B8" />
-                  <Tooltip contentStyle={{ backgroundColor: '#12111c', borderColor: '#2c2845', borderRadius: '12px', color: '#fff' }} />
-                  <Area type="monotone" dataKey="commissions" stroke="#7C3AED" fillOpacity={1} fill="url(#colorComm)" />
-                </AreaChart>
-              </ResponsiveContainer>
+
+            {/* Leaderboard */}
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-gold shrink-0" />
+                Classement Affiliés
+              </h3>
+              <p className="text-xs text-slate-400">Les 5 meilleurs affiliés du site (anonymisé).</p>
+              
+              <div className="space-y-3 pt-2">
+                {leaderboard.length === 0 ? (
+                  <div className="text-center py-12 text-slate-500 font-mono text-xs">
+                    Aucun classement disponible.
+                  </div>
+                ) : leaderboard.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-surface border border-slate-800/60 hover:border-slate-800 transition-all">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                        idx === 0 ? 'bg-gold/20 text-gold border border-gold/30' :
+                        idx === 1 ? 'bg-slate-300/20 text-slate-300 border border-slate-300/30' :
+                        idx === 2 ? 'bg-amber-700/20 text-amber-600 border border-amber-600/30' :
+                        'bg-slate-800 text-slate-400'
+                      }`}>
+                        {item.rank}
+                      </span>
+                      <span className="font-mono text-xs text-slate-200">{item.ref_code}</span>
+                    </div>
+                    <span className="font-mono text-xs font-bold text-gold">{Number(item.total_earned).toLocaleString()} €</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           
