@@ -58,7 +58,8 @@ export default function DashboardPage() {
   const [casinosList, setCasinosList] = useState<any[]>([])
   const [clicksData, setClicksData] = useState<Record<string, number>>({})
   
-  const [totalClicks, setTotalClicks] = useState(0)
+  const [totalClicks, setTotalClicks] = useState<number>(0)
+  const [isAdmin, setIsAdmin] = useState<boolean>(false)
   const [commissionsList, setCommissionsList] = useState<any[]>([])
   const [monthlyCommissions, setMonthlyCommissions] = useState(0)
   const [soldeMoisEnCours, setSoldeMoisEnCours] = useState(0)
@@ -78,9 +79,9 @@ export default function DashboardPage() {
 
       const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).single()
       if (profile?.role === 'admin' || profile?.role === 'recruiter') {
-        // Un admin ou un recruteur testant le dashboard affilié bypass le statut pending si pas d'infos contraires
+        // Un admin ou un recruteur testant le dashboard affilié
         setAffiliateStatus('active')
-        setAffiliateCode('MODE_TEST')
+        setIsAdmin(true)
       }
 
       // Load Casinos for everyone (affiliates and admins)
@@ -117,7 +118,17 @@ export default function DashboardPage() {
           .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic')
           .eq('id', user.id)
           .single()
-        affData = fallbackAffRes.data
+          
+        if (fallbackAffRes.error) {
+          const superFallback = await supabase
+            .from('affiliates')
+            .select('id, referral_code, status')
+            .eq('id', user.id)
+            .single()
+          affData = superFallback.data
+        } else {
+          affData = fallbackAffRes.data
+        }
       } else {
         affData = affRes.data
       }
@@ -128,8 +139,11 @@ export default function DashboardPage() {
         setAffiliateStatus(affData.status)
         setAdminMessage(affData.admin_message || null)
         
-        // Handle postgres error gracefully if column doesn't exist yet by defaulting to false
-        setOnboardingCompleted(affData.onboarding_completed === true)
+        if (profile?.role === 'admin') {
+          setOnboardingCompleted(true)
+        } else {
+          setOnboardingCompleted(affData.onboarding_completed === true)
+        }
         
         if (affData.iban) {
           setIbanForm({
@@ -728,17 +742,17 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {affiliateCode === 'MODE_TEST' && (
+          {!affiliateId && isAdmin && (
             <button
               onClick={async () => {
                 const { data: { user } } = await supabase.auth.getUser()
                 if (user) {
                   const refCode = 'ADMIN_' + Math.random().toString(36).substring(2, 6).toUpperCase()
-                  await supabase.from('affiliates').insert({
+                  await supabase.from('affiliates').upsert({
                     id: user.id,
                     referral_code: refCode,
                     status: 'active'
-                  })
+                  }, { onConflict: 'id' })
                   window.location.reload()
                 }
               }}
