@@ -83,6 +83,27 @@ export default function DashboardPage() {
         setAffiliateCode('MODE_TEST')
       }
 
+      // Load Casinos for everyone (affiliates and admins)
+      let casData: any[] | null = null
+      const res = await supabase
+        .from('casinos')
+        .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot, visible_affiliate')
+        .eq('is_active', true)
+      
+      if (res.error) {
+        const { data: fallbackData } = await supabase
+          .from('casinos')
+          .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot')
+          .eq('is_active', true)
+        casData = fallbackData
+      } else {
+        casData = res.data
+      }
+      
+      if (casData) {
+        setCasinosList(casData.filter((c: any) => c.visible_affiliate !== false))
+      }
+
       const { data: aff } = await supabase
         .from('affiliates')
         .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic, admin_message')
@@ -106,27 +127,6 @@ export default function DashboardPage() {
           })
         } else if (profile?.full_name) {
           setIbanForm(prev => ({ ...prev, holder: profile.full_name }))
-        }
-
-        // Load Casinos
-        let casData: any[] | null = null
-        const res = await supabase
-          .from('casinos')
-          .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot, visible_affiliate')
-          .eq('is_active', true)
-        
-        if (res.error) {
-          const { data: fallbackData } = await supabase
-            .from('casinos')
-            .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot')
-            .eq('is_active', true)
-          casData = fallbackData
-        } else {
-          casData = res.data
-        }
-        
-        if (casData) {
-          setCasinosList(casData.filter((c: any) => c.visible_affiliate !== false))
         }
 
         // Load Clicks
@@ -716,6 +716,25 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {affiliateCode === 'MODE_TEST' && (
+            <button
+              onClick={async () => {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                  const refCode = 'ADMIN_' + Math.random().toString(36).substring(2, 6).toUpperCase()
+                  await supabase.from('affiliates').insert({
+                    id: user.id,
+                    referral_code: refCode,
+                    status: 'active'
+                  })
+                  window.location.reload()
+                }
+              }}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-xl text-xs uppercase shadow-lg shadow-emerald-900/50 transition-colors"
+            >
+              Créer Vrai Profil
+            </button>
+          )}
           <div className="bg-surface p-3 rounded-xl border border-slate-800 text-right">
             <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Solde Disponible</span>
             <span className="text-xl font-bold font-mono text-gradient-gold">{soldeDisponible.toFixed(2)} €</span>
