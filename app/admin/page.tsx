@@ -475,6 +475,24 @@ export default function AdminDashboardPage() {
     }
   }
 
+  const handleUpdateTotalEarned = async (id: string, currentEarned: number) => {
+    const newEarnedStr = window.prompt("Nouveaux gains cumulés de l'affilié (€) - Sert pour le classement", currentEarned.toString())
+    if (newEarnedStr === null) return
+    const newEarned = parseFloat(newEarnedStr)
+    if (isNaN(newEarned) || newEarned < 0) {
+      toast.error('Montant invalide.')
+      return
+    }
+    const { error } = await supabase.from('affiliates').update({ total_earned: newEarned }).eq('id', id)
+    if (!error) {
+      setAffiliates(affiliates.map(a => a.id === id ? { ...a, total_earned: newEarned } : a))
+      toast.success(`Gains mis à jour : ${newEarned} €`)
+      return newEarned
+    } else {
+      toast.error('Erreur lors de la mise à jour des gains')
+    }
+  }
+
   // Handle Manual Commission Submission
   const handleAddCommission = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -2151,7 +2169,25 @@ export default function AdminDashboardPage() {
                         'bg-red-500/20 text-red-400'
                       }`}>{selectedAff.status}</span>
                     } />
-                    <Row label="Gains Totaux" value={<span className="text-gold font-bold font-mono text-base">{(Number(selectedAff.total_earned) || 0).toLocaleString()} €</span>} />
+                    <Row 
+                      label="Gains Totaux" 
+                      value={
+                        <div className="flex items-center gap-2">
+                          <span className="text-gold font-bold font-mono text-base">{(Number(selectedAff.total_earned) || 0).toLocaleString()} €</span>
+                          <button
+                            onClick={async () => {
+                              const newEarned = await handleUpdateTotalEarned(selectedAff.id, Number(selectedAff.total_earned) || 0)
+                              if (newEarned !== undefined) {
+                                setSelectedAff(prev => ({ ...prev, total_earned: newEarned }))
+                              }
+                            }}
+                            className="px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-400 hover:text-white border border-slate-700 transition-colors"
+                          >
+                            Modifier
+                          </button>
+                        </div>
+                      } 
+                    />
                   </div>
                 </section>
 
@@ -2175,6 +2211,27 @@ export default function AdminDashboardPage() {
                   </h4>
                   <div className="glass-panel rounded-xl p-4 space-y-2 border border-slate-800">
                     <Row label="Code Parrainage" value={<span className="font-mono text-purple-300 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-800/50 text-[11px]">{selectedAff.referral_code}</span>} />
+                    <Row 
+                      label="Taux de Commission" 
+                      value={
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-white">{(Number(selectedAff.commission_rate) * 100).toFixed(0)} %</span>
+                          <button
+                            onClick={async () => {
+                              await handleUpdateCommissionRate(selectedAff.id, Number(selectedAff.commission_rate) || 0.30)
+                              // Refresh modal state
+                              const updated = affiliates.find(a => a.id === selectedAff.id)
+                              if (updated) {
+                                setSelectedAff(prev => ({ ...prev, commission_rate: updated.commission_rate }))
+                              }
+                            }}
+                            className="px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-400 hover:text-white border border-slate-700 transition-colors"
+                          >
+                            Modifier
+                          </button>
+                        </div>
+                      }
+                    />
                     <div className="pt-2">
                       <label className="text-[10px] text-slate-500 block mb-1">Recruteur Assigné</label>
                       <select
