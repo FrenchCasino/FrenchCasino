@@ -49,6 +49,58 @@ const Row = ({ label, value, mono = false, color = "text-white" }: { label: stri
   </div>
 )
 
+const AdminMessageEditor = ({ affiliate, onSave }: { affiliate: any, onSave: (id: string, msg: string) => Promise<void> }) => {
+  const [msg, setMsg] = useState(affiliate.admin_message || '')
+  const [isSaving, setIsSaving] = useState(false)
+
+  useEffect(() => {
+    setMsg(affiliate.admin_message || '')
+  }, [affiliate.id, affiliate.admin_message])
+
+  const handleSave = async (empty = false) => {
+    setIsSaving(true)
+    const finalMsg = empty ? '' : msg
+    await onSave(affiliate.id, finalMsg)
+    if (empty) setMsg('')
+    setIsSaving(false)
+  }
+
+  return (
+    <section className="space-y-3">
+      <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+        <MessageSquare className="w-3 h-3 text-purple-400" /> Bannière Affilié
+      </h4>
+      <div className="glass-panel rounded-xl p-4 space-y-3 border border-purple-900/30">
+        <textarea 
+          placeholder="Laisser un message d'alerte sur le tableau de bord de cet affilié..."
+          className="w-full bg-slate-900/50 border border-slate-700 text-xs rounded-lg p-3 text-slate-300 min-h-[80px]"
+          value={msg}
+          onChange={(e) => setMsg(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleSave()}
+            disabled={isSaving}
+            className="flex-1 py-2 rounded-lg bg-purple-600/20 text-purple-300 border border-purple-500/30 font-bold text-[11px] hover:bg-purple-600/30 transition-colors disabled:opacity-50"
+          >
+            {isSaving ? 'Enregistrement...' : 'Publier le Message'}
+          </button>
+          {affiliate.admin_message && (
+            <button
+              onClick={() => handleSave(true)}
+              disabled={isSaving}
+              className="px-3 py-2 rounded-lg bg-slate-800 text-slate-400 hover:text-red-400 transition-colors border border-slate-700 disabled:opacity-50"
+              title="Effacer le message"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function AdminDashboardPage() {
   const [adminTab, setAdminTab] = useState<'kpi' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'refunds' | 'support' | 'telegram' | 'logs'>('kpi')
   const [loading, setLoading] = useState(true)
@@ -2041,40 +2093,12 @@ export default function AdminDashboardPage() {
                   </div>
                 </section>
 
-                <section className="space-y-3">
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    <MessageSquare className="w-3 h-3 text-purple-400" /> Bannière Affilié
-                  </h4>
-                  <div className="glass-panel rounded-xl p-4 space-y-3 border border-purple-900/30">
-                    <textarea 
-                      placeholder="Laisser un message d'alerte sur le tableau de bord de cet affilié..."
-                      className="w-full bg-slate-900/50 border border-slate-700 text-xs rounded-lg p-3 text-slate-300 min-h-[80px]"
-                      value={selectedAff.admin_message || ''}
-                      onChange={(e) => setSelectedAff({...selectedAff, admin_message: e.target.value})}
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleSaveAdminMessage(selectedAff.id, selectedAff.admin_message)}
-                        disabled={isAdminMessageSaving}
-                        className="flex-1 py-2 rounded-lg bg-purple-600/20 text-purple-300 border border-purple-500/30 font-bold text-[11px] hover:bg-purple-600/30 transition-colors"
-                      >
-                        {isAdminMessageSaving ? 'Enregistrement...' : 'Publier le Message'}
-                      </button>
-                      {selectedAff.admin_message && (
-                        <button
-                          onClick={() => {
-                            setSelectedAff({...selectedAff, admin_message: ''})
-                            handleSaveAdminMessage(selectedAff.id, '')
-                          }}
-                          className="px-3 py-2 rounded-lg bg-slate-800 text-slate-400 hover:text-red-400 transition-colors border border-slate-700"
-                          title="Effacer le message"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </section>
+                <AdminMessageEditor 
+                  affiliate={selectedAff} 
+                  onSave={async (id, msg) => {
+                    await handleSaveAdminMessage(id, msg)
+                  }} 
+                />
 
                 <section className="space-y-3">
                   <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
