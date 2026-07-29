@@ -59,6 +59,10 @@ export default function DashboardPage() {
   const [clicksData, setClicksData] = useState<Record<string, number>>({})
   
   const [totalClicks, setTotalClicks] = useState<number>(0)
+  const [statsEPC, setStatsEPC] = useState<number>(0)
+  const [statsCR, setStatsCR] = useState<number>(0)
+  const [statsTopCasino, setStatsTopCasino] = useState<string>('N/A')
+  const [statsCommsByCasino, setStatsCommsByCasino] = useState<Record<string, number>>({})
   const [isAdmin, setIsAdmin] = useState<boolean>(false)
   const [commissionsList, setCommissionsList] = useState<any[]>([])
   const [monthlyCommissions, setMonthlyCommissions] = useState(0)
@@ -204,7 +208,9 @@ export default function DashboardPage() {
         let currentMonthly = 0
         let pastCommissions = 0
         let totalValid = 0
+        let totalConversions = 0
         const commsByDay: Record<string, number> = {}
+        const commsCountByCasino: Record<string, number> = {}
         
         const now = new Date()
         const currentMonth = now.getMonth()
@@ -216,6 +222,7 @@ export default function DashboardPage() {
             if (c.statut === 'validated' || c.statut === 'paid') {
               const amount = Number(c.montant)
               totalValid += amount
+              totalConversions += 1
               
               const date = new Date(c.created_at)
               if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
@@ -226,11 +233,30 @@ export default function DashboardPage() {
 
               const day = date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
               commsByDay[day] = (commsByDay[day] || 0) + amount
+              
+              const key = c.casino_slug || c.casino_name || 'Inconnu'
+              commsCountByCasino[key] = (commsCountByCasino[key] || 0) + 1
             }
           })
           setMonthlyCommissions(currentMonthly)
           setSoldeMoisEnCours(currentMonthly)
           setTotalHistoricalValid(totalValid)
+          setStatsCommsByCasino(commsCountByCasino)
+          
+          if (currentClicks > 0) {
+            setStatsCR((totalConversions / currentClicks) * 100)
+            setStatsEPC(totalValid / currentClicks)
+          }
+          
+          let bestCasino = 'N/A'
+          let maxComms = 0
+          Object.keys(commsCountByCasino).forEach(cas => {
+             if (commsCountByCasino[cas] > maxComms) {
+                maxComms = commsCountByCasino[cas]
+                bestCasino = cas
+             }
+          })
+          setStatsTopCasino(bestCasino)
         }
 
         // Process Payouts
@@ -834,39 +860,50 @@ export default function DashboardPage() {
       {activeTab === 'overview' && (
         <div className="space-y-8">
           {/* Cards KPIs */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <div className="glass-panel p-4 rounded-2xl border border-slate-800 space-y-1">
               <div className="flex justify-between text-slate-400 text-xs">
-                <span>Clics Totaux</span>
-                <MousePointerClick className="w-4 h-4 text-purple-400" />
+                <span>Clics</span>
+                <MousePointerClick className="w-3.5 h-3.5 text-purple-400" />
               </div>
-              <span className="text-2xl font-bold font-mono text-white">{totalClicks}</span>
+              <span className="text-xl font-bold font-mono text-white">{totalClicks}</span>
             </div>
 
-            <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
+            <div className="glass-panel p-4 rounded-2xl border border-slate-800 space-y-1">
               <div className="flex justify-between text-slate-400 text-xs">
-                <span>Commissions (Total)</span>
-                <Zap className="w-4 h-4 text-gold" />
+                <span>Taux Conv.</span>
+                <TrendingUp className="w-3.5 h-3.5 text-emerald" />
               </div>
-              <span className="text-2xl font-bold font-mono text-gradient-gold">{commissionsList.length}</span>
+              <span className="text-xl font-bold font-mono text-emerald">{statsCR.toFixed(1)}%</span>
             </div>
 
-            <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden">
-              <div className="flex justify-between text-slate-400 text-xs">
-                <span className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> Mois en Cours</span>
-                <DollarSign className="w-4 h-4 text-emerald" />
+            <div className="glass-panel p-4 rounded-2xl border border-slate-800 space-y-1">
+              <div className="flex justify-between text-slate-400 text-xs" title="Gain par Clic (Earnings Per Click)">
+                <span>EPC (Moyen)</span>
+                <DollarSign className="w-3.5 h-3.5 text-gold" />
               </div>
-              <span className="text-2xl font-bold font-mono text-emerald">{soldeMoisEnCours.toFixed(2)} €</span>
-              <span className="text-[10px] text-emerald/80">Sera débloqué le mois prochain</span>
+              <span className="text-xl font-bold font-mono text-gradient-gold">{statsEPC.toFixed(2)} €</span>
             </div>
 
-            <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2">
+            <div className="glass-panel p-4 rounded-2xl border border-slate-800 space-y-1">
               <div className="flex justify-between text-slate-400 text-xs">
-                <span>Solde Prêt à Retirer</span>
-                <CreditCard className="w-4 h-4 text-gold" />
+                <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-amber-500" /> Top Casino</span>
               </div>
-              <span className="text-2xl font-bold font-mono text-gradient-gold">{soldeDisponible.toFixed(2)} €</span>
-              <span className="text-[11px] text-emerald">Min 250€</span>
+              <span className="text-[13px] font-bold text-white uppercase tracking-wider truncate block mt-1">{statsTopCasino}</span>
+            </div>
+
+            <div className="glass-panel p-4 rounded-2xl border border-slate-800 space-y-1 relative overflow-hidden">
+              <div className="flex justify-between text-slate-400 text-[11px]">
+                <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Mois Actuel</span>
+              </div>
+              <span className="text-xl font-bold font-mono text-emerald">{soldeMoisEnCours.toFixed(0)} €</span>
+            </div>
+
+            <div className="glass-panel p-4 rounded-2xl border border-slate-800 space-y-1">
+              <div className="flex justify-between text-slate-400 text-[11px]">
+                <span>Solde Dispo</span>
+              </div>
+              <span className="text-xl font-bold font-mono text-gradient-gold">{soldeDisponible.toFixed(0)} €</span>
             </div>
           </div>
 
@@ -891,6 +928,40 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </div>
           </div>
+          
+          {/* Statistiques Détaillées par Casino */}
+          {Object.keys(clicksData).length > 0 && (
+            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+              <h3 className="font-display font-bold text-lg text-white">Répartition par Casino</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-800">
+                      <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Casino</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Clics</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">CPA Validés</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Taux Conv.</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/50">
+                    {Object.keys(clicksData).sort((a, b) => clicksData[b] - clicksData[a]).map(slug => {
+                      const clics = clicksData[slug] || 0
+                      const convs = statsCommsByCasino[slug] || 0
+                      const cr = clics > 0 ? ((convs / clics) * 100).toFixed(1) : '0.0'
+                      return (
+                        <tr key={slug} className="hover:bg-slate-800/20 transition-colors">
+                          <td className="py-3 px-4 font-bold text-white capitalize">{slug}</td>
+                          <td className="py-3 px-4 text-right font-mono text-slate-300">{clics}</td>
+                          <td className="py-3 px-4 text-right font-mono text-emerald">{convs}</td>
+                          <td className="py-3 px-4 text-right font-mono text-gold">{cr}%</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -902,6 +973,13 @@ export default function DashboardPage() {
             <p className="text-xs text-slate-400">
               Copiez vos liens trackés uniques pour chaque casino partenaire. Chaque clic et inscription sera crédité à votre compte.
             </p>
+            <div className="mt-2 p-3 bg-blue-900/20 border border-blue-900/50 rounded-lg flex gap-3 items-start">
+              <span className="text-blue-400 mt-0.5">💡</span>
+              <p className="text-[11px] text-blue-300/80 leading-relaxed">
+                <strong className="text-blue-300">Astuce Pro : Tracking multi-sources (Sub-ID)</strong><br />
+                Vous pouvez ajouter <code className="bg-slate-900 px-1 py-0.5 rounded text-blue-400">&subid=tiktok</code> ou <code className="bg-slate-900 px-1 py-0.5 rounded text-blue-400">&subid=telegram</code> à la fin de vos liens pour différencier la provenance de vos clics dans vos futures campagnes !
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
