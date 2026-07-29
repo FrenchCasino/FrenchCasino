@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Star, MessageSquare, Send, User } from 'lucide-react'
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from '@/lib/supabase/client'
 
 interface Review {
   id: string
