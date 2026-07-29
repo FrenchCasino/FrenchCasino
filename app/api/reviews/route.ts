@@ -63,6 +63,6 @@ export async function POST(request: Request) {
 
   } catch (err: any) {
     console.error('Review API error:', err)
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur serveur: ' + (err.message || String(err)) }, { status: 500 })
   }
 }
