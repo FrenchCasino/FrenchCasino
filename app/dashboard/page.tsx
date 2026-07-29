@@ -195,7 +195,7 @@ export default function DashboardPage() {
         if (clicks) {
           currentClicks = clicks.length
           clicks.forEach(c => {
-            const cas = casData.find((casino: any) => casino.id === c.casino_id)
+            const cas = casData?.find((casino: any) => casino.id === c.casino_id)
             const slug = cas ? cas.slug : c.casino_id
             counts[slug] = (counts[slug] || 0) + 1
             const date = new Date(c.created_at)
