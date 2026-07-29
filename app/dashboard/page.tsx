@@ -815,15 +815,15 @@ export default function DashboardPage() {
         <div className="flex-1 w-full min-w-0">
           
           {adminMessage && (
-            <div className="mb-8 p-4 md:p-6 rounded-2xl glass-panel border border-purple-500/30 bg-purple-900/10 shadow-purple-glow relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-purple-500 to-indigo-500" />
+            <div className="mb-8 p-4 md:p-6 rounded-2xl glass-panel border-2 border-emerald-500/50 bg-emerald-900/20 shadow-lg shadow-emerald-900/40 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-emerald-400 to-emerald-600" />
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0 border border-purple-500/30">
-                  <MessageSquare className="w-5 h-5 text-purple-400" />
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                  <MessageSquare className="w-5 h-5 text-emerald-400" />
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-purple-300">Nouveau message de votre Manager</h3>
-                  <p className="text-sm text-slate-300 whitespace-pre-wrap">{adminMessage}</p>
+                <div className="space-y-1 mt-1">
+                  <h3 className="text-sm font-bold text-emerald-400 tracking-wide uppercase">Message de votre Manager</h3>
+                  <p className="text-base font-medium text-white whitespace-pre-wrap leading-relaxed">{adminMessage}</p>
                 </div>
               </div>
             </div>
