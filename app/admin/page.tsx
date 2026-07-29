@@ -42,6 +42,13 @@ function getVipInfo(total: number) {
   return { name: 'Bronze', icon: '🥉', color: 'text-orange-400', bg: 'bg-orange-900/30', border: 'border-orange-500/50' };
 }
 
+const Row = ({ label, value, mono = false, color = "text-white" }: { label: string, value: React.ReactNode, mono?: boolean, color?: string }) => (
+  <div className="flex justify-between items-center py-1 border-b border-slate-800/50 last:border-0">
+    <span className="text-slate-500 text-xs">{label}</span>
+    <span className={`text-sm ${mono ? 'font-mono' : 'font-semibold'} ${color}`}>{value}</span>
+  </div>
+)
+
 export default function AdminDashboardPage() {
   const [adminTab, setAdminTab] = useState<'kpi' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'refunds' | 'support' | 'telegram' | 'logs'>('kpi')
   const [loading, setLoading] = useState(true)
@@ -736,13 +743,6 @@ export default function AdminDashboardPage() {
     
     setIsSendingMessage(false)
   }
-
-  const Row = ({ label, value, mono = false, color = "text-white" }: { label: string, value: React.ReactNode, mono?: boolean, color?: string }) => (
-    <div className="flex justify-between items-center py-1 border-b border-slate-800/50 last:border-0">
-      <span className="text-slate-500 text-xs">{label}</span>
-      <span className={`text-sm ${mono ? 'font-mono' : 'font-semibold'} ${color}`}>{value}</span>
-    </div>
-  )
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
