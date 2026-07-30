@@ -1269,8 +1269,10 @@ export default function DashboardPage() {
             {casinosList.length === 0 ? (
               <p className="text-slate-400 text-sm">Chargement de vos liens ou aucun casino disponible...</p>
             ) : casinosList.map((casino) => {
-              // URL Tracking interne (Redirection dynamique)
-              const linkUrl = `${window.location.origin}/go/${casino.slug}?ref=${affiliateCode}`
+              // URL Tracking interne (Redirection dynamique) ou Lien Maître direct pour Gabin
+              const linkUrl = isMasterUser && casino.lien_affilie
+                ? casino.lien_affilie
+                : `${window.location.origin}/go/${casino.slug}?ref=${affiliateCode}`
               const clickCount = clicksData[casino.slug] || 0
 
               return (
