@@ -42,19 +42,23 @@ export async function POST(request: Request) {
 
     // 1. Ajouter la commission dans la table commissions
     const note = casinoName ? `${periode} (${casinoName})` : periode
-    const { error: insertError } = await supabase.from('commissions').insert({
-      affiliate_id: affiliateId,
-      montant: amount,
-      statut: 'validated',
-      periode: note
-    })
+    const { data: newComm, error: insertError } = await supabase
+      .from('commissions')
+      .insert({
+        affiliate_id: affiliateId,
+        montant: amount,
+        statut: 'validated',
+        periode: note
+      })
+      .select('id')
+      .single()
 
     if (insertError) throw insertError
 
     // 2. Mettre à jour le solde total_earned de l'affilié
     const { data: affiliate } = await supabase
       .from('affiliates')
-      .select('total_earned')
+      .select('total_earned, recruiter_id')
       .eq('id', affiliateId)
       .single()
 
@@ -64,6 +68,42 @@ export async function POST(request: Request) {
         .from('affiliates')
         .update({ total_earned: newTotal })
         .eq('id', affiliateId)
+
+      // 3. Si l'affilié a un recruteur et que la commission est positive
+      if (affiliate.recruiter_id && Number(amount) > 0) {
+        const recruiterAmount = Number(amount) * 0.15
+
+        // Insérer la commission recruteur
+        await supabase.from('recruiter_commissions').insert({
+          recruiter_id: affiliate.recruiter_id,
+          affiliate_id: affiliateId,
+          commission_id: newComm.id,
+          montant: recruiterAmount
+        })
+
+        // Mettre à jour le solde total_earned du recruteur
+        const { data: recruiterAff } = await supabase
+          .from('affiliates')
+          .select('total_earned')
+          .eq('id', affiliate.recruiter_id)
+          .single()
+
+        if (recruiterAff) {
+          const newRecTotal = Number(recruiterAff.total_earned) + recruiterAmount
+          await supabase
+            .from('affiliates')
+            .update({ total_earned: newRecTotal })
+            .eq('id', affiliate.recruiter_id)
+        } else {
+          const fallbackReferralCode = 'FR-REC-' + Math.random().toString(36).substring(2, 8).toUpperCase()
+          await supabase.from('affiliates').insert({
+            id: affiliate.recruiter_id,
+            referral_code: fallbackReferralCode,
+            status: 'active',
+            total_earned: recruiterAmount
+          })
+        }
+      }
     }
 
     return NextResponse.json({ success: true })
