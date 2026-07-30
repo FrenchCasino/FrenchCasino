@@ -42,6 +42,10 @@ export async function GET(
 
     let finalLink = casino.lien_affilie
 
+    // Ajouter systématiquement les UTM de redirection pour garantir l'attribution SEO hors-site
+    const utmSeparator = finalLink.includes('?') ? '&' : '?'
+    finalLink = `${finalLink}${utmSeparator}utm_source=frenchcasino&utm_medium=redirect&utm_campaign=affiliation`
+
     let response = NextResponse.redirect(finalLink)
 
     // 2. Si on a un code affilié (ref), on logge le clic de manière sécurisée (try/catch)
