@@ -69,7 +69,15 @@ export async function POST(request: Request) {
         .update({ total_earned: newTotal })
         .eq('id', affiliateId)
 
-      // 3. Si l'affilié a un recruteur et que la commission est positive
+      // 3. Insérer une notification pour l'affilié
+      await supabase.from('notifications').insert({
+        user_id: affiliateId,
+        title: 'Commission validée ! 💰',
+        message: `Une commission de ${amount} € a été créditée sur votre solde.`,
+        type: 'commission'
+      })
+
+      // 4. Si l'affilié a un recruteur et que la commission est positive
       if (affiliate.recruiter_id && Number(amount) > 0) {
         const recruiterAmount = Number(amount) * 0.15
 
@@ -79,6 +87,14 @@ export async function POST(request: Request) {
           affiliate_id: affiliateId,
           commission_id: newComm.id,
           montant: recruiterAmount
+        })
+
+        // Insérer une notification pour le recruteur
+        await supabase.from('notifications').insert({
+          user_id: affiliate.recruiter_id,
+          title: 'Commission de parrainage ! 👑',
+          message: `Vous avez reçu ${recruiterAmount.toFixed(2)} € (15%) suite à une commission de votre équipe.`,
+          type: 'commission'
         })
 
         // Mettre à jour le solde total_earned du recruteur

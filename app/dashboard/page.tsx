@@ -7,7 +7,7 @@ import {
   DollarSign,
   CheckCircle2,
   Copy,
-  QrCode,
+  Bell,
   CreditCard,
   MessageSquare,
   Users,
@@ -82,6 +82,10 @@ export default function DashboardPage() {
   const [payoutsList, setPayoutsList] = useState<any[]>([])
   const [refundsList, setRefundsList] = useState<any[]>([])
   const [leaderboard, setLeaderboard] = useState<any[]>([])
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0)
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false)
+  const [selectedRefundForTimeline, setSelectedRefundForTimeline] = useState<any | null>(null)
 
   // Refund form state
   const [refundForm, setRefundForm] = useState({ casinoId: '', amount: '', proofFile: null as File | null })
@@ -289,6 +293,18 @@ export default function DashboardPage() {
 
         if (refunds) setRefundsList(refunds)
 
+        // Load Notifications
+        const { data: notifs } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+        
+        if (notifs) {
+          setNotifications(notifs)
+          setUnreadNotifCount(notifs.filter((n: any) => !n.is_read).length)
+        }
+
         // Load Leaderboard from secure RPC
         const { data: topAffs } = await supabase
           .rpc('get_top_affiliates_leaderboard')
@@ -477,6 +493,32 @@ export default function DashboardPage() {
     navigator.clipboard.writeText(text)
     setCopiedCode(id)
     setTimeout(() => setCopiedCode(null), 2000)
+  }
+
+  const handleMarkAllNotifsRead = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false)
+    if (!error) {
+      setNotifications(notifications.map(n => ({ ...n, is_read: true })))
+      setUnreadNotifCount(0)
+      toast.success('Toutes les notifications ont été marquées comme lues.')
+    }
+  }
+
+  const handleMarkNotifRead = async (id: string) => {
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', id)
+    if (!error) {
+      setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: true } : n))
+      setUnreadNotifCount(prev => Math.max(0, prev - 1))
+    }
   }
 
   const handleSaveIban = async (e: React.FormEvent) => {
@@ -1015,6 +1057,61 @@ export default function DashboardPage() {
               Créer Vrai Profil
             </button>
           )}
+          {/* Cloche de Notifications */}
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifDropdown(!showNotifDropdown)}
+              className="p-3 rounded-xl bg-surface border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 relative transition-all cursor-pointer flex items-center justify-center"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadNotifCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-surface animate-pulse" />
+              )}
+            </button>
+
+            {showNotifDropdown && (
+              <div className="absolute right-0 mt-2.5 w-80 bg-[#0f0f15] border border-slate-800 rounded-2xl shadow-xl z-50 p-4 space-y-3 font-sans text-xs">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <span className="font-bold text-white text-sm">Notifications ({unreadNotifCount})</span>
+                  {unreadNotifCount > 0 && (
+                    <button
+                      onClick={handleMarkAllNotifsRead}
+                      className="text-[10px] text-gold hover:underline font-semibold"
+                    >
+                      Tout lire
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-64 overflow-y-auto space-y-2.5 divide-y divide-slate-800/40">
+                  {notifications.length === 0 ? (
+                    <p className="text-slate-500 text-center py-4 italic">Aucune notification.</p>
+                  ) : (
+                    notifications.map(n => (
+                      <div
+                        key={n.id}
+                        onClick={() => handleMarkNotifRead(n.id)}
+                        className={`pt-2.5 first:pt-0 flex flex-col gap-0.5 cursor-pointer group ${!n.is_read ? 'opacity-100' : 'opacity-60'}`}
+                      >
+                        <div className="flex items-center justify-between gap-1.5">
+                          <span className={`font-bold text-[11px] ${!n.is_read ? 'text-white' : 'text-slate-300'} group-hover:text-gold transition-colors`}>
+                            {n.title}
+                          </span>
+                          {!n.is_read && (
+                            <span className="w-1.5 h-1.5 bg-gold rounded-full shrink-0" />
+                          )}
+                        </div>
+                        <p className="text-slate-400 text-[10px] leading-normal">{n.message}</p>
+                        <span className="text-[9px] text-slate-600 font-mono mt-0.5">
+                          {new Date(n.created_at).toLocaleDateString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="bg-surface p-3 rounded-xl border border-slate-800 text-right">
             <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Solde Disponible</span>
             <span className="text-xl font-bold font-mono text-gradient-gold">{soldeDisponible.toFixed(2)} €</span>
@@ -1690,15 +1787,24 @@ export default function DashboardPage() {
                     {refundsList.length === 0 ? (
                       <tr><td colSpan={4} className="py-4 text-center text-slate-500">Aucun remboursement.</td></tr>
                     ) : refundsList.map(r => (
-                      <tr key={r.id}>
+                      <tr 
+                        key={r.id}
+                        onClick={() => setSelectedRefundForTimeline(selectedRefundForTimeline?.id === r.id ? null : r)}
+                        className="hover:bg-surface/50 cursor-pointer transition-colors"
+                      >
                         <td className="py-2.5 text-slate-300 font-mono">{new Date(r.created_at).toLocaleDateString()}</td>
                         <td className="py-2.5 text-white truncate max-w-[80px]">{r.casino_name}</td>
                         <td className="py-2.5 text-right text-white font-mono font-semibold">{r.amount} €</td>
                         <td className="py-2.5 text-center">
                           <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${
-                            r.status === 'approved' ? 'bg-emerald/20 text-emerald' : 
+                            r.status === 'paid' ? 'bg-emerald/20 text-emerald' :
+                            r.status === 'approved' ? 'bg-purple-500/20 text-purple-400' :
                             r.status === 'pending' ? 'bg-amber-500/20 text-amber-500' : 'bg-red-500/20 text-red-500'
-                          }`}>{r.status}</span>
+                          }`}>{
+                            r.status === 'paid' ? 'Remboursé' :
+                            r.status === 'approved' ? 'Validé' :
+                            r.status === 'pending' ? 'En attente' : 'Refusé'
+                          }</span>
                         </td>
                       </tr>
                     ))}
@@ -1707,6 +1813,104 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+
+          {/* Timeline Détails pour le remboursement sélectionné */}
+          {selectedRefundForTimeline && (
+            <div className="max-w-xl md:max-w-4xl mx-auto mt-6 glass-panel p-5 rounded-xl border border-purple-500/30 bg-purple-950/5 space-y-4 animate-fadeIn">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                <div>
+                  <h5 className="font-bold text-white text-sm">Suivi du Remboursement : {selectedRefundForTimeline.casino_name}</h5>
+                  <p className="text-[10px] text-slate-400">Demande soumise le {new Date(selectedRefundForTimeline.created_at).toLocaleDateString('fr-FR')}</p>
+                </div>
+                <span className="font-bold font-mono text-gold text-sm">{Number(selectedRefundForTimeline.amount).toFixed(2)} €</span>
+              </div>
+
+              {/* Timeline Steps */}
+              <div className="flex items-center justify-between max-w-md mx-auto pt-3 relative">
+                {/* Progress Line */}
+                <div className="absolute left-4 right-4 top-4 h-0.5 bg-slate-800 -z-10" />
+                <div 
+                  className="absolute left-4 top-4 h-0.5 bg-emerald transition-all duration-500 -z-10" 
+                  style={{ 
+                    width: selectedRefundForTimeline.status === 'paid' ? '100%' : 
+                           selectedRefundForTimeline.status === 'approved' ? '50%' : '0%' 
+                  }} 
+                />
+
+                {/* Step 1: Soumis */}
+                <div className="flex flex-col items-center gap-1">
+                  <div className="w-8 h-8 rounded-full bg-emerald text-white flex items-center justify-center font-bold text-xs">
+                    ✓
+                  </div>
+                  <span className="text-[9px] font-bold text-slate-300">Soumis</span>
+                </div>
+
+                {/* Step 2: Validé */}
+                <div className="flex flex-col items-center gap-1">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 ${
+                    selectedRefundForTimeline.status === 'approved' || selectedRefundForTimeline.status === 'paid'
+                      ? 'bg-emerald text-white'
+                      : selectedRefundForTimeline.status === 'rejected'
+                      ? 'bg-red-500 text-white'
+                      : 'bg-slate-900 border border-slate-700 text-slate-500'
+                  }`}>
+                    {selectedRefundForTimeline.status === 'rejected' ? '✕' : '2'}
+                  </div>
+                  <span className={`text-[9px] font-bold ${
+                    selectedRefundForTimeline.status === 'rejected' ? 'text-red-400' : 'text-slate-300'
+                  }`}>
+                    {selectedRefundForTimeline.status === 'rejected' ? 'Refusé' : 'Validé'}
+                  </span>
+                </div>
+
+                {/* Step 3: Remboursé */}
+                {selectedRefundForTimeline.status !== 'rejected' && (
+                  <div className="flex flex-col items-center gap-1">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 ${
+                      selectedRefundForTimeline.status === 'paid'
+                        ? 'bg-gold text-slate-950 shadow-gold-glow'
+                        : 'bg-slate-900 border border-slate-700 text-slate-500'
+                    }`}>
+                      💸
+                    </div>
+                    <span className="text-[9px] font-bold text-slate-300">Remboursé</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-black/30 p-3 rounded-lg border border-slate-800 text-[11px] text-slate-400 leading-relaxed text-center">
+                {selectedRefundForTimeline.status === 'pending' && (
+                  <p>⏳ Votre demande est bien reçue et en cours de validation par notre équipe d'administration.</p>
+                )}
+                {selectedRefundForTimeline.status === 'approved' && (
+                  <p>✅ Votre demande est approuvée ! L'administrateur va procéder au virement bancaire ou crypto sous peu.</p>
+                )}
+                {selectedRefundForTimeline.status === 'paid' && (
+                  <div className="space-y-2">
+                    <p>🎉 Le remboursement a bien été effectué et validé par l'administrateur !</p>
+                    {selectedRefundForTimeline.payment_proof_url && (
+                      <a 
+                        href={selectedRefundForTimeline.payment_proof_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gold text-slate-950 font-bold text-[10px] uppercase tracking-wider hover:brightness-110 transition-all cursor-pointer"
+                      >
+                        Télécharger la preuve de paiement
+                      </a>
+                    )}
+                  </div>
+                )}
+                {selectedRefundForTimeline.status === 'rejected' && (
+                  <div className="space-y-1.5">
+                    <p className="text-red-400 font-bold">Votre demande a été refusée.</p>
+                    {selectedRefundForTimeline.admin_note && (
+                      <p className="italic text-slate-500">Motif : {selectedRefundForTimeline.admin_note}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

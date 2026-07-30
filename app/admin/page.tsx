@@ -204,6 +204,12 @@ export default function AdminDashboardPage() {
   const [isSendingMessage, setIsSendingMessage] = useState(false)
   const [adminId, setAdminId] = useState<string | null>(null)
   
+  // Refund Request Review Modal state
+  const [activeRefundRequest, setActiveRefundRequest] = useState<any | null>(null)
+  const [adminNoteInput, setAdminNoteInput] = useState('')
+  const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null)
+  const [isSubmittingAdminRefund, setIsSubmittingAdminRefund] = useState(false)
+  
   // Telegram State
   const [telegramMessage, setTelegramMessage] = useState('')
   const [isSendingTelegram, setIsSendingTelegram] = useState(false)
@@ -529,6 +535,108 @@ export default function AdminDashboardPage() {
     }
   }
 
+  const handleApproveRefund = async (req: any) => {
+    try {
+      const { error } = await supabase
+        .from('refund_requests')
+        .update({ status: 'approved' })
+        .eq('id', req.id)
+      
+      if (!error) {
+        await supabase.from('notifications').insert({
+          user_id: req.affiliate_id,
+          title: 'Remboursement validé ! ✅',
+          message: `Votre demande de remboursement de ${req.amount} € a été approuvée.`,
+          type: 'refund'
+        })
+        
+        setRefundRequests(refundRequests.map(r => r.id === req.id ? { ...r, status: 'approved' } : r))
+        setActiveRefundRequest({ ...req, status: 'approved' })
+        toast.success('Remboursement approuvé.')
+      } else {
+        toast.error("Erreur lors de l'approbation.")
+      }
+    } catch (err) {
+      toast.error('Erreur réseau.')
+    }
+  }
+
+  const handleRejectRefund = async (req: any) => {
+    try {
+      const { error } = await supabase
+        .from('refund_requests')
+        .update({ status: 'rejected', admin_note: adminNoteInput })
+        .eq('id', req.id)
+      
+      if (!error) {
+        await supabase.from('notifications').insert({
+          user_id: req.affiliate_id,
+          title: 'Remboursement refusé. ✕',
+          message: `Votre demande de remboursement de ${req.amount} € a été refusée.${adminNoteInput ? ` Motif : ${adminNoteInput}` : ''}`,
+          type: 'refund'
+        })
+        
+        setRefundRequests(refundRequests.map(r => r.id === req.id ? { ...r, status: 'rejected', admin_note: adminNoteInput } : r))
+        setActiveRefundRequest({ ...req, status: 'rejected', admin_note: adminNoteInput })
+        setAdminNoteInput('')
+        toast.error('Remboursement refusé.')
+      } else {
+        toast.error('Erreur lors du refus.')
+      }
+    } catch (err) {
+      toast.error('Erreur réseau.')
+    }
+  }
+
+  const handlePayRefund = async (req: any) => {
+    if (!paymentProofFile) {
+      toast.error('Veuillez sélectionner un fichier de preuve de paiement.')
+      return
+    }
+    
+    setIsSubmittingAdminRefund(true)
+    try {
+      const fileExt = paymentProofFile.name.split('.').pop()
+      const fileName = `admin_payments/${req.id}/${Date.now()}.${fileExt}`
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('proofs')
+        .upload(fileName, paymentProofFile, { upsert: true })
+      
+      if (uploadError) {
+        toast.error("Erreur lors de l'envoi de la preuve : " + uploadError.message)
+        setIsSubmittingAdminRefund(false)
+        return
+      }
+      
+      const { data: { publicUrl } } = supabase.storage.from('proofs').getPublicUrl(fileName)
+      
+      const { error } = await supabase
+        .from('refund_requests')
+        .update({ status: 'paid', payment_proof_url: publicUrl })
+        .eq('id', req.id)
+      
+      if (!error) {
+        await supabase.from('notifications').insert({
+          user_id: req.affiliate_id,
+          title: 'Remboursement payé ! 💸',
+          message: `Votre remboursement de ${req.amount} € a été effectué. Preuve de paiement disponible dans votre suivi.`,
+          type: 'refund'
+        })
+        
+        setRefundRequests(refundRequests.map(r => r.id === req.id ? { ...r, status: 'paid', payment_proof_url: publicUrl } : r))
+        setActiveRefundRequest({ ...req, status: 'paid', payment_proof_url: publicUrl })
+        setPaymentProofFile(null)
+        toast.success('Remboursement marqué comme payé !')
+      } else {
+        toast.error('Erreur lors de la mise à jour.')
+      }
+    } catch (err) {
+      toast.error('Erreur réseau.')
+    } finally {
+      setIsSubmittingAdminRefund(false)
+    }
+  }
+
   // Handle Add / Edit Casino
   const handleAddCasino = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -579,12 +687,36 @@ export default function AdminDashboardPage() {
             toast.error('Erreur : ' + fallbackRes.error.message)
           } else {
             toast.success(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès !`)
+            if (!casinoModal.editingId) {
+              const { data: profiles } = await supabase.from('profiles').select('id').eq('role', 'affiliate')
+              if (profiles && profiles.length > 0) {
+                const notifs = profiles.map(p => ({
+                  user_id: p.id,
+                  title: 'Nouveau Casino Partenaire ! 🎰',
+                  message: `Le casino ${newCasino.name} est disponible. Récupérez vos liens !`,
+                  type: 'casino'
+                }))
+                await supabase.from('notifications').insert(notifs)
+              }
+            }
           }
         } else {
           toast.error('Erreur : ' + error.message)
         }
       } else {
         toast.success(`Casino ${casinoModal.editingId ? 'modifié' : 'ajouté'} avec succès !`)
+        if (!casinoModal.editingId) {
+          const { data: profiles } = await supabase.from('profiles').select('id').eq('role', 'affiliate')
+          if (profiles && profiles.length > 0) {
+            const notifs = profiles.map(p => ({
+              user_id: p.id,
+              title: 'Nouveau Casino Partenaire ! 🎰',
+              message: `Le casino ${newCasino.name} est disponible. Récupérez vos liens !`,
+              type: 'casino'
+            }))
+            await supabase.from('notifications').insert(notifs)
+          }
+        }
       }
 
       // Persist visible_affiliate in localStorage fallback
@@ -1559,7 +1691,11 @@ export default function AdminDashboardPage() {
                     {refundRequests.length === 0 ? (
                       <tr><td colSpan={7} className="p-8 text-center text-slate-500 font-mono">Aucune demande de remboursement pour le moment.</td></tr>
                     ) : refundRequests.map((req) => (
-                      <tr key={req.id} className="hover:bg-surface/30 transition-colors">
+                      <tr 
+                        key={req.id} 
+                        className="hover:bg-surface/30 cursor-pointer transition-colors"
+                        onClick={() => setActiveRefundRequest(req)}
+                      >
                         <td className="p-4">
                           <div className="font-bold text-white text-sm">{req.affiliates?.profiles?.full_name || 'N/A'}</div>
                           <div className="text-[10px] text-slate-500">{req.affiliates?.profiles?.email}</div>
@@ -1567,49 +1703,29 @@ export default function AdminDashboardPage() {
                         <td className="p-4 font-semibold text-purple-300">{req.casino_name}</td>
                         <td className="p-4 font-mono font-bold text-gold">{Number(req.amount).toFixed(2)} €</td>
                         <td className="p-4">
-                          {req.proof_url ? (
-                            <a href={req.proof_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-400 hover:text-blue-300 underline text-xs">
-                              <Eye className="w-3.5 h-3.5" /> Voir la preuve
-                            </a>
-                          ) : (
-                            <span className="text-slate-600 italic">Aucun fichier</span>
-                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setActiveRefundRequest(req)
+                            }}
+                            className="flex items-center gap-1 text-blue-400 hover:text-blue-300 underline text-xs cursor-pointer"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> Voir & Gérer
+                          </button>
                         </td>
                         <td className="p-4 text-[11px] text-slate-400">{req.created_at ? new Date(req.created_at).toLocaleDateString('fr-FR') : 'N/A'}</td>
                         <td className="p-4 text-center">
                           <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
-                            req.status === 'approved' ? 'bg-emerald/20 text-emerald border border-emerald/30' :
+                            req.status === 'paid' ? 'bg-emerald/20 text-emerald border border-emerald/30' :
+                            req.status === 'approved' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
                             req.status === 'rejected' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
                             'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                           }`}>
-                            {req.status === 'approved' ? 'Approuvé' : req.status === 'rejected' ? 'Refusé' : 'En attente'}
+                            {req.status === 'paid' ? 'Remboursé' : req.status === 'approved' ? 'Approuvé' : req.status === 'rejected' ? 'Refusé' : 'En attente'}
                           </span>
                         </td>
                         <td className="p-4">
-                          {req.status === 'pending' && (
-                            <div className="flex gap-2">
-                              <button
-                                onClick={async () => {
-                                  await supabase.from('refund_requests').update({ status: 'approved' }).eq('id', req.id)
-                                  setRefundRequests(refundRequests.map(r => r.id === req.id ? { ...r, status: 'approved' } : r))
-                                  toast.success('Remboursement approuvé.')
-                                }}
-                                className="px-2 py-1 rounded bg-emerald/20 text-emerald border border-emerald/30 text-[10px] font-bold hover:bg-emerald/30 transition-colors"
-                              >
-                                ✓ Approuver
-                              </button>
-                              <button
-                                onClick={async () => {
-                                  await supabase.from('refund_requests').update({ status: 'rejected' }).eq('id', req.id)
-                                  setRefundRequests(refundRequests.map(r => r.id === req.id ? { ...r, status: 'rejected' } : r))
-                                  toast.error('Remboursement refusé.')
-                                }}
-                                className="px-2 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold hover:bg-red-500/30 transition-colors"
-                              >
-                                ✕ Refuser
-                              </button>
-                            </div>
-                          )}
+                          <span className="text-[10px] text-slate-400 hover:text-white underline font-semibold">Gérer</span>
                         </td>
                       </tr>
                     ))}
@@ -2190,6 +2306,154 @@ export default function AdminDashboardPage() {
                 {isSubmittingCasino ? <Loader2 className="w-5 h-5 animate-spin" /> : casinoModal.editingId ? 'Enregistrer les Modifications' : 'Ajouter le Casino'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Refund Review Modal */}
+      {activeRefundRequest && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border border-slate-800 p-6 rounded-2xl max-w-xl w-full shadow-2xl relative space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <RefreshCw className="text-gold w-5 h-5" /> Demande de Remboursement
+              </h3>
+              <button 
+                onClick={() => {
+                  setActiveRefundRequest(null)
+                  setAdminNoteInput('')
+                  setPaymentProofFile(null)
+                }}
+                className="text-slate-400 hover:text-white"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              <div className="bg-black/20 p-3 rounded-lg border border-slate-800/80">
+                <span className="text-slate-400 block uppercase tracking-wider text-[9px]">Affilié</span>
+                <strong className="text-white text-sm">{activeRefundRequest.affiliates?.profiles?.full_name || 'N/A'}</strong>
+                <span className="text-slate-500 block text-[10px]">{activeRefundRequest.affiliates?.profiles?.email}</span>
+              </div>
+              <div className="bg-black/20 p-3 rounded-lg border border-slate-800/80">
+                <span className="text-slate-400 block uppercase tracking-wider text-[9px]">Casino & Montant</span>
+                <strong className="text-purple-300 text-sm block">{activeRefundRequest.casino_name}</strong>
+                <strong className="text-gold text-sm font-mono">{Number(activeRefundRequest.amount).toFixed(2)} €</strong>
+              </div>
+            </div>
+
+            {/* Proof Preview */}
+            <div className="space-y-1.5">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Preuve d'Inscription / Dépôt</span>
+              {activeRefundRequest.proof_url ? (
+                <div className="relative rounded-xl border border-slate-800 overflow-hidden bg-black/40 max-h-64 flex items-center justify-center p-2">
+                  {activeRefundRequest.proof_url.endsWith('.pdf') ? (
+                    <a href={activeRefundRequest.proof_url} target="_blank" rel="noopener noreferrer" className="px-4 py-8 text-blue-400 font-bold hover:underline">
+                      📄 Ouvrir le PDF de Preuve
+                    </a>
+                  ) : (
+                    <img 
+                      src={activeRefundRequest.proof_url} 
+                      alt="Preuve de dépôt" 
+                      className="max-w-full max-h-60 object-contain rounded-lg"
+                    />
+                  )}
+                </div>
+              ) : (
+                <p className="text-slate-500 italic text-xs">Aucune preuve fournie.</p>
+              )}
+            </div>
+
+            {/* Status-specific actions */}
+            <div className="border-t border-slate-800 pt-4 space-y-4">
+              {activeRefundRequest.status === 'pending' && (
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-300">Motif du refus (optionnel)</label>
+                    <input 
+                      type="text" 
+                      placeholder="Ex: Capture d'écran floue, dépôt non visible..."
+                      value={adminNoteInput}
+                      onChange={e => setAdminNoteInput(e.target.value)}
+                      className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-gold"
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => handleApproveRefund(activeRefundRequest)}
+                      className="flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-black bg-emerald hover:brightness-110 shadow-emerald-glow transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      ✓ Approuver la Demande
+                    </button>
+                    <button
+                      onClick={() => handleRejectRefund(activeRefundRequest)}
+                      className="flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-white bg-red-600 hover:bg-red-500 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      ✕ Refuser la Demande
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {activeRefundRequest.status === 'approved' && (
+                <div className="space-y-4">
+                  <div className="p-3 bg-emerald/10 border border-emerald/20 text-emerald text-xs rounded-xl text-center font-bold">
+                    Demande approuvée. Procédez maintenant au remboursement et importez la preuve de paiement.
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] text-slate-400 uppercase tracking-wider block">Preuve de paiement de remboursement</label>
+                    <input 
+                      type="file"
+                      accept="image/*"
+                      onChange={e => setPaymentProofFile(e.target.files?.[0] || null)}
+                      className="w-full bg-[#0a0a0f] border border-dashed border-slate-700 rounded-xl p-3 text-xs text-slate-300 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-gold/20 file:text-gold hover:file:bg-gold/40 cursor-pointer"
+                    />
+                    {paymentProofFile && (
+                      <p className="text-[11px] text-emerald font-bold">Fichier sélectionné : {paymentProofFile.name}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handlePayRefund(activeRefundRequest)}
+                    disabled={isSubmittingAdminRefund || !paymentProofFile}
+                    className="w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-950 bg-gold hover:brightness-110 shadow-gold-glow transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmittingAdminRefund ? <><Loader2 className="w-4 h-4 animate-spin" /> Envoi en cours...</> : '💸 Confirmer le Paiement & Notifier'}
+                  </button>
+                </div>
+              )}
+
+              {activeRefundRequest.status === 'paid' && (
+                <div className="space-y-4">
+                  <div className="p-3 bg-gold/10 border border-gold/20 text-gold text-xs rounded-xl text-center font-bold">
+                    🎉 Ce remboursement a déjà été payé et clos.
+                  </div>
+                  {activeRefundRequest.payment_proof_url && (
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Votre Preuve de Paiement</span>
+                      <div className="rounded-xl border border-slate-800 overflow-hidden bg-black/40 max-h-40 flex items-center justify-center p-2">
+                        <img 
+                          src={activeRefundRequest.payment_proof_url} 
+                          alt="Preuve de paiement" 
+                          className="max-w-full max-h-36 object-contain rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeRefundRequest.status === 'rejected' && (
+                <div className="space-y-2">
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl text-center font-bold">
+                    ✕ Demande de remboursement refusée.
+                  </div>
+                  {activeRefundRequest.admin_note && (
+                    <p className="text-xs text-slate-400 italic text-center">Motif : "{activeRefundRequest.admin_note}"</p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
