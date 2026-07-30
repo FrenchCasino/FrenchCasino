@@ -21,9 +21,9 @@ import {
   EyeOff,
   XCircle,
   Loader2,
-  AlertCircle,
   Download,
-  Trophy
+  Trophy,
+  Megaphone
 } from 'lucide-react'
 import {
   ResponsiveContainer,
@@ -46,7 +46,7 @@ function getVipInfo(total: number) {
 
 export default function DashboardPage() {
   const supabase = createClient()
-  const [activeTab, setActiveTab] = useState<'overview' | 'links' | 'stats' | 'commissions' | 'payout' | 'iban' | 'support' | 'recruitment'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'links' | 'stats' | 'commissions' | 'payout' | 'iban' | 'support' | 'recruitment' | 'marketing'>('overview')
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   
   // Real data state
@@ -84,6 +84,78 @@ export default function DashboardPage() {
   // Refund form state
   const [refundForm, setRefundForm] = useState({ casinoId: '', amount: '', proofFile: null as File | null })
   const [isSubmittingRefund, setIsSubmittingRefund] = useState(false)
+  const [marketingCasino, setMarketingCasino] = useState<string>('generic')
+
+  // Resolving details for marketing copy
+  let resolvedCasinoName = "Casino Partenaire"
+  let resolvedLinkUrl = "[VOTRE_LIEN_D_AFFILIE]"
+  let resolvedMinDepot = "10€"
+  let resolvedBonusSansDepot = "10€ offerts"
+  let resolvedBonusDepot = "100% jusqu'à 500€"
+  let resolvedRemboursement = "Remboursement garanti"
+
+  if (marketingCasino !== 'generic') {
+    const selectedC = casinosList.find(c => c.id === marketingCasino)
+    if (selectedC) {
+      resolvedCasinoName = selectedC.name
+      resolvedLinkUrl = typeof window !== 'undefined' ? `${window.location.origin}/go/${selectedC.slug}?ref=${affiliateCode}` : `/go/${selectedC.slug}?ref=${affiliateCode}`
+      resolvedMinDepot = selectedC.minimum_depot || "10€"
+      resolvedBonusSansDepot = selectedC.bonus_sans_depot || "10€ sans dépôt"
+      resolvedBonusDepot = selectedC.bonus_depot || "100% jusqu'à 500€"
+      resolvedRemboursement = selectedC.remboursement_depot ? "100% remboursé en cas de perte" : "Remboursement éligible"
+    }
+  }
+
+  const getTemplateText = (type: string) => {
+    switch (type) {
+      case 'sans_depot_1':
+        return `🎁 **100% GRATUIT : ${resolvedBonusSansDepot} OFFERTS !** 🎁\n\nPas envie de déposer de l'argent ? Pas de soucis ! **${resolvedCasinoName}** t'offre **${resolvedBonusSansDepot}** totalement gratuits pour tester leur casino.\n\n💥 **Pourquoi en profiter ?**\n- Zéro risque de perte 💸\n- Création de compte en 30 secondes chrono ⏱️\n- Gains réels possibles !\n\n👇 **Récupère ton bonus gratuit maintenant :**\n🔗 ${resolvedLinkUrl}\n\n*Offre réservée aux nouveaux joueurs. 18+*`
+      case 'sans_depot_2':
+        return `🚨 **EXCLUSIVITÉ SANS DÉPÔT SUR ${resolvedCasinoName.toUpperCase()}** 🚨\n\nTu veux jouer gratuitement et tenter de monter une bankroll à partir de rien ? Suis les étapes :\n\n1️⃣ Clique sur le lien ci-dessous ⬇️\n2️⃣ Remplis l'inscription rapide\n3️⃣ Profite de tes **${resolvedBonusSansDepot}** sur les meilleures machines !\n\nLien exclusif de l'offre :\n👉 ${resolvedLinkUrl}\n\n⚠️ *Profite-en vite avant que le casino ne retire l'offre !*`
+      
+      case 'depot_min_script':
+        return `🎬 **SCRIPT VIDÉO (TikTok / Reels / Shorts)**\n\n🗣️ *[Face caméra de manière dynamique]* :\n"Arrête de croire qu'il faut poser 100€ pour t'amuser et tenter de gagner au casino en ligne ! Regarde ça..."\n\n📱 *[Montrer l'écran de ton téléphone ou filmer l'interface de ${resolvedCasinoName}]* :\n"Sur **${resolvedCasinoName}**, le dépôt minimum est de seulement **${resolvedMinDepot}**. Oui, tu as bien entendu : un petit billet de ${resolvedMinDepot} suffit pour débloquer toutes les machines à sous et les jeux en direct comme le Crazy Time ou la Roulette !"\n\n🗣️ *[Face caméra]* :\n"Le lien sécurisé est juste ici si tu veux tester la plateforme sans te ruiner. Fais-toi plaisir, mais joue avec modération !"\n\n🔗 **Lien en bio / description :** ${resolvedLinkUrl}`
+      case 'depot_min_post':
+        return `💸 **CASINO PETIT BUDGET - DÉPÔT MINIMUM : ${resolvedMinDepot}** 💸\n\nPas besoin d'avoir un énorme budget pour jouer ! **${resolvedCasinoName}** accepte les dépôts dès **${resolvedMinDepot}** !\n\n🔥 **Ce qui t'attend sur la plateforme :**\n- Plus de 3000 jeux certifiés 🎰\n- Dépôt rapide et ultra-sécurisé 💳\n- Idéal pour tester sans stress !\n\n👇 **Inscris-toi et commence à jouer avec seulement ${resolvedMinDepot} :**\n🔗 ${resolvedLinkUrl}\n\n*18+ | Les jeux d'argent comportent des risques.*`
+
+      case 'depot_boost_1':
+        return `🚀 **BOOSTE TON DÉPART : ${resolvedBonusDepot}** 🚀\n\nTu veux maximiser tes chances de faire un gros retrait ? **${resolvedCasinoName}** double ton dépôt de bienvenue avec une offre exclusive de **${resolvedBonusDepot}** !\n\n💎 **Pourquoi jouer sur ${resolvedCasinoName} ?**\n- Les fournisseurs les plus populaires (Pragmatic, Hacksaw...) 🎰\n- Retraits sécurisés validés ultra rapidement ⚡\n- Un support client à ton écoute 24h/24 🇫🇷\n\n👉 **Prends ton bonus de bienvenue et démarre fort ici :**\n🔗 ${resolvedLinkUrl}`
+      case 'depot_boost_2':
+        return `🔥 **C'EST LE MOMENT DE TESTER ${resolvedCasinoName.toUpperCase()} !** 🔥\n\nProfite d'un bonus de bienvenue de **${resolvedBonusDepot}** sur ton premier dépôt !\n\nPlus d'excuse, le casino est fiable, rapide, et les jeux payent fort en ce moment.\n\nClique ici pour t'inscrire et recevoir ton bonus :\n👉 ${resolvedLinkUrl}`
+
+      case 'remboursement_1':
+        return `🛡️ **JOUE SANS RISQUE : 100% REMBOURSÉ SI TU PERDS !** 🛡️\n\nTu hésites encore ? On a négocié pour toi l'offre ultime sur **${resolvedCasinoName}** !\n\n💥 **Le concept est super simple :**\n- Tu t'inscris avec notre lien exclusif\n- Tu fais ton dépôt et tu joues\n- Si tu gagnes, tu retires tes gains 💰\n- Si tu perds, **on te rembourse ton dépôt** ! Tu ne peux pas perdre !\n\n👉 **Inscris-toi maintenant pour activer ton assurance de jeu :**\n🔗 ${resolvedLinkUrl}`
+      case 'remboursement_2':
+        return `🤝 **ALERTE OFFRE SÉCURISÉE - REMBOURSEMENT GARANTI** 🤝\n\nPour toute inscription sur **${resolvedCasinoName}** via notre lien exclusif, bénéficie d'un remboursement de ton dépôt en cas de session perdante.\n\nComment faire ? C'est très simple :\n1️⃣ Crée ton compte ici : ${resolvedLinkUrl}\n2️⃣ Fais ton dépôt de départ\n3️⃣ Si la chance n'est pas au rendez-vous, déclare ton dépôt dans ton espace membre et reçois ton remboursement !\n\nJouez en toute sérénité :\n🔗 ${resolvedLinkUrl}`
+
+      default:
+        return ""
+    }
+  }
+
+  const renderMarketingCard = (title: string, content: string, helpText: string) => {
+    const uniqueId = `mkt_${title.replace(/[^a-zA-Z0-9]/g, '_')}`
+    return (
+      <div className="bg-[#0f0f15] border border-slate-800 rounded-xl p-5 space-y-4 flex flex-col justify-between hover:border-slate-700 transition-colors">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <h5 className="font-bold text-sm text-white">{title}</h5>
+            <span className="text-[10px] text-slate-400 font-normal italic">{helpText}</span>
+          </div>
+          <div className="bg-surface p-3.5 rounded-lg border border-slate-700 font-mono text-xs text-slate-300 whitespace-pre-wrap max-h-60 overflow-y-auto leading-relaxed relative">
+            {content}
+          </div>
+        </div>
+        <button
+          onClick={() => copyToClipboard(content, uniqueId)}
+          className="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white bg-primary hover:bg-primary-hover shadow-purple-glow transition-all flex items-center justify-center gap-2"
+        >
+          <Copy className="w-4 h-4" />
+          <span>{copiedCode === uniqueId ? 'Copié !' : 'Copier la Publication'}</span>
+        </button>
+      </div>
+    )
+  }
 
   React.useEffect(() => {
     async function loadAffiliateData() {
@@ -965,6 +1037,7 @@ export default function DashboardPage() {
             { id: 'stats', label: 'Statistiques', icon: MousePointerClick },
             { id: 'commissions', label: 'Commissions', icon: DollarSign },
             { id: 'payout', label: 'Paiements', icon: CreditCard },
+            { id: 'marketing', label: 'Kit Marketing', icon: Megaphone },
             { id: 'iban', label: 'Mon IBAN', icon: Lock },
             { id: 'support', label: 'Support & Tchat', icon: MessageSquare },
           ].map(tab => {
@@ -1760,6 +1833,131 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 7b. KIT MARKETING */}
+      {activeTab === 'marketing' && (
+        <div className="space-y-6">
+          {/* Header Block */}
+          <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30">
+                <Megaphone className="w-5 h-5 text-primary-light" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-lg text-white">Kit de Communication & Marketing</h3>
+                <p className="text-xs text-slate-400">
+                  Prêt-à-publier : copiez des templates rédigés par des experts et commencez à générer des clics.
+                </p>
+              </div>
+            </div>
+            
+            {/* Casino selector for personalization */}
+            <div className="mt-4 p-4 bg-surface rounded-xl border border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <span className="text-xs font-bold text-slate-300 block">Personnalisation Dynamique</span>
+                <span className="text-[11px] text-slate-400 block">Choisissez un casino pour insérer automatiquement vos liens de parrainage et conditions dans les textes :</span>
+              </div>
+              <select
+                value={marketingCasino}
+                onChange={(e) => setMarketingCasino(e.target.value)}
+                className="bg-[#0f0f15] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primary max-w-xs w-full"
+              >
+                <option value="generic">🎲 Lien & Casino Générique (Placeholder)</option>
+                {casinosList.map(c => (
+                  <option key={c.id} value={c.id}>🎰 {c.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Marketing templates categories */}
+          <div className="grid grid-cols-1 gap-8">
+            {/* Category: Bonus Sans Dépôt */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+                <span className="text-lg">🎁</span>
+                <h4 className="font-display font-bold text-base text-white">Templates : Bonus Sans Dépôt</h4>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {renderMarketingCard(
+                  "Post Telegram / Twitter - Punchy 🔥",
+                  getTemplateText('sans_depot_1'),
+                  "Idéal pour attirer rapidement sans risques."
+                )}
+                {renderMarketingCard(
+                  "Post Réseaux Sociaux - Étape par étape 📝",
+                  getTemplateText('sans_depot_2'),
+                  "Idéal pour expliquer comment s'inscrire."
+                )}
+              </div>
+            </div>
+
+            {/* Category: Casino Dépôt Minimum */}
+            <div className="space-y-4 pt-4">
+              <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+                <span className="text-lg">💰</span>
+                <h4 className="font-display font-bold text-base text-white">Templates : Petit Budget & Dépôt Minimum</h4>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {renderMarketingCard(
+                  "Post TikTok / Reels - Script Vidéo 🎬",
+                  getTemplateText('depot_min_script'),
+                  "Script oral à haute voix pour une vidéo TikTok/Reels."
+                )}
+                {renderMarketingCard(
+                  "Post Telegram / Discord - Spécial Micro-Budget 💸",
+                  getTemplateText('depot_min_post'),
+                  "Pour les joueurs voulant tester avec 10€ ou moins."
+                )}
+              </div>
+            </div>
+
+            {/* Category: Bonus Dépôt */}
+            <div className="space-y-4 pt-4">
+              <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+                <span className="text-lg">🚀</span>
+                <h4 className="font-display font-bold text-base text-white">Templates : Offres de Bienvenue / Boost Dépôt</h4>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {renderMarketingCard(
+                  "Post VIP / High-Roller 💎",
+                  getTemplateText('depot_boost_1'),
+                  "Présentation axée sur le bonus de bienvenue."
+                )}
+                {renderMarketingCard(
+                  "Post Story / Discord court ⚡",
+                  getTemplateText('depot_boost_2'),
+                  "Format court et efficace pour des rappels."
+                )}
+              </div>
+            </div>
+
+            {/* Category: Remboursement Dépôt */}
+            <div className="space-y-4 pt-4">
+              <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+                <span className="text-lg">🛡️</span>
+                <h4 className="font-display font-bold text-base text-white">Templates : Offres de Remboursement / Assurances</h4>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {renderMarketingCard(
+                  "Post 'Zéro Risque' / Cashback 💥",
+                  getTemplateText('remboursement_1'),
+                  "Promouvoir le remboursement du dépôt en cas de perte."
+                )}
+                {renderMarketingCard(
+                  "Post Exclusif Telegram de Rassurance 🤝",
+                  getTemplateText('remboursement_2'),
+                  "Explication rassurante sur le processus de remboursement."
+                )}
+              </div>
             </div>
           </div>
         </div>
