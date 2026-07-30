@@ -94,6 +94,70 @@ export default async function BonusSansDepotPage() {
         </div>
       </div>
 
+      {/* SECTION EXPLICATIONS SEO ET FAQ */}
+      <section className="max-w-4xl mx-auto border-t border-slate-800 pt-16 pb-6 space-y-8">
+        <div className="text-center space-y-2">
+          <h2 className="font-display text-3xl font-extrabold text-white">
+            Tout savoir sur les Bonus Casino Sans Dépôt en France
+          </h2>
+          <p className="text-slate-400 text-xs">
+            Comprendre les règles et conditions pour en tirer le meilleur parti.
+          </p>
+        </div>
+
+        <div className="space-y-6 text-xs text-slate-300 leading-relaxed">
+          <p>
+            Un <strong>bonus casino sans dépôt</strong> est une offre promotionnelle idéale pour les nouveaux inscrits. Elle permet de tester les fonctionnalités d'une plateforme de jeux en ligne sans engager son propre capital. Ces bonus se présentent généralement sous forme de <strong>spins gratuits (free spins)</strong> à utiliser sur des machines à sous sélectionnées, ou de <strong>crédits cash offerts</strong> utilisables sur l'ensemble du catalogue du casino.
+          </p>
+          <p>
+            Bien que ces bonus soient gratuits, ils sont généralement soumis à un <strong>Wager (exigence de mise)</strong>. Par exemple, si vous gagnez 10€ avec vos spins gratuits et que le wager est de 30x, vous devrez miser un total de 300€ avant de pouvoir effectuer un retrait.
+          </p>
+        </div>
+
+        <div className="space-y-6 pt-6">
+          <h3 className="font-display font-bold text-white text-lg text-center">Foire Aux Questions — Bonus Gratuits</h3>
+          <div className="space-y-4">
+            <div className="glass-panel p-5 rounded-xl border border-slate-800 space-y-1.5">
+              <h4 className="font-bold text-white text-sm">Combien peut-on gagner avec un bonus sans dépôt ?</h4>
+              <p className="text-slate-400 text-xs">Les gains issus d'un bonus sans dépôt sont souvent plafonnés par le casino (généralement entre 50€ et 100€) afin de limiter leurs risques financiers.</p>
+            </div>
+            <div className="glass-panel p-5 rounded-xl border border-slate-800 space-y-1.5">
+              <h4 className="font-bold text-white text-sm">Faut-il valider son identité pour retirer ces gains ?</h4>
+              <p className="text-slate-400 text-xs">Oui, pour retirer tout gain issu d'un bonus sans dépôt, vous devez soumettre vos documents de vérification d'identité (KYC) prévus par la réglementation.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DONNÉES STRUCTURÉES JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Combien peut-on gagner avec un bonus sans dépôt ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Les gains maximums retirables à partir d'un bonus sans dépôt sont généralement limités par les casinos partenaires à un montant compris entre 50€ et 100€."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Faut-il valider son identité pour retirer ces gains ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Oui, conformément aux licences de jeux de hasard, vous devez valider votre compte joueur (KYC) avec une pièce d'identité et un justificatif de domicile pour pouvoir retirer vos gains."
+                }
+              }
+            ]
+          })
+        }}
+      />
+
     </div>
     </>
   )

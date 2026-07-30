@@ -150,6 +150,39 @@ export default async function CasinoDetailPage({ params }: Props) {
       {/* Section des Avis Joueurs */}
       <ReviewSection casinoSlug={casino.slug} />
 
+      {/* DONNÉES STRUCTURÉES DE REVUE CASINO JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Review",
+            "itemReviewed": {
+              "@type": "SoftwareApplication",
+              "name": casino.name,
+              "applicationCategory": "GameApplication",
+              "operatingSystem": "All"
+            },
+            "reviewRating": {
+              "@type": "Rating",
+              "ratingValue": casino.noteFiabilite.toFixed(1),
+              "bestRating": "5",
+              "worstRating": "1"
+            },
+            "author": {
+              "@type": "Organization",
+              "name": "FrenchCasino"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "FrenchCasino",
+              "url": "https://frenchcasino.net"
+            },
+            "description": `Revue et test expert du casino ${casino.name}. Licence ${casino.licence}, support client et conditions de retrait analysés.`
+          })
+        }}
+      />
+
     </div>
   )
 }

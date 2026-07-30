@@ -68,6 +68,70 @@ export default async function BonusDepotPage() {
         </div>
       </div>
 
+      {/* SECTION EXPLICATIONS SEO ET FAQ */}
+      <section className="max-w-4xl mx-auto border-t border-slate-800 pt-16 pb-6 space-y-8">
+        <div className="text-center space-y-2">
+          <h2 className="font-display text-3xl font-extrabold text-white">
+            Optimiser ses gains avec un Bonus de Dépôt Casino
+          </h2>
+          <p className="text-slate-400 text-xs">
+            Comment fonctionnent les packages de bienvenue et les conditions de wager.
+          </p>
+        </div>
+
+        <div className="space-y-6 text-xs text-slate-300 leading-relaxed">
+          <p>
+            Le <strong>bonus de premier dépôt</strong> est le moyen le plus populaire utilisé par les casinos en ligne pour attirer les nouveaux joueurs. Généralement, le casino double (100%) ou triple (200%) votre premier versement d'argent réel, et y ajoute parfois des spins gratuits (free spins).
+          </p>
+          <p>
+            Il est important de distinguer les bonus collants (sticky) des bonus non collants (non-sticky/parachute). Un <strong>bonus parachute</strong> vous permet de jouer d'abord avec votre argent réel. Si vous gagnez sans entamer votre solde bonus, vous pouvez annuler le bonus et retirer vos gains immédiatement sans avoir à remplir les conditions de wager !
+          </p>
+        </div>
+
+        <div className="space-y-6 pt-6">
+          <h3 className="font-display font-bold text-white text-lg text-center">Foire Aux Questions — Bonus de Dépôt</h3>
+          <div className="space-y-4">
+            <div className="glass-panel p-5 rounded-xl border border-slate-800 space-y-1.5">
+              <h4 className="font-bold text-white text-sm">Qu'est-ce qu'un bonus sans wager (sans exigence de mise) ?</h4>
+              <p className="text-slate-400 text-xs">Un bonus sans wager signifie que vous pouvez retirer les gains générés par le bonus immédiatement, sans avoir à jouer la somme un certain nombre de fois.</p>
+            </div>
+            <div className="glass-panel p-5 rounded-xl border border-slate-800 space-y-1.5">
+              <h4 className="font-bold text-white text-sm">Quel est le dépôt minimum pour bénéficier d'un bonus de bienvenue ?</h4>
+              <p className="text-slate-400 text-xs">Le dépôt minimum est généralement fixé à 10€ ou 20€ selon le casino partenaire et la méthode de paiement utilisée.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DONNÉES STRUCTURÉES JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Qu'est-ce qu'un bonus sans wager ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Un bonus sans wager vous permet de retirer vos gains immédiatement sans restriction de mise."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Quel est le dépôt minimum pour bénéficier d'un bonus de bienvenue ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Le dépôt minimum requis est de 10€ ou 20€ en fonction des conditions générales de chaque casino."
+                }
+              }
+            ]
+          })
+        }}
+      />
+
     </div>
     </>
   )
