@@ -21,6 +21,7 @@ import {
   EyeOff,
   XCircle,
   Loader2,
+  AlertCircle,
   Download,
   Trophy,
   Megaphone
@@ -66,6 +67,7 @@ export default function DashboardPage() {
   const [statsTopCasino, setStatsTopCasino] = useState<string>('N/A')
   const [statsCommsByCasino, setStatsCommsByCasino] = useState<Record<string, number>>({})
   const [isAdmin, setIsAdmin] = useState<boolean>(false)
+  const [isMasterUser, setIsMasterUser] = useState<boolean>(false)
   const [commissionsList, setCommissionsList] = useState<any[]>([])
   const [monthlyCommissions, setMonthlyCommissions] = useState(0)
   const [soldeMoisEnCours, setSoldeMoisEnCours] = useState(0)
@@ -98,7 +100,9 @@ export default function DashboardPage() {
     const selectedC = casinosList.find(c => c.id === marketingCasino)
     if (selectedC) {
       resolvedCasinoName = selectedC.name
-      resolvedLinkUrl = typeof window !== 'undefined' ? `${window.location.origin}/go/${selectedC.slug}?ref=${affiliateCode}` : `/go/${selectedC.slug}?ref=${affiliateCode}`
+      resolvedLinkUrl = isMasterUser && selectedC.lien_affilie
+        ? selectedC.lien_affilie
+        : (typeof window !== 'undefined' ? `${window.location.origin}/go/${selectedC.slug}?ref=${affiliateCode}` : `/go/${selectedC.slug}?ref=${affiliateCode}`)
       resolvedMinDepot = selectedC.minimum_depot || "10€"
       resolvedBonusSansDepot = selectedC.bonus_sans_depot || "10€ sans dépôt"
       resolvedBonusDepot = selectedC.bonus_depot || "100% jusqu'à 500€"
@@ -162,6 +166,8 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
+      setIsMasterUser(user.email === 'gabin77700@gmail.com')
+
       const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).single()
       if (profile?.role === 'admin' || profile?.role === 'recruiter') {
         // Un admin ou un recruteur testant le dashboard affilié
@@ -173,13 +179,13 @@ export default function DashboardPage() {
       let casData: any[] | null = null
       const res = await supabase
         .from('casinos')
-        .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot, visible_affiliate')
+        .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot, visible_affiliate, lien_affilie')
         .eq('is_active', true)
       
       if (res.error) {
         const { data: fallbackData } = await supabase
           .from('casinos')
-          .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot')
+          .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot, lien_affilie')
           .eq('is_active', true)
         casData = fallbackData
       } else {
