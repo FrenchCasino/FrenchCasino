@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import {
   ShieldAlert,
+  ShieldCheck,
   Users,
   DollarSign,
   CreditCard,
@@ -1288,22 +1289,22 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-fadeIn">
       <ConfirmDialog />
       
       {/* Header Admin */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-red-500/30 bg-red-950/20">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-purple-500/30 bg-purple-950/10">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-red-400 uppercase tracking-wider">
-            <ShieldAlert className="w-4 h-4" />
-            <span>Panneau de Contrôle Administrateur Supabase</span>
+          <div className="flex items-center gap-2 text-xs font-semibold text-purple-400 uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4 text-gold" />
+            <span>Panneau de Contrôle Administrateur</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white mt-1">
-            Administration FrenchCasino V2
+            Administration <span className="text-gradient-purple">French</span><span className="text-gradient-gold">Casino</span>
           </h1>
         </div>
         <button onClick={loadData} className="px-4 py-2 bg-slate-900 border border-slate-700 hover:bg-slate-800 rounded-xl text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors">
-          <Activity className="w-4 h-4" />
+          <Activity className="w-4 h-4 text-gold" />
           Rafraîchir les données
         </button>
       </div>
@@ -1328,11 +1329,11 @@ export default function AdminDashboardPage() {
               <button
                 key={tab.id}
                 onClick={() => setAdminTab(tab.id as any)}
-                className={`px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-3 w-full text-left relative ${
+                className={`px-4 py-3.5 rounded-xl text-xs font-bold tracking-wider uppercase transition-all flex items-center gap-3 w-full text-left relative ${
                   active
-                    ? 'bg-red-600 text-white shadow-lg'
+                    ? 'bg-gradient-to-r from-purple-600 to-primary text-white shadow-purple-glow font-bold scale-[1.02]'
                     : tab.id === 'support' && kpi.openTickets > 0
-                      ? 'text-red-400 hover:text-red-300 hover:bg-red-950/30 border border-red-900/50'
+                      ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 border border-amber-900/50'
                       : 'text-slate-400 hover:text-white hover:bg-surface-card border border-transparent hover:border-slate-800'
                 }`}
               >
@@ -1467,40 +1468,40 @@ export default function AdminDashboardPage() {
       {/* Loading State */}
       {loading ? (
         <div className="flex items-center justify-center p-20">
-          <Loader2 className="w-10 h-10 animate-spin text-red-500" />
+          <Loader2 className="w-10 h-10 animate-spin text-gold" />
         </div>
       ) : (
         <>
           {/* 1. KPIS GLOBAUX */}
           {adminTab === 'kpi' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden">
+              <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-purple-glow/5">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Users className="w-12 h-12 text-white" />
                 </div>
-                <span className="text-slate-400 text-xs block relative z-10">Affiliés Actifs</span>
-                <span className="text-3xl font-bold font-mono text-white relative z-10">{kpi.activeAffiliates}</span>
+                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Affiliés Actifs</span>
+                <span className="text-3xl font-extrabold font-mono text-white relative z-10">{kpi.activeAffiliates}</span>
                 <span className="text-[11px] text-emerald block relative z-10">
                   {kpi.pendingAffiliates > 0 ? `+${kpi.pendingAffiliates} en attente de validation` : 'Tous validés'}
                 </span>
               </div>
 
-              <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden">
+              <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-gold-glow/5">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <DollarSign className="w-12 h-12 text-gold" />
                 </div>
-                <span className="text-slate-400 text-xs block relative z-10">Gains Distribués / Dus</span>
-                <span className="text-3xl font-bold font-mono text-gold relative z-10">{kpi.totalCommissions.toLocaleString()} €</span>
+                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Gains Distribués / Dus</span>
+                <span className="text-3xl font-extrabold font-mono text-gold relative z-10">{kpi.totalCommissions.toLocaleString()} €</span>
                 <span className="text-[11px] text-gold block relative z-10">Global historique</span>
               </div>
 
-              <div className="glass-panel p-5 rounded-2xl border border-red-900/50 bg-red-950/10 space-y-2 relative overflow-hidden">
+              <div className="glass-panel p-6 rounded-2xl border border-amber-950/40 bg-amber-950/5 space-y-2 relative overflow-hidden shadow-gold-glow/10">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <CreditCard className="w-12 h-12 text-red-400" />
+                  <CreditCard className="w-12 h-12 text-gold" />
                 </div>
-                <span className="text-slate-400 text-xs block relative z-10">Payouts en Attente</span>
-                <span className="text-3xl font-bold font-mono text-red-400 relative z-10">{kpi.pendingPayouts}</span>
-                <span className="text-[11px] text-red-400 block relative z-10">Montant total : {kpi.pendingPayoutsAmount.toLocaleString()} €</span>
+                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Payouts en Attente</span>
+                <span className="text-3xl font-extrabold font-mono text-gold relative z-10">{kpi.pendingPayouts}</span>
+                <span className="text-[11px] text-gold block relative z-10">Montant total : {kpi.pendingPayoutsAmount.toLocaleString()} €</span>
               </div>
             </div>
           )}
