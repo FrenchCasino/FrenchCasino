@@ -23,6 +23,11 @@ export const metadata: Metadata = {
     locale: "fr_FR",
     siteName: "FrenchCasino",
   },
+  verification: {
+    other: {
+      "ga-site-verification": "V-7DQvSrmkFcIej3_IZNHeVu"
+    }
+  }
 };
 
 export default function RootLayout({
