@@ -37,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className="dark">
-      <body className="bg-background text-slate-100 min-h-screen flex flex-col antialiased selection:bg-primary/40 selection:text-white">
+      <body className="bg-transparent text-slate-100 min-h-screen flex flex-col antialiased selection:bg-primary/40 selection:text-white">
         {/* Subtle Animated Casino Background */}
         <div className="casino-bg-container">
           <div className="casino-glow-overlay" />
