@@ -8,6 +8,10 @@
     --font-outfit: 'Outfit', sans-serif;
   }
 
+  html {
+    background-color: #07060f;
+  }
+
   body {
     @apply bg-transparent text-slate-100 font-sans antialiased selection:bg-primary/30 selection:text-white min-h-screen overflow-x-hidden;
   }
@@ -96,7 +100,7 @@
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
   background: #07060f;
 }

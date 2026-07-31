@@ -57,10 +57,12 @@ export default function RootLayout({
         </div>
 
         <Header />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        <div className="relative z-10 flex flex-col flex-1">
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+        </div>
         <Toaster
           theme="dark"
           position="bottom-right"
