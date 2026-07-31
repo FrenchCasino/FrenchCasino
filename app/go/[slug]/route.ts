@@ -74,7 +74,7 @@ export async function GET(
             // Enregistrer le clic dans la nouvelle table de tracking
             const { error: insertError } = await supabase.from('casino_clicks').insert({
               affiliate_id: affiliateId,
-              casino_id: casino.id,
+              casino_slug: casino.slug,
             })
 
             console.log(`[TRACKING] Insert Result:`, { insertError })
