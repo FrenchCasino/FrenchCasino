@@ -250,12 +250,13 @@ export default function DashboardPage() {
           setIbanForm(prev => ({ ...prev, holder: profile.full_name }))
         }
 
-        // Load Clicks (the table uses casino_id UUID)
-        const { data: clicks } = await supabase
+        // Load Clicks (using casino_slug from schema)
+        const { data: clicks, error: clicksErr } = await supabase
           .from('casino_clicks')
-          .select('casino_id, created_at')
+          .select('casino_slug, created_at')
           .eq('affiliate_id', affData.id)
         
+        if (clicksErr) console.error('Error loading dashboard clicks:', clicksErr)
         if (clicks) setRawClicksList(clicks)
 
         // Load Commissions
@@ -340,8 +341,7 @@ export default function DashboardPage() {
     // Process Clicks counts by casino
     const counts: Record<string, number> = {}
     filteredClicks.forEach(c => {
-      const casino = casinosList?.find((cas: any) => cas.id === c.casino_id)
-      const slug = casino ? casino.slug : 'autre'
+      const slug = c.casino_slug || 'autre'
       counts[slug] = (counts[slug] || 0) + 1
     })
     setClicksData(counts)
