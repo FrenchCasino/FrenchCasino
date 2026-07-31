@@ -32,7 +32,8 @@ import {
   EyeOff,
   Award,
   RefreshCw,
-  TrendingUp
+  TrendingUp,
+  Power
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { CASINOS_MOCK } from '@/lib/data/casinos'
@@ -870,6 +871,24 @@ export default function AdminDashboardPage() {
     }
   }
 
+  const handleDeleteCasino = async (id: string) => {
+    const ok = await confirm({
+      title: 'Supprimer ce casino ?',
+      message: 'Cette action est irréversible et retirera le casino immédiatement du site ainsi que de la vitrine.',
+      confirmLabel: 'Supprimer définitivement',
+      variant: 'danger',
+    })
+    if (!ok) return
+
+    const { error } = await supabase.from('casinos').delete().eq('id', id)
+    if (!error) {
+      setCasinos(casinos.filter(c => c.id !== id))
+      toast.success('Casino supprimé avec succès.')
+    } else {
+      toast.error('Erreur lors de la suppression : ' + error.message)
+    }
+  }
+
   const handleUpdatePayoutStatus = async (payoutId: string, affiliateEmail: string, affiliateName: string, amount: number, newStatus: string) => {
     const ok = await confirm({
       title: `Mettre à jour ce virement`,
@@ -1660,14 +1679,27 @@ export default function AdminDashboardPage() {
                         <button 
                           onClick={() => openEditCasinoModal(casino)}
                           className="flex-1 px-3 py-2 rounded-lg bg-surface border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 hover:border-slate-600 flex items-center justify-center gap-1.5 transition-all"
+                          title="Éditer le casino"
                         >
                           <Edit className="w-3.5 h-3.5" /> Éditer
                         </button>
                         <button 
                           onClick={() => handleToggleCasinoActive(casino.id, casino.is_active)}
-                          className="flex-1 px-3 py-2 rounded-lg bg-red-500/5 border border-red-500/20 text-xs font-semibold text-red-400 hover:bg-red-500/10 hover:border-red-500/30 flex items-center justify-center gap-1.5 transition-all"
+                          className={`px-3 py-2 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                            casino.is_active 
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20' 
+                              : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
+                          }`}
+                          title={casino.is_active ? 'Désactiver le casino' : 'Activer le casino'}
                         >
-                          <Trash2 className="w-3.5 h-3.5" /> {casino.is_active ? 'Désactiver' : 'Activer'}
+                          <Power className="w-3.5 h-3.5" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteCasino(casino.id)}
+                          className="px-3 py-2 rounded-lg bg-red-500/5 border border-red-500/20 text-xs font-semibold text-red-400 hover:bg-red-500/10 hover:border-red-500/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                          title="Supprimer définitivement"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
