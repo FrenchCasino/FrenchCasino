@@ -104,9 +104,7 @@ export default function DashboardPage() {
     const selectedC = casinosList.find(c => c.id === marketingCasino)
     if (selectedC) {
       resolvedCasinoName = selectedC.name
-      resolvedLinkUrl = isMasterUser && selectedC.lien_affilie
-        ? selectedC.lien_affilie
-        : (typeof window !== 'undefined' ? `${window.location.origin}/go/${selectedC.slug}?ref=${affiliateCode}` : `/go/${selectedC.slug}?ref=${affiliateCode}`)
+      resolvedLinkUrl = typeof window !== 'undefined' ? `${window.location.origin}/go/${selectedC.slug}?ref=${affiliateCode}` : `/go/${selectedC.slug}?ref=${affiliateCode}`
       resolvedMinDepot = selectedC.minimum_depot || "10€"
       resolvedBonusSansDepot = selectedC.bonus_sans_depot || "10€ sans dépôt"
       resolvedBonusDepot = selectedC.bonus_depot || "100% jusqu'à 500€"
@@ -250,10 +248,10 @@ export default function DashboardPage() {
           setIbanForm(prev => ({ ...prev, holder: profile.full_name }))
         }
 
-        // Load Clicks (using casino_slug from schema)
+        // Load Clicks (select both casino_id and casino_slug for backward compatibility)
         const { data: clicks, error: clicksErr } = await supabase
           .from('casino_clicks')
-          .select('casino_slug, created_at')
+          .select('casino_id, casino_slug, created_at')
           .eq('affiliate_id', affData.id)
         
         if (clicksErr) console.error('Error loading dashboard clicks:', clicksErr)
@@ -341,7 +339,12 @@ export default function DashboardPage() {
     // Process Clicks counts by casino
     const counts: Record<string, number> = {}
     filteredClicks.forEach(c => {
-      const slug = c.casino_slug || 'autre'
+      let slug = c.casino_slug
+      if (!slug && c.casino_id) {
+        const casino = casinosList?.find((cas: any) => cas.id === c.casino_id)
+        slug = casino ? casino.slug : 'autre'
+      }
+      if (!slug) slug = 'autre'
       counts[slug] = (counts[slug] || 0) + 1
     })
     setClicksData(counts)
@@ -1366,10 +1369,8 @@ export default function DashboardPage() {
             {casinosList.length === 0 ? (
               <p className="text-slate-400 text-sm">Chargement de vos liens ou aucun casino disponible...</p>
             ) : casinosList.map((casino) => {
-              // URL Tracking interne (Redirection dynamique) ou Lien Maître direct pour Gabin
-              const linkUrl = isMasterUser && casino.lien_affilie
-                ? casino.lien_affilie
-                : `${window.location.origin}/go/${casino.slug}?ref=${affiliateCode}`
+              // URL Tracking interne (Redirection dynamique avec ref parrain)
+              const linkUrl = `${window.location.origin}/go/${casino.slug}?ref=${affiliateCode}`
               const clickCount = clicksData[casino.slug] || 0
 
               return (

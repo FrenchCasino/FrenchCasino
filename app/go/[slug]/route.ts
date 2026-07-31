@@ -96,9 +96,10 @@ export async function GET(
           if (affiliateId) {
             ipCache.set(cacheKey, Date.now())
             
-            // Enregistrer le clic dans la nouvelle table de tracking
+            // Enregistrer le clic dans la table de tracking (avec casino_id ET casino_slug)
             const { error: insertError } = await supabase.from('casino_clicks').insert({
               affiliate_id: affiliateId,
+              casino_id: casino.id,
               casino_slug: casino.slug,
             })
 

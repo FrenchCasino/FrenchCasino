@@ -368,10 +368,10 @@ export default function AdminDashboardPage() {
     async function fetchAffStats() {
       setSelectedAffStats({ loading: true, totalClicks: 0, conversionRate: 0, clicksByCasino: {}, recentCommissions: [] })
       
-      // casino_clicks table uses casino_slug (not casino_id)
+      // Query both casino_id and casino_slug for backward compatibility
       const { data: clicksData, error: clicksErr } = await supabase
         .from('casino_clicks')
-        .select('casino_slug')
+        .select('casino_id, casino_slug')
         .eq('affiliate_id', selectedAff.id)
 
       if (clicksErr) console.error('Error loading clicks:', clicksErr)
@@ -394,9 +394,9 @@ export default function AdminDashboardPage() {
 
       const statsByCasino: Record<string, { clicks: number, commissions: number }> = {}
       
-      // Use casino_slug directly (no casino_id lookup needed)
+      // Safely map clicks by slug or casino_id
       clicks.forEach(c => {
-        const slug = c.casino_slug || 'inconnu'
+        const slug = c.casino_slug || c.casino_id || 'inconnu'
         if (!statsByCasino[slug]) statsByCasino[slug] = { clicks: 0, commissions: 0 }
         statsByCasino[slug].clicks += 1
       })
