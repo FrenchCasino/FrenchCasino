@@ -38,6 +38,24 @@ export default function RootLayout({
   return (
     <html lang="fr" className="dark">
       <body className="bg-background text-slate-100 min-h-screen flex flex-col antialiased selection:bg-primary/40 selection:text-white">
+        {/* Subtle Animated Casino Background */}
+        <div className="casino-bg-container">
+          <div className="casino-glow-overlay" />
+          
+          {/* Drifting Card Suit Symbols (Subtle & Flouted) */}
+          <div className="floating-suit top-[10%] left-[5%]" style={{ animationDelay: '0s' }}>♠</div>
+          <div className="floating-suit top-[60%] right-[8%]" style={{ animationDelay: '-10s' }}>♦</div>
+          <div className="floating-suit top-[40%] left-[80%]" style={{ animationDelay: '-20s' }}>♥</div>
+          <div className="floating-suit top-[85%] left-[25%]" style={{ animationDelay: '-30s' }}>♣</div>
+
+          {/* Slow rising gold dust particles */}
+          <div className="gold-dust left-[15%]" style={{ animationDelay: '0s', animationDuration: '28s' }} />
+          <div className="gold-dust left-[45%]" style={{ animationDelay: '-5s', animationDuration: '32s' }} />
+          <div className="gold-dust left-[75%]" style={{ animationDelay: '-12s', animationDuration: '24s' }} />
+          <div className="gold-dust left-[90%]" style={{ animationDelay: '-18s', animationDuration: '30s' }} />
+          <div className="gold-dust left-[30%]" style={{ animationDelay: '-8s', animationDuration: '26s' }} />
+        </div>
+
         <Header />
         <main className="flex-1">
           {children}
