@@ -137,7 +137,7 @@ export default function RecruiterDashboard() {
           montant,
           created_at,
           affiliates (
-            profiles (
+            profiles!affiliates_id_fkey (
               full_name
             )
           )

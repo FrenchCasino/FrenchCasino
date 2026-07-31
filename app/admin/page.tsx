@@ -272,7 +272,7 @@ export default function AdminDashboardPage() {
           *,
           affiliates (
             iban,
-            profiles (
+            profiles!affiliates_id_fkey (
               full_name,
               email
             )
@@ -307,7 +307,7 @@ export default function AdminDashboardPage() {
         .select(`
           *,
           affiliates (
-            profiles (
+            profiles!affiliates_id_fkey (
               full_name,
               email
             )
@@ -324,7 +324,7 @@ export default function AdminDashboardPage() {
         .select(`
           *,
           affiliates (
-            profiles (
+            profiles!affiliates_id_fkey (
               full_name,
               email
             )
