@@ -368,21 +368,21 @@ export default function AdminDashboardPage() {
     async function fetchAffStats() {
       setSelectedAffStats({ loading: true, totalClicks: 0, conversionRate: 0, clicksByCasino: {}, recentCommissions: [] })
       
-      const { data: clicksData } = await supabase
+      // casino_clicks table uses casino_slug (not casino_id)
+      const { data: clicksData, error: clicksErr } = await supabase
         .from('casino_clicks')
-        .select('casino_id')
+        .select('casino_slug')
         .eq('affiliate_id', selectedAff.id)
 
-      const { data: commsData } = await supabase
+      if (clicksErr) console.error('Error loading clicks:', clicksErr)
+
+      const { data: commsData, error: commsErr } = await supabase
         .from('commissions')
         .select('*')
         .eq('affiliate_id', selectedAff.id)
         .order('created_at', { ascending: false })
 
-      // Fetch casinos to map casino_id -> slug
-      const { data: casData } = await supabase
-        .from('casinos')
-        .select('id, slug, name')
+      if (commsErr) console.error('Error loading commissions:', commsErr)
       
       const clicks = clicksData || []
       const comms = commsData || []
@@ -394,9 +394,9 @@ export default function AdminDashboardPage() {
 
       const statsByCasino: Record<string, { clicks: number, commissions: number }> = {}
       
+      // Use casino_slug directly (no casino_id lookup needed)
       clicks.forEach(c => {
-        const cas = casData?.find((cas: any) => cas.id === c.casino_id)
-        const slug = cas ? cas.slug : c.casino_id
+        const slug = c.casino_slug || 'inconnu'
         if (!statsByCasino[slug]) statsByCasino[slug] = { clicks: 0, commissions: 0 }
         statsByCasino[slug].clicks += 1
       })
@@ -418,6 +418,7 @@ export default function AdminDashboardPage() {
 
     fetchAffStats()
   }, [selectedAff])
+
 
   const [isAdminMessageSaving, setIsAdminMessageSaving] = useState(false)
 
