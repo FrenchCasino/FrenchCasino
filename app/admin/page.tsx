@@ -263,8 +263,25 @@ export default function AdminDashboardPage() {
       if (recData) setRecruiters(recData)
   
       
+      // Load all clicks count per affiliate
+      const { data: allClicks } = await supabase.from('casino_clicks').select('affiliate_id')
+      const clickCountsByAff: Record<string, number> = {}
+      if (allClicks) {
+        allClicks.forEach((c: any) => {
+          if (c.affiliate_id) {
+            clickCountsByAff[c.affiliate_id] = (clickCountsByAff[c.affiliate_id] || 0) + 1
+          }
+        })
+      }
+
       if (affErr) console.error("Error loading affiliates:", affErr)
-      else setAffiliates(affData || [])
+      else {
+        const enrichedAffs = (affData || []).map((a: any) => ({
+          ...a,
+          total_clicks: clickCountsByAff[a.id] || 0
+        }))
+        setAffiliates(enrichedAffs)
+      }
 
       // Load Payouts with Affiliate Profile Info
       const { data: payData, error: payErr } = await supabase
@@ -1583,8 +1600,12 @@ export default function AdminDashboardPage() {
                         </div>
                       </div>
 
-                      {/* Status badge + earnings + info button */}
+                      {/* Status badge + click count + earnings + info button */}
                       <div className="flex items-center gap-3 shrink-0">
+                        <span className="px-2.5 py-1 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-300 font-mono text-xs font-bold flex items-center gap-1.5" title="Nombre total de clics enregistrés">
+                          <span>🖱️</span>
+                          <span>{aff.total_clicks || 0} clics</span>
+                        </span>
                         <span className="font-mono text-xs font-bold text-gold hidden sm:block">{(Number(aff.total_earned) || 0).toLocaleString()} €</span>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                           aff.status === 'active' ? 'bg-emerald/20 text-emerald border border-emerald/30' :
@@ -1595,10 +1616,11 @@ export default function AdminDashboardPage() {
                         </span>
                         <button
                           onClick={() => setSelectedAff(aff)}
-                          className="p-2 rounded-xl bg-slate-800 hover:bg-primary/20 border border-slate-700 hover:border-primary/40 text-slate-400 hover:text-primary transition-all"
-                          title="Voir les informations"
+                          className="p-2 rounded-xl bg-slate-800 hover:bg-primary/20 border border-slate-700 hover:border-primary/40 text-slate-400 hover:text-primary transition-all flex items-center gap-1 text-xs font-semibold"
+                          title="Voir les détails et statistiques"
                         >
                           <Eye className="w-4 h-4" />
+                          <span className="hidden md:inline">Détails</span>
                         </button>
                       </div>
                     </div>
