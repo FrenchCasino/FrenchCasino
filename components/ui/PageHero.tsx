@@ -16,7 +16,7 @@ export function PageHero({
   children
 }: PageHeroProps) {
   return (
-    <section className="relative pt-12 pb-20 overflow-hidden bg-gradient-hero border-b border-surface-border/50 w-full mb-12">
+    <section className="relative pt-12 pb-20 overflow-hidden border-b border-surface-border/30 w-full mb-12">
       
       {/* Glow Spheres en fond */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
