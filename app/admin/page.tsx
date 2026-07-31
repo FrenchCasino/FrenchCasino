@@ -210,6 +210,7 @@ export default function AdminDashboardPage() {
   const [adminNoteInput, setAdminNoteInput] = useState('')
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null)
   const [isSubmittingAdminRefund, setIsSubmittingAdminRefund] = useState(false)
+  const [viewedTabs, setViewedTabs] = useState<Record<string, boolean>>({})
   
   // Telegram State
   const [telegramMessage, setTelegramMessage] = useState('')
@@ -534,6 +535,15 @@ export default function AdminDashboardPage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const hasPendingAction = (tabId: string) => {
+    if (viewedTabs[tabId]) return false
+    if (tabId === 'affiliates') return affiliates.some(a => a.status === 'pending')
+    if (tabId === 'payouts') return payouts.some(p => p.statut === 'pending')
+    if (tabId === 'refunds') return refundRequests.some(r => r.status === 'pending')
+    if (tabId === 'support') return tickets.some(t => t.statut === 'open')
+    return false
   }
 
   const handleApproveRefund = async (req: any) => {
@@ -1325,24 +1335,28 @@ export default function AdminDashboardPage() {
           ].map(tab => {
             const Icon = tab.icon
             const active = adminTab === tab.id
+            const pending = hasPendingAction(tab.id)
             return (
               <button
                 key={tab.id}
-                onClick={() => setAdminTab(tab.id as any)}
+                onClick={() => {
+                  setAdminTab(tab.id as any)
+                  setViewedTabs(prev => ({ ...prev, [tab.id]: true }))
+                }}
                 className={`px-4 py-3.5 rounded-xl text-xs font-bold tracking-wider uppercase transition-all flex items-center gap-3 w-full text-left relative ${
                   active
                     ? 'bg-gradient-to-r from-purple-600 to-primary text-white shadow-purple-glow font-bold scale-[1.02]'
-                    : tab.id === 'support' && kpi.openTickets > 0
-                      ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 border border-amber-900/50'
+                    : pending
+                      ? 'text-red-400 hover:text-red-300 hover:bg-red-950/30 border border-red-900/50 animate-pulse'
                       : 'text-slate-400 hover:text-white hover:bg-surface-card border border-transparent hover:border-slate-800'
                 }`}
               >
                 <Icon className="w-4 h-4" />
                 <span>{tab.label}</span>
-                {tab.id === 'support' && kpi.openTickets > 0 && (
-                  <span className="absolute right-4 flex h-3 w-3">
+                {pending && (
+                  <span className="absolute right-4 flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                   </span>
                 )}
               </button>
