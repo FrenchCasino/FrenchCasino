@@ -1316,12 +1316,16 @@ export default function AdminDashboardPage() {
                 <tbody className="divide-y divide-slate-800/50">
                   {Object.entries(selectedAffStats.clicksByCasino)
                     .sort((a, b) => b[1].clicks - a[1].clicks)
-                    .map(([casinoId, stats]) => {
-                      const casino = casinos.find(c => c.id === casinoId)
+                    .map(([key, stats]) => {
+                      const casino = casinos.find(c => c.slug === key || c.id === key)
+                      const displayName = casino ? casino.name : (key.charAt(0).toUpperCase() + key.slice(1).replace(/-/g, ' '))
                       return (
-                        <tr key={casinoId} className="hover:bg-slate-800/10 transition-colors">
-                          <td className="px-6 py-3 text-sm text-white font-medium">{casino ? casino.name : casinoId}</td>
-                          <td className="px-6 py-3 text-sm text-slate-300 font-mono text-center">{stats.clicks}</td>
+                        <tr key={key} className="hover:bg-slate-800/10 transition-colors">
+                          <td className="px-6 py-3 text-sm text-white font-medium flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-purple-400"></span>
+                            <span>{displayName}</span>
+                          </td>
+                          <td className="px-6 py-3 text-sm text-slate-300 font-mono text-center font-bold">{stats.clicks}</td>
                           <td className="px-6 py-3 text-sm text-emerald font-mono text-center font-bold">{stats.commissions}</td>
                         </tr>
                       )
