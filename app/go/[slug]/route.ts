@@ -61,12 +61,37 @@ export async function GET(
 
         // On loggue uniquement si pas de clic récent (IP) ET pas de cookie
         if (!hasClickedCookie && (!lastClick || Date.now() - lastClick > MIN_DELAY)) {
-          // Appeler la fonction RPC pour contourner la RLS et récupérer l'ID
-          const { data: affiliateId, error: rpcError } = await supabase.rpc('get_affiliate_id_by_ref', {
-            p_ref: refCode
-          })
+          // Appeler la fonction RPC ou faire un select direct en fallback pour contourner les problèmes d'existence du RPC
+          let affiliateId: string | null = null;
+          
+          try {
+            const { data, error: rpcError } = await supabase.rpc('get_affiliate_id_by_ref', {
+              p_ref: refCode
+            })
+            if (!rpcError && data) {
+              affiliateId = data;
+            }
+          } catch (rpcErr) {
+            console.log('[TRACKING] RPC get_affiliate_id_by_ref not available, using fallback select.')
+          }
 
-          console.log(`[TRACKING] RPC Result:`, { affiliateId, rpcError })
+          if (!affiliateId) {
+            // Fallback Select direct
+            const { data: affSelect, error: selectErr } = await supabase
+              .from('affiliates')
+              .select('id')
+              .or(`referral_code.eq.${refCode},referral_code.eq.FR-${refCode}`)
+              .limit(1)
+              .maybeSingle()
+
+            if (selectErr) {
+              console.error('[TRACKING] Fallback select error:', selectErr)
+            } else if (affSelect) {
+              affiliateId = affSelect.id
+            }
+          }
+
+          console.log(`[TRACKING] Resolved Affiliate ID: ${affiliateId}`)
 
           if (affiliateId) {
             ipCache.set(cacheKey, Date.now())
