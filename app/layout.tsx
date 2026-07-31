@@ -42,18 +42,18 @@ export default function RootLayout({
         <div className="casino-bg-container">
           <div className="casino-glow-overlay" />
           
-          {/* Drifting Card Suit Symbols (Subtle & Flouted) */}
-          <div className="floating-suit top-[10%] left-[5%]" style={{ animationDelay: '0s' }}>♠</div>
-          <div className="floating-suit top-[60%] right-[8%]" style={{ animationDelay: '-10s' }}>♦</div>
-          <div className="floating-suit top-[40%] left-[80%]" style={{ animationDelay: '-20s' }}>♥</div>
-          <div className="floating-suit top-[85%] left-[25%]" style={{ animationDelay: '-30s' }}>♣</div>
+          {/* Drifting Card Suit Symbols */}
+          <div className="floating-suit top-[10%] left-[5%]" style={{ animationDelay: '0s', animationDuration: '10s' }}>♠</div>
+          <div className="floating-suit top-[60%] right-[8%]" style={{ animationDelay: '-3s', animationDuration: '13s' }}>♦</div>
+          <div className="floating-suit top-[40%] left-[80%]" style={{ animationDelay: '-6s', animationDuration: '11s' }}>♥</div>
+          <div className="floating-suit top-[85%] left-[25%]" style={{ animationDelay: '-8s', animationDuration: '14s' }}>♣</div>
 
           {/* Slow rising gold dust particles */}
-          <div className="gold-dust left-[15%]" style={{ animationDelay: '0s', animationDuration: '28s' }} />
-          <div className="gold-dust left-[45%]" style={{ animationDelay: '-5s', animationDuration: '32s' }} />
-          <div className="gold-dust left-[75%]" style={{ animationDelay: '-12s', animationDuration: '24s' }} />
-          <div className="gold-dust left-[90%]" style={{ animationDelay: '-18s', animationDuration: '30s' }} />
-          <div className="gold-dust left-[30%]" style={{ animationDelay: '-8s', animationDuration: '26s' }} />
+          <div className="gold-dust left-[15%]" style={{ animationDelay: '0s', animationDuration: '8s' }} />
+          <div className="gold-dust left-[45%]" style={{ animationDelay: '-2s', animationDuration: '10s' }} />
+          <div className="gold-dust left-[75%]" style={{ animationDelay: '-4s', animationDuration: '7s' }} />
+          <div className="gold-dust left-[90%]" style={{ animationDelay: '-6s', animationDuration: '11s' }} />
+          <div className="gold-dust left-[30%]" style={{ animationDelay: '-3s', animationDuration: '9s' }} />
         </div>
 
         <Header />
