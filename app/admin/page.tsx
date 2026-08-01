@@ -411,6 +411,7 @@ export default function AdminDashboardPage() {
       if (!selectedAff?.id) return;
       setSelectedAffStats({ loading: true, totalClicks: 0, conversionRate: 0, clicksByCasino: {}, recentCommissions: [] })
       
+      try {
         let clicksData = []
         try {
           const res = await fetch(`/api/admin/clicks?affiliate_id=${selectedAff.id}`)
@@ -429,8 +430,8 @@ export default function AdminDashboardPage() {
 
         if (commsErr) console.error('Error loading commissions:', commsErr)
         
-        const clicks = clicksData || []
-        const comms = commsData || []
+        const clicks: any[] = clicksData || []
+        const comms: any[] = commsData || []
 
         const totalClicks = clicks.length
         const validComms = comms.filter(c => c.statut === 'validated' || c.statut === 'paid')
@@ -439,7 +440,7 @@ export default function AdminDashboardPage() {
 
         const statsByCasino: Record<string, { clicks: number, commissions: number }> = {}
         
-        clicks.forEach(c => {
+        clicks.forEach((c: any) => {
           const slug = c.casino_slug || c.casino_id || 'général'
           if (!statsByCasino[slug]) statsByCasino[slug] = { clicks: 0, commissions: 0 }
           statsByCasino[slug].clicks += 1
