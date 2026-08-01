@@ -269,11 +269,15 @@ export default function AdminDashboardPage() {
   
       
       // Load all clicks count and detailed breakdown per affiliate
-      const { data: allClicks } = await supabase.from('casino_clicks').select('affiliate_id, casino_id, casino_slug')
+      const { data: allClicks, error: clicksFetchErr } = await supabase.from('casino_clicks').select('affiliate_id, casino_id, casino_slug')
+      if (clicksFetchErr) {
+        console.error('[ADMIN] Error fetching casino_clicks:', clicksFetchErr)
+      }
+      
       const clickCountsByAff: Record<string, number> = {}
       const breakdownByAff: Record<string, Record<string, number>> = {}
 
-      if (allClicks) {
+      if (allClicks && allClicks.length > 0) {
         allClicks.forEach((c: any) => {
           if (c.affiliate_id) {
             clickCountsByAff[c.affiliate_id] = (clickCountsByAff[c.affiliate_id] || 0) + 1

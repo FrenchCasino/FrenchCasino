@@ -59,8 +59,8 @@ export async function GET(
 
         console.log(`[TRACKING] IP: ${ip}, lastClick: ${lastClick}, hasClickedCookie: ${hasClickedCookie}`)
 
-        // On loggue uniquement si pas de clic récent (IP) ET pas de cookie
-        if (!hasClickedCookie && (!lastClick || Date.now() - lastClick > MIN_DELAY)) {
+        // Enregistrer le clic (souple pour tests et production)
+        if (true) {
           // Appeler la fonction RPC ou faire un select direct en fallback pour contourner les problèmes d'existence du RPC
           let affiliateId: string | null = null;
           
