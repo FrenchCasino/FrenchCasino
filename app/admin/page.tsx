@@ -1685,9 +1685,10 @@ export default function AdminDashboardPage() {
 
                             {/* Total Clicks */}
                             <td className="px-4 py-3 text-center">
-                              <span className="font-mono text-sm font-extrabold text-purple-300 bg-purple-500/10 px-3 py-1 rounded-lg border border-purple-500/20">
-                                🖱️ {totalClicks}
-                              </span>
+                              <div className="inline-flex items-center gap-1.5 font-mono text-[13px] font-bold text-purple-200 bg-purple-900/30 px-2.5 py-1 rounded-md border border-purple-500/30 shadow-inner">
+                                <span className="text-base opacity-80 leading-none">🖱️</span>
+                                <span className="leading-none mt-0.5">{totalClicks}</span>
+                              </div>
                             </td>
 
                             {/* Detailed Breakdown per Casino */}
@@ -1698,10 +1699,10 @@ export default function AdminDashboardPage() {
                                     const casino = casinos.find(c => c.slug === casinoKey || c.id === casinoKey)
                                     const name = casino ? casino.name : (casinoKey.charAt(0).toUpperCase() + casinoKey.slice(1).replace(/-/g, ' '))
                                     return (
-                                      <span key={casinoKey} className="text-[10px] bg-slate-900 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded font-mono flex items-center gap-1">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-gold"></span>
-                                        <span className="font-semibold">{name}:</span>
-                                        <span className="font-bold text-gold">{count as number}</span>
+                                      <span key={casinoKey} className="inline-flex items-center gap-1.5 bg-[#0f0f17] border border-slate-700/60 text-slate-300 px-2 py-1 rounded-md text-[10px] font-medium shadow-sm">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 shadow-[0_0_4px_rgba(52,211,153,0.5)]"></span>
+                                        <span className="opacity-90 leading-none">{name}</span>
+                                        <span className="bg-slate-800 text-gold font-bold font-mono px-1.5 py-0.5 rounded text-[9px] leading-none">{count as number}</span>
                                       </span>
                                     )
                                   })}
