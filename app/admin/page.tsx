@@ -413,20 +413,20 @@ export default function AdminDashboardPage() {
         const statsByCasino: Record<string, { clicks: number, commissions: number }> = {}
         
         clicks.forEach(c => {
-          const slug = c.casino_slug || c.casino_id || 'inconnu'
+          const slug = c.casino_slug || c.casino_id || 'général'
           if (!statsByCasino[slug]) statsByCasino[slug] = { clicks: 0, commissions: 0 }
           statsByCasino[slug].clicks += 1
         })
 
         validComms.forEach(c => {
-          const key = c.casino_slug || c.casino_name || 'Inconnu'
+          const key = c.casino_slug || c.casino_name || 'général'
           if (!statsByCasino[key]) statsByCasino[key] = { clicks: 0, commissions: 0 }
           statsByCasino[key].commissions += 1
         })
 
         setSelectedAffStats({
           loading: false,
-          totalClicks,
+          totalClicks: clicks.length,
           conversionRate,
           clicksByCasino: statsByCasino,
           recentCommissions: comms.slice(0, 5)
