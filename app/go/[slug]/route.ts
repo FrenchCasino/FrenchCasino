@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 
 // Simple in-memory cache to prevent basic bot spam per instance
 const ipCache = new Map<string, number>()
-const MIN_DELAY = 1000 * 60 * 10 // 10 minutes
 
 export async function GET(
   request: Request,
@@ -14,16 +12,12 @@ export async function GET(
   const slug = params.slug
   const refCode = url.searchParams.get('ref')
 
-  const cookieStore = cookies()
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://pxbngvmnfsxvbmvxnbsq.supabase.co'
   const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value
-      },
-    },
+  // Client Supabase pur (évite les restrictions RLS des requêtes client anonymes)
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+    auth: { persistSession: false }
   })
 
   try {
@@ -54,12 +48,22 @@ export async function GET(
         console.log(`[TRACKING] Processing click for ref: ${refCode}, slug: ${slug}`)
         
         // Trouver l'affilié et insérer le clic via Supabase Direct Admin
-        const { data: affSelect } = await supabase
+        const cleanRef = refCode.trim()
+        let { data: affSelect } = await supabase
           .from('affiliates')
           .select('id')
-          .or(`referral_code.ilike.${refCode},referral_code.ilike.FR-${refCode},referral_code.ilike.%${refCode}%`)
-          .limit(1)
+          .eq('referral_code', cleanRef)
           .maybeSingle()
+
+        if (!affSelect) {
+          const { data: affSelectFallback } = await supabase
+            .from('affiliates')
+            .select('id')
+            .or(`referral_code.ilike.${cleanRef},referral_code.ilike.FR-${cleanRef}`)
+            .limit(1)
+            .maybeSingle()
+          affSelect = affSelectFallback
+        }
 
         if (affSelect) {
           const { error: insertError } = await supabase.from('casino_clicks').insert({
@@ -67,9 +71,9 @@ export async function GET(
             casino_id: casino.id,
             casino_slug: casino.slug,
           })
-          console.log(`[TRACKING] Direct Insert Result:`, { insertError })
+          console.log(`[TRACKING] Direct Insert Result for aff ${affSelect.id}:`, { insertError })
         } else {
-          console.log(`[TRACKING] Affiliate NOT FOUND for ref: ${refCode}`)
+          console.log(`[TRACKING] Affiliate NOT FOUND for ref: ${cleanRef}`)
         }
       } catch (trackErr) {
         console.error('[TRACKING ERROR] Failed to log click:', trackErr)
