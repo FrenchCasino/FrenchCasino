@@ -32,7 +32,7 @@ export async function GET(request: Request) {
 
   // Utiliser le client admin pour récupérer les clics de CET affilié seulement
   const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
-  const { data, error } = await adminClient.from('casino_clicks').select('casino_id, casino_slug, created_at').eq('affiliate_id', user.id)
+  const { data, error } = await adminClient.from('casino_clicks').select('casino_id, created_at').eq('affiliate_id', user.id)
   
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data || [])

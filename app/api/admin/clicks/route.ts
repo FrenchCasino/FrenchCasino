@@ -38,7 +38,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url)
   const affiliateId = url.searchParams.get('affiliate_id')
 
-  let query = adminClient.from('casino_clicks').select('affiliate_id, casino_id, casino_slug, created_at')
+  let query = adminClient.from('casino_clicks').select('affiliate_id, casino_id, created_at')
   if (affiliateId) {
     query = query.eq('affiliate_id', affiliateId)
   }
