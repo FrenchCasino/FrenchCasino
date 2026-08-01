@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LogOut, Globe } from 'lucide-react'
+import { LogOut, Globe, Shield, Users } from 'lucide-react'
 
 export default function DashboardLayout({
   children,
@@ -53,6 +53,22 @@ export default function DashboardLayout({
             <span className="text-[11px] text-slate-400 font-medium">Statut Réseau :</span>
             <span className="text-sm font-bold font-mono text-gradient-gold">Actif</span>
           </div>
+
+          <Link
+            href="/admin"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-300 hover:text-white bg-red-900/30 border border-red-800 transition-colors"
+          >
+            <Shield className="w-3.5 h-3.5" />
+            <span>Admin</span>
+          </Link>
+
+          <Link
+            href="/recruiter"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-300 hover:text-white bg-amber-900/30 border border-amber-800 transition-colors"
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Recruteur</span>
+          </Link>
 
           {/* Return to Public Website */}
           <Link

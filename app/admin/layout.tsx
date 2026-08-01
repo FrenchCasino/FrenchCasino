@@ -4,7 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LogOut, Globe } from 'lucide-react'
+import { LogOut, Globe, Users, LayoutDashboard } from 'lucide-react'
 
 export default function AdminLayout({
   children,
@@ -38,8 +38,24 @@ export default function AdminLayout({
 
         <div className="flex items-center gap-3">
           <Link
+            href="/dashboard"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-purple-300 hover:text-white bg-purple-900/30 border border-purple-800 transition-colors"
+          >
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            <span>Affilié</span>
+          </Link>
+
+          <Link
+            href="/recruiter"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-300 hover:text-white bg-amber-900/30 border border-amber-800 transition-colors"
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Recruteur</span>
+          </Link>
+
+          <Link
             href="/"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 transition-colors"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 transition-colors"
           >
             <Globe className="w-3.5 h-3.5" />
             <span>Site Vitrine</span>
