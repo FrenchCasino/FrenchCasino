@@ -383,58 +383,68 @@ export default function AdminDashboardPage() {
     }
 
     async function fetchAffStats() {
+      if (!selectedAff?.id) return;
       setSelectedAffStats({ loading: true, totalClicks: 0, conversionRate: 0, clicksByCasino: {}, recentCommissions: [] })
       
-      // Query both casino_id and casino_slug for backward compatibility
-      const { data: clicksData, error: clicksErr } = await supabase
-        .from('casino_clicks')
-        .select('casino_id, casino_slug')
-        .eq('affiliate_id', selectedAff.id)
+      try {
+        const { data: clicksData, error: clicksErr } = await supabase
+          .from('casino_clicks')
+          .select('casino_id, casino_slug')
+          .eq('affiliate_id', selectedAff.id)
 
-      if (clicksErr) console.error('Error loading clicks:', clicksErr)
+        if (clicksErr) console.error('Error loading clicks:', clicksErr)
 
-      const { data: commsData, error: commsErr } = await supabase
-        .from('commissions')
-        .select('*')
-        .eq('affiliate_id', selectedAff.id)
-        .order('created_at', { ascending: false })
+        const { data: commsData, error: commsErr } = await supabase
+          .from('commissions')
+          .select('*')
+          .eq('affiliate_id', selectedAff.id)
+          .order('created_at', { ascending: false })
 
-      if (commsErr) console.error('Error loading commissions:', commsErr)
-      
-      const clicks = clicksData || []
-      const comms = commsData || []
+        if (commsErr) console.error('Error loading commissions:', commsErr)
+        
+        const clicks = clicksData || []
+        const comms = commsData || []
 
-      const totalClicks = clicks.length
-      const validComms = comms.filter(c => c.statut === 'validated' || c.statut === 'paid')
-      const totalConversions = validComms.length
-      const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
+        const totalClicks = clicks.length
+        const validComms = comms.filter(c => c.statut === 'validated' || c.statut === 'paid')
+        const totalConversions = validComms.length
+        const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
 
-      const statsByCasino: Record<string, { clicks: number, commissions: number }> = {}
-      
-      // Safely map clicks by slug or casino_id
-      clicks.forEach(c => {
-        const slug = c.casino_slug || c.casino_id || 'inconnu'
-        if (!statsByCasino[slug]) statsByCasino[slug] = { clicks: 0, commissions: 0 }
-        statsByCasino[slug].clicks += 1
-      })
+        const statsByCasino: Record<string, { clicks: number, commissions: number }> = {}
+        
+        clicks.forEach(c => {
+          const slug = c.casino_slug || c.casino_id || 'inconnu'
+          if (!statsByCasino[slug]) statsByCasino[slug] = { clicks: 0, commissions: 0 }
+          statsByCasino[slug].clicks += 1
+        })
 
-      validComms.forEach(c => {
-        const key = c.casino_slug || c.casino_name || 'Inconnu'
-        if (!statsByCasino[key]) statsByCasino[key] = { clicks: 0, commissions: 0 }
-        statsByCasino[key].commissions += 1
-      })
+        validComms.forEach(c => {
+          const key = c.casino_slug || c.casino_name || 'Inconnu'
+          if (!statsByCasino[key]) statsByCasino[key] = { clicks: 0, commissions: 0 }
+          statsByCasino[key].commissions += 1
+        })
 
-      setSelectedAffStats({
-        loading: false,
-        totalClicks,
-        conversionRate,
-        clicksByCasino: statsByCasino,
-        recentCommissions: comms.slice(0, 5)
-      })
+        setSelectedAffStats({
+          loading: false,
+          totalClicks,
+          conversionRate,
+          clicksByCasino: statsByCasino,
+          recentCommissions: comms.slice(0, 5)
+        })
+      } catch (err) {
+        console.error('Error in fetchAffStats:', err)
+        setSelectedAffStats({
+          loading: false,
+          totalClicks: 0,
+          conversionRate: 0,
+          clicksByCasino: {},
+          recentCommissions: []
+        })
+      }
     }
 
     fetchAffStats()
-  }, [selectedAff])
+  }, [selectedAff?.id])
 
 
   const [isAdminMessageSaving, setIsAdminMessageSaving] = useState(false)
