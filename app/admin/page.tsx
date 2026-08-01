@@ -524,26 +524,33 @@ export default function AdminDashboardPage() {
   }
 
   const handleDeleteAffiliate = async (id: string) => {
-    requestConfirm('Êtes-vous sûr de vouloir supprimer DÉFINITIVEMENT cet affilié ? Toutes ses données, clics et commissions seront perdus à jamais.', async () => {
-      try {
-        toast.loading('Suppression en cours...')
-        const res = await fetch(`/api/admin/affiliates/${id}`, { method: 'DELETE' })
-        
-        if (!res.ok) {
-          const data = await res.json()
-          throw new Error(data.error || 'Erreur lors de la suppression')
-        }
-        
-        toast.dismiss()
-        toast.success('Affilié et toutes ses données supprimés avec succès')
-        setAffiliates(affiliates.filter(a => a.id !== id))
-        setSelectedAff(null)
-        loadData()
-      } catch (err: any) {
-        toast.dismiss()
-        toast.error(err.message || 'Erreur lors de la suppression')
-      }
+    const ok = await confirm({
+      title: 'Suppression Définitive',
+      message: 'Êtes-vous sûr de vouloir supprimer DÉFINITIVEMENT cet affilié ? Toutes ses données, clics et commissions seront perdus à jamais.',
+      confirmLabel: 'Supprimer définitivement',
+      cancelLabel: 'Annuler'
     })
+    
+    if (!ok) return
+    
+    try {
+      toast.loading('Suppression en cours...')
+      const res = await fetch(`/api/admin/affiliates/${id}`, { method: 'DELETE' })
+      
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Erreur lors de la suppression')
+      }
+      
+      toast.dismiss()
+      toast.success('Affilié et toutes ses données supprimés avec succès')
+      setAffiliates(affiliates.filter(a => a.id !== id))
+      setSelectedAff(null)
+      loadData()
+    } catch (err: any) {
+      toast.dismiss()
+      toast.error(err.message || 'Erreur lors de la suppression')
+    }
   }
 
 
