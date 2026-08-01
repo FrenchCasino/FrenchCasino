@@ -268,10 +268,17 @@ export default function AdminDashboardPage() {
       if (recData) setRecruiters(recData)
   
       
-      // Load all clicks count and detailed breakdown per affiliate
-      const { data: allClicks, error: clicksFetchErr } = await supabase.from('casino_clicks').select('affiliate_id, casino_id, casino_slug')
-      if (clicksFetchErr) {
-        console.error('[ADMIN] Error fetching casino_clicks:', clicksFetchErr)
+      // Load all clicks count and detailed breakdown per affiliate via API to bypass RLS restrictions
+      let allClicks = []
+      try {
+        const clicksRes = await fetch('/api/admin/clicks')
+        if (clicksRes.ok) {
+          allClicks = await clicksRes.json()
+        } else {
+          console.error('[ADMIN] Error fetching casino_clicks from API:', await clicksRes.text())
+        }
+      } catch (err) {
+        console.error('[ADMIN] Network error fetching clicks:', err)
       }
       
       const clickCountsByAff: Record<string, number> = {}
@@ -404,13 +411,15 @@ export default function AdminDashboardPage() {
       if (!selectedAff?.id) return;
       setSelectedAffStats({ loading: true, totalClicks: 0, conversionRate: 0, clicksByCasino: {}, recentCommissions: [] })
       
-      try {
-        const { data: clicksData, error: clicksErr } = await supabase
-          .from('casino_clicks')
-          .select('casino_id, casino_slug')
-          .eq('affiliate_id', selectedAff.id)
-
-        if (clicksErr) console.error('Error loading clicks:', clicksErr)
+        let clicksData = []
+        try {
+          const res = await fetch(`/api/admin/clicks?affiliate_id=${selectedAff.id}`)
+          if (res.ok) {
+            clicksData = await res.json()
+          }
+        } catch (err) {
+          console.error('Error loading clicks from API:', err)
+        }
 
         const { data: commsData, error: commsErr } = await supabase
           .from('commissions')

@@ -248,14 +248,19 @@ export default function DashboardPage() {
           setIbanForm(prev => ({ ...prev, holder: profile.full_name }))
         }
 
-        // Load Clicks (select both casino_id and casino_slug for backward compatibility)
-        const { data: clicks, error: clicksErr } = await supabase
-          .from('casino_clicks')
-          .select('casino_id, casino_slug, created_at')
-          .eq('affiliate_id', affData.id)
-        
-        if (clicksErr) console.error('Error loading dashboard clicks:', clicksErr)
-        if (clicks) setRawClicksList(clicks)
+        // Load Clicks via secure API to bypass RLS
+        let clicks = []
+        try {
+          const res = await fetch('/api/affiliate/clicks')
+          if (res.ok) {
+            clicks = await res.json()
+          } else {
+            console.error('Error loading dashboard clicks API:', await res.text())
+          }
+        } catch (err) {
+          console.error('Network error loading dashboard clicks:', err)
+        }
+        setRawClicksList(clicks)
 
         // Load Commissions
         const { data: comms } = await supabase
