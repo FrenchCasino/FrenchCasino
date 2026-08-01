@@ -63,10 +63,6 @@ export default async function GoPage({
 
   let finalLink = casino.lien_affilie
 
-  // 2. Ajouter les paramètres UTM pour forcer la paternité FrenchCasino
-  const utmSeparator = finalLink.includes('?') ? '&' : '?'
-  finalLink = `${finalLink}${utmSeparator}utm_source=frenchcasino&utm_medium=redirect&utm_campaign=affiliation`
-
   // 3. Traitement du code affilié pour les commissions
   if (refCode) {
     try {
