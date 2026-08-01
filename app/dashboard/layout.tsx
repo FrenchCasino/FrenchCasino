@@ -13,6 +13,26 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [role, setRole] = useState<string | null>(null)
+
+  React.useEffect(() => {
+    const fetchRole = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile) {
+          setRole(profile.role)
+        }
+      }
+    }
+    fetchRole()
+  }, [])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -54,21 +74,25 @@ export default function DashboardLayout({
             <span className="text-sm font-bold font-mono text-gradient-gold">Actif</span>
           </div>
 
-          <Link
-            href="/admin"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-300 hover:text-white bg-red-900/30 border border-red-800 transition-colors"
-          >
-            <Shield className="w-3.5 h-3.5" />
-            <span>Admin</span>
-          </Link>
+          {role === 'admin' && (
+            <Link
+              href="/admin"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-300 hover:text-white bg-red-900/30 border border-red-800 transition-colors"
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Admin</span>
+            </Link>
+          )}
 
-          <Link
-            href="/recruiter"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-300 hover:text-white bg-amber-900/30 border border-amber-800 transition-colors"
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>Recruteur</span>
-          </Link>
+          {(role === 'admin' || role === 'recruiter') && (
+            <Link
+              href="/recruiter"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-300 hover:text-white bg-amber-900/30 border border-amber-800 transition-colors"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Recruteur</span>
+            </Link>
+          )}
 
           {/* Return to Public Website */}
           <Link
