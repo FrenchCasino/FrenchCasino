@@ -1316,37 +1316,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {/* Stat summary card */}
-            {selectedAffStats && !selectedAffStats.loading && (
-              <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-                <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-purple-400" />
-                  Indicateurs de Performance
-                </h3>
-                <div className="grid grid-cols-2 gap-3 text-center">
-                  <div className="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
-                    <div className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">Clics</div>
-                    <div className="text-base font-bold font-mono text-white">{selectedAffStats.totalClicks}</div>
-                  </div>
-                  <div className="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
-                    <div className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">Taux Conv.</div>
-                    <div className="text-base font-bold font-mono text-gold">{selectedAffStats.conversionRate.toFixed(1)}%</div>
-                  </div>
-                  <div className="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
-                    <div className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">CPA Validés</div>
-                    <div className="text-base font-bold font-mono text-emerald">{Object.values(selectedAffStats.clicksByCasino).reduce((acc, c) => acc + c.commissions, 0)}</div>
-                  </div>
-                  <div className="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
-                    <div className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">Dernier CPA</div>
-                    <div className="text-xs font-bold font-mono text-white truncate pt-0.5">
-                      {selectedAffStats.recentCommissions.length > 0 
-                        ? new Date(selectedAffStats.recentCommissions[0].created_at).toLocaleDateString('fr-FR') 
-                        : '—'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+
           </div>
         </div>
       </div>
