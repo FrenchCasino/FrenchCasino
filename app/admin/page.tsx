@@ -126,6 +126,11 @@ export default function AdminDashboardPage() {
   const [casinos, setCasinos] = useState<any[]>([])
   const [tickets, setTickets] = useState<any[]>([])
   const [recruiters, setRecruiters] = useState<any[]>([])
+  
+  // KPI Live Filter & Breakdown State
+  const [selectedFilterAff1, setSelectedFilterAff1] = useState<string>('ALL')
+  const [selectedFilterAff2, setSelectedFilterAff2] = useState<string>('')
+  const [affClicksBreakdown, setAffClicksBreakdown] = useState<Record<string, Record<string, number>>>({})
 
   // Partenaires State & Modals
   const [partners, setPartners] = useState<any[]>([
@@ -263,16 +268,25 @@ export default function AdminDashboardPage() {
       if (recData) setRecruiters(recData)
   
       
-      // Load all clicks count per affiliate
-      const { data: allClicks } = await supabase.from('casino_clicks').select('affiliate_id')
+      // Load all clicks count and detailed breakdown per affiliate
+      const { data: allClicks } = await supabase.from('casino_clicks').select('affiliate_id, casino_id, casino_slug')
       const clickCountsByAff: Record<string, number> = {}
+      const breakdownByAff: Record<string, Record<string, number>> = {}
+
       if (allClicks) {
         allClicks.forEach((c: any) => {
           if (c.affiliate_id) {
             clickCountsByAff[c.affiliate_id] = (clickCountsByAff[c.affiliate_id] || 0) + 1
+            
+            const casinoKey = c.casino_slug || c.casino_id || 'général'
+            if (!breakdownByAff[c.affiliate_id]) {
+              breakdownByAff[c.affiliate_id] = {}
+            }
+            breakdownByAff[c.affiliate_id][casinoKey] = (breakdownByAff[c.affiliate_id][casinoKey] || 0) + 1
           }
         })
       }
+      setAffClicksBreakdown(breakdownByAff)
 
       if (affErr) console.error("Error loading affiliates:", affErr)
       else {
@@ -1561,34 +1575,203 @@ export default function AdminDashboardPage() {
         <>
           {/* 1. KPIS GLOBAUX */}
           {adminTab === 'kpi' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-purple-glow/5">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <Users className="w-12 h-12 text-white" />
+            <div className="space-y-6">
+              {/* Top Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-purple-glow/5">
+                  <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <Users className="w-12 h-12 text-white" />
+                  </div>
+                  <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Affiliés Actifs</span>
+                  <span className="text-3xl font-extrabold font-mono text-white relative z-10">{kpi.activeAffiliates}</span>
+                  <span className="text-[11px] text-emerald block relative z-10">
+                    {kpi.pendingAffiliates > 0 ? `+${kpi.pendingAffiliates} en attente de validation` : 'Tous validés'}
+                  </span>
                 </div>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Affiliés Actifs</span>
-                <span className="text-3xl font-extrabold font-mono text-white relative z-10">{kpi.activeAffiliates}</span>
-                <span className="text-[11px] text-emerald block relative z-10">
-                  {kpi.pendingAffiliates > 0 ? `+${kpi.pendingAffiliates} en attente de validation` : 'Tous validés'}
-                </span>
+
+                <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-gold-glow/5">
+                  <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <DollarSign className="w-12 h-12 text-gold" />
+                  </div>
+                  <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Gains Distribués / Dus</span>
+                  <span className="text-3xl font-extrabold font-mono text-gold relative z-10">{kpi.totalCommissions.toLocaleString()} €</span>
+                  <span className="text-[11px] text-gold block relative z-10">Global historique</span>
+                </div>
+
+                <div className="glass-panel p-6 rounded-2xl border border-amber-950/40 bg-amber-950/5 space-y-2 relative overflow-hidden shadow-gold-glow/10">
+                  <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <CreditCard className="w-12 h-12 text-gold" />
+                  </div>
+                  <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Payouts en Attente</span>
+                  <span className="text-3xl font-extrabold font-mono text-gold relative z-10">{kpi.pendingPayouts}</span>
+                  <span className="text-[11px] text-gold block relative z-10">Montant total : {kpi.pendingPayoutsAmount.toLocaleString()} €</span>
+                </div>
+
+                <div className="glass-panel p-6 rounded-2xl border border-purple-900/40 bg-purple-950/10 space-y-2 relative overflow-hidden shadow-purple-glow/10">
+                  <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <Activity className="w-12 h-12 text-purple-400" />
+                  </div>
+                  <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Total Clics Globaux</span>
+                  <span className="text-3xl font-extrabold font-mono text-purple-300 relative z-10">
+                    {affiliates.reduce((acc, a) => acc + (a.total_clicks || 0), 0)}
+                  </span>
+                  <span className="text-[11px] text-purple-400 block relative z-10">Enregistrés sur le réseau</span>
+                </div>
               </div>
 
-              <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-gold-glow/5">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <DollarSign className="w-12 h-12 text-gold" />
-                </div>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Gains Distribués / Dus</span>
-                <span className="text-3xl font-extrabold font-mono text-gold relative z-10">{kpi.totalCommissions.toLocaleString()} €</span>
-                <span className="text-[11px] text-gold block relative z-10">Global historique</span>
-              </div>
+              {/* TABLEAU EN DIRECT DE PERFORMANCE TOUS / PAR AFFILIÉ */}
+              <div className="glass-panel p-6 rounded-2xl border border-purple-500/30 space-y-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                  <div>
+                    <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-gold" />
+                      Statistiques et Clics des Affiliés en Direct
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Suivi temps réel des clics et répartitions par casino pour chaque membre</p>
+                  </div>
 
-              <div className="glass-panel p-6 rounded-2xl border border-amber-950/40 bg-amber-950/5 space-y-2 relative overflow-hidden shadow-gold-glow/10">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <CreditCard className="w-12 h-12 text-gold" />
+                  {/* Filtre d'Affichage / Comparatif (Tous, 1 seul, ou 2 affiliés) */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-semibold text-slate-400">Filtrer par Affilié :</span>
+                    <select 
+                      value={selectedFilterAff1} 
+                      onChange={(e) => setSelectedFilterAff1(e.target.value)}
+                      className="bg-slate-900 border border-slate-700 text-xs text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-purple-500 font-medium"
+                    >
+                      <option value="ALL">🌟 Tous les affiliés ({affiliates.length})</option>
+                      {affiliates.map(a => (
+                        <option key={a.id} value={a.id}>👤 {a.profiles?.full_name || a.profiles?.email || a.id}</option>
+                      ))}
+                    </select>
+
+                    {selectedFilterAff1 !== 'ALL' && (
+                      <select 
+                        value={selectedFilterAff2} 
+                        onChange={(e) => setSelectedFilterAff2(e.target.value)}
+                        className="bg-slate-900 border border-slate-700 text-xs text-purple-300 rounded-lg px-3 py-1.5 focus:outline-none focus:border-purple-500 font-medium"
+                      >
+                        <option value="">➕ Comparer avec un 2ème affilié...</option>
+                        {affiliates.filter(a => a.id !== selectedFilterAff1).map(a => (
+                          <option key={a.id} value={a.id}>⚖️ {a.profiles?.full_name || a.profiles?.email || a.id}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
                 </div>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Payouts en Attente</span>
-                <span className="text-3xl font-extrabold font-mono text-gold relative z-10">{kpi.pendingPayouts}</span>
-                <span className="text-[11px] text-gold block relative z-10">Montant total : {kpi.pendingPayoutsAmount.toLocaleString()} €</span>
+
+                {/* Tableau principal des performances */}
+                <div className="overflow-x-auto rounded-xl border border-slate-800">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-slate-900/80 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+                        <th className="px-4 py-3.5">Affilié / Email</th>
+                        <th className="px-4 py-3.5 text-center">Code Parrain</th>
+                        <th className="px-4 py-3.5 text-center">Clics Totaux</th>
+                        <th className="px-4 py-3.5">Répartition des Clics par Casino</th>
+                        <th className="px-4 py-3.5 text-center">Statut</th>
+                        <th className="px-4 py-3.5 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 bg-surface/30">
+                      {affiliates
+                        .filter(a => {
+                          if (selectedFilterAff1 === 'ALL') return true;
+                          if (selectedFilterAff2) return a.id === selectedFilterAff1 || a.id === selectedFilterAff2;
+                          return a.id === selectedFilterAff1;
+                        })
+                        .map(aff => {
+                          const detailedClicks = affClicksBreakdown[aff.id] || {}
+                          const totalClicks = aff.total_clicks || 0
+                          return (
+                            <tr key={aff.id} className="hover:bg-slate-800/20 transition-colors group">
+                              {/* Member Info */}
+                              <td className="px-4 py-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center font-bold text-purple-300 shrink-0">
+                                    {(aff.profiles?.full_name || '?')[0]}
+                                  </div>
+                                  <div className="min-w-0">
+                                    <div className="font-bold text-white text-sm truncate">{aff.profiles?.full_name || 'Sans Nom'}</div>
+                                    <div className="text-[11px] text-slate-500 truncate">{aff.profiles?.email}</div>
+                                  </div>
+                                </div>
+                              </td>
+
+                              {/* Code */}
+                              <td className="px-4 py-3 text-center">
+                                <span className="font-mono text-[11px] bg-purple-950/50 text-purple-300 border border-purple-800/40 px-2 py-0.5 rounded">
+                                  {aff.referral_code}
+                                </span>
+                              </td>
+
+                              {/* Total Clicks */}
+                              <td className="px-4 py-3 text-center">
+                                <span className="font-mono text-sm font-extrabold text-purple-300 bg-purple-500/10 px-3 py-1 rounded-lg border border-purple-500/20">
+                                  🖱️ {totalClicks}
+                                </span>
+                              </td>
+
+                              {/* Detailed Breakdown per Casino */}
+                              <td className="px-4 py-3">
+                                {Object.keys(detailedClicks).length > 0 ? (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {Object.entries(detailedClicks).map(([casinoKey, count]) => {
+                                      const casino = casinos.find(c => c.slug === casinoKey || c.id === casinoKey)
+                                      const name = casino ? casino.name : (casinoKey.charAt(0).toUpperCase() + casinoKey.slice(1).replace(/-/g, ' '))
+                                      return (
+                                        <span key={casinoKey} className="text-[10px] bg-slate-900 border border-slate-700/80 text-slate-200 px-2 py-0.5 rounded font-mono flex items-center gap-1">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-gold"></span>
+                                          <span className="font-semibold">{name}:</span>
+                                          <span className="font-bold text-gold">{count as number}</span>
+                                        </span>
+                                      )
+                                    })}
+                                  </div>
+                                ) : (
+                                  <span className="text-[11px] text-slate-500 italic">Aucun clic enregistré par casino</span>
+                                )}
+                              </td>
+
+                              {/* Status */}
+                              <td className="px-4 py-3 text-center">
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                  aff.status === 'active' ? 'bg-emerald/20 text-emerald border border-emerald/30' :
+                                  aff.status === 'pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                                  'bg-red-500/20 text-red-400 border border-red-500/30'
+                                }`}>
+                                  {aff.status}
+                                </span>
+                              </td>
+
+                              {/* Quick Actions */}
+                              <td className="px-4 py-3 text-right">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  {aff.status === 'active' && (
+                                    <button
+                                      onClick={() => setCommissionModal({ isOpen: true, affiliateId: aff.id, affiliateName: aff.profiles?.full_name || 'Inconnu' })}
+                                      className="px-2.5 py-1 rounded-lg bg-gold/10 hover:bg-gold/20 text-gold border border-gold/30 font-semibold text-[11px] transition-colors flex items-center gap-1"
+                                      title="Ajouter une commission CPA"
+                                    >
+                                      <DollarSign className="w-3.5 h-3.5" />
+                                      <span>+ CPA</span>
+                                    </button>
+                                  )}
+                                  {aff.status === 'pending' && (
+                                    <button
+                                      onClick={() => handleUpdateAffiliateStatus(aff.id, 'active')}
+                                      className="px-2.5 py-1 rounded-lg bg-emerald/20 hover:bg-emerald/30 text-emerald border border-emerald/30 font-semibold text-[11px] transition-colors"
+                                    >
+                                      Valider
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
