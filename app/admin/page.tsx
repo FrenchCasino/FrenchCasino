@@ -1117,6 +1117,18 @@ export default function AdminDashboardPage() {
           </div>
           
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const copy = { ...selectedAff };
+                setSelectedAff(null);
+                setTimeout(() => setSelectedAff(copy), 50);
+              }}
+              className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 flex items-center gap-1.5 transition-colors"
+              title="Rafraîchir les statistiques de cet affilié"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-purple-400" />
+              <span>Actualiser Stats</span>
+            </button>
             <span className={`px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider ${
               selectedAff.status === 'active' ? 'bg-emerald/20 text-emerald border border-emerald/30' :
               selectedAff.status === 'pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
@@ -1311,38 +1323,48 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Detailed Statistics Table (Full Width Bottom) */}
-        {selectedAffStats && !selectedAffStats.loading && Object.keys(selectedAffStats.clicksByCasino).length > 0 && (
+        {selectedAffStats && !selectedAffStats.loading && (
           <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-            <h3 className="font-display font-bold text-base text-white">Répartition de la Performance par Casino</h3>
-            <div className="overflow-x-auto rounded-xl border border-slate-800">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="bg-slate-900/50 border-b border-slate-800">
-                    <th className="px-6 py-3 font-bold uppercase tracking-widest text-slate-500">Casino</th>
-                    <th className="px-6 py-3 font-bold uppercase tracking-widest text-slate-500 text-center">Clics Enregistrés</th>
-                    <th className="px-6 py-3 font-bold uppercase tracking-widest text-slate-500 text-center">Commissions (CPA) Validées</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/50">
-                  {Object.entries(selectedAffStats.clicksByCasino)
-                    .sort((a, b) => b[1].clicks - a[1].clicks)
-                    .map(([key, stats]) => {
-                      const casino = casinos.find(c => c.slug === key || c.id === key)
-                      const displayName = casino ? casino.name : (key.charAt(0).toUpperCase() + key.slice(1).replace(/-/g, ' '))
-                      return (
-                        <tr key={key} className="hover:bg-slate-800/10 transition-colors">
-                          <td className="px-6 py-3 text-sm text-white font-medium flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-purple-400"></span>
-                            <span>{displayName}</span>
-                          </td>
-                          <td className="px-6 py-3 text-sm text-slate-300 font-mono text-center font-bold">{stats.clicks}</td>
-                          <td className="px-6 py-3 text-sm text-emerald font-mono text-center font-bold">{stats.commissions}</td>
-                        </tr>
-                      )
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <h3 className="font-display font-bold text-base text-white flex items-center gap-2">
+              <Activity className="w-4 h-4 text-gold" />
+              Répartition de la Performance par Casino
+            </h3>
+            {Object.keys(selectedAffStats.clicksByCasino).length > 0 ? (
+              <div className="overflow-x-auto rounded-xl border border-slate-800">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-900/50 border-b border-slate-800">
+                      <th className="px-6 py-3 font-bold uppercase tracking-widest text-slate-500">Casino</th>
+                      <th className="px-6 py-3 font-bold uppercase tracking-widest text-slate-500 text-center">Clics Enregistrés</th>
+                      <th className="px-6 py-3 font-bold uppercase tracking-widest text-slate-500 text-center">Commissions (CPA) Validées</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/50">
+                    {Object.entries(selectedAffStats.clicksByCasino)
+                      .sort((a, b) => b[1].clicks - a[1].clicks)
+                      .map(([key, stats]) => {
+                        const casino = casinos.find(c => c.slug === key || c.id === key)
+                        const displayName = casino ? casino.name : (key.charAt(0).toUpperCase() + key.slice(1).replace(/-/g, ' '))
+                        return (
+                          <tr key={key} className="hover:bg-slate-800/10 transition-colors">
+                            <td className="px-6 py-3 text-sm text-white font-medium flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-purple-400"></span>
+                              <span>{displayName}</span>
+                            </td>
+                            <td className="px-6 py-3 text-sm text-slate-300 font-mono text-center font-bold">{stats.clicks}</td>
+                            <td className="px-6 py-3 text-sm text-emerald font-mono text-center font-bold">{stats.commissions}</td>
+                          </tr>
+                        )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-8 text-center space-y-2">
+                <p className="text-slate-400 text-sm font-medium">Aucune ventilation par casino disponible pour cet affilié.</p>
+                <p className="text-slate-500 text-xs">Les clics apparaîtront ici dès que des visites seront enregistrées sur ses liens parrainés.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
