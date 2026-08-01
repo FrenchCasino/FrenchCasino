@@ -76,11 +76,11 @@ export async function GET(
           }
 
           if (!affiliateId) {
-            // Fallback Select direct
+            // Fallback Select direct (recherche insensible à la casse)
             const { data: affSelect, error: selectErr } = await supabase
               .from('affiliates')
               .select('id')
-              .or(`referral_code.eq.${refCode},referral_code.eq.FR-${refCode}`)
+              .or(`referral_code.ilike.${refCode},referral_code.ilike.FR-${refCode},referral_code.ilike.%${refCode}%`)
               .limit(1)
               .maybeSingle()
 
