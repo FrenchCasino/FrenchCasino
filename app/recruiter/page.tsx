@@ -172,7 +172,7 @@ export default function RecruiterDashboard() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-surface-border">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-4 sm:p-6 rounded-2xl border border-surface-border">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-gold uppercase tracking-wider">
             <Target className="w-4 h-4" />
@@ -237,7 +237,7 @@ export default function RecruiterDashboard() {
       {activeTab === 'team' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
           {/* L'Équipe */}
-          <div className="md:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
+          <div className="md:col-span-2 glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="font-display font-bold text-xl text-white flex items-center gap-2">
                 <Users className="w-5 h-5 text-gold" /> Liste des Affiliés
@@ -247,7 +247,7 @@ export default function RecruiterDashboard() {
               </span>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto w-full -mx-4 sm:mx-0 px-4 sm:px-0">
               <table className="w-full text-left text-sm text-slate-300">
                 <thead className="bg-surface/50 font-mono text-[10px] uppercase text-slate-400 border-b border-slate-800">
                   <tr>
@@ -306,7 +306,7 @@ export default function RecruiterDashboard() {
 
           {/* Outils & Aide */}
           <div className="space-y-6">
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <h3 className="font-display font-bold text-lg text-white">Mon Lien de Recrutement</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
                 Partagez ce lien à vos prospects. Grâce à ce lien unique, tout affilié qui s'inscrira sera **automatiquement ajouté à votre équipe** et vous toucherez une commission sur ses performances.
@@ -323,7 +323,7 @@ export default function RecruiterDashboard() {
               </div>
             </div>
 
-            <div className="glass-panel p-6 rounded-2xl border border-gold/20 bg-gold/5 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-gold/20 bg-gold/5 space-y-4">
               <h3 className="font-display font-bold text-lg text-gold flex items-center gap-2">
                 <DollarSign className="w-5 h-5" /> Rémunération automatique
               </h3>
@@ -397,7 +397,7 @@ export default function RecruiterDashboard() {
           </div>
 
           {/* Activity Chart */}
-          <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
             <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-gold" /> Performance de l'Équipe (7 derniers jours)
             </h3>
@@ -438,7 +438,7 @@ export default function RecruiterDashboard() {
 
       {/* TAB CONTENT: EARNINGS HISTORY */}
       {activeTab === 'earnings' && (
-        <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-6 animate-fadeIn">
+        <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-6 animate-fadeIn">
           <div className="flex items-center justify-between">
             <h3 className="font-display font-bold text-xl text-white flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-gold" /> Historique des Gains (15%)
@@ -448,7 +448,7 @@ export default function RecruiterDashboard() {
             </span>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto w-full -mx-4 sm:mx-0 px-4 sm:px-0">
             <table className="w-full text-left text-sm text-slate-300">
               <thead className="bg-surface/50 font-mono text-[10px] uppercase text-slate-400 border-b border-slate-800">
                 <tr>

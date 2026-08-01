@@ -1153,7 +1153,7 @@ export default function AdminDashboardPage() {
         <ConfirmDialog />
         
         {/* Back Button & Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 glass-panel p-6 rounded-2xl border border-slate-800 bg-surface/50">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 bg-surface/50">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setSelectedAff(null)}
@@ -1201,7 +1201,7 @@ export default function AdminDashboardPage() {
           
           {/* Column 1: Identity & Contacts */}
           <div className="space-y-6">
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
                 <Users className="w-4 h-4 text-purple-400" />
                 Profil & Identité
@@ -1232,7 +1232,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
                 <Handshake className="w-4 h-4 text-emerald" />
                 Coordonnées de Contact
@@ -1247,7 +1247,7 @@ export default function AdminDashboardPage() {
 
           {/* Column 2: Affiliation & Bank */}
           <div className="space-y-6">
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
                 <Building className="w-4 h-4 text-blue-400" />
                 Affiliation & Coordonnées Bancaires
@@ -1298,7 +1298,7 @@ export default function AdminDashboardPage() {
 
           {/* Column 3: Actions Admin & Stats summary */}
           <div className="space-y-6">
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <h3 className="font-display font-bold text-sm text-white flex items-center gap-2">
                 <ShieldAlert className="w-4 h-4 text-red-500" />
                 Actions Administrateur
@@ -1368,7 +1368,7 @@ export default function AdminDashboardPage() {
       <ConfirmDialog />
       
       {/* Header Admin */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-purple-500/30 bg-purple-950/10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-4 sm:p-6 rounded-2xl border border-purple-500/30 bg-purple-950/10">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-purple-400 uppercase tracking-wider">
             <ShieldCheck className="w-4 h-4 text-gold" />
@@ -1436,7 +1436,7 @@ export default function AdminDashboardPage() {
           {/* TELEGRAM BROADCAST TAB */}
           {adminTab === 'telegram' && (
             <div className="space-y-6">
-              <div className="glass-panel p-6 rounded-2xl border border-surface-border bg-surface relative overflow-hidden">
+              <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-surface-border bg-surface relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
                 <h2 className="text-xl font-display font-bold text-white mb-6 flex items-center gap-2 relative z-10">
                   <Send className="w-5 h-5 text-blue-400" />
@@ -1555,7 +1555,7 @@ export default function AdminDashboardPage() {
           {/* 1. KPIS GLOBAUX */}
           {adminTab === 'kpi' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-purple-glow/5">
+              <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-purple-glow/5">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Users className="w-12 h-12 text-white" />
                 </div>
@@ -1566,7 +1566,7 @@ export default function AdminDashboardPage() {
                 </span>
               </div>
 
-              <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-gold-glow/5">
+              <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-gold-glow/5">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <DollarSign className="w-12 h-12 text-gold" />
                 </div>
@@ -1575,7 +1575,7 @@ export default function AdminDashboardPage() {
                 <span className="text-[11px] text-gold block relative z-10">Global historique</span>
               </div>
 
-              <div className="glass-panel p-6 rounded-2xl border border-amber-950/40 bg-amber-950/5 space-y-2 relative overflow-hidden shadow-gold-glow/10">
+              <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-amber-950/40 bg-amber-950/5 space-y-2 relative overflow-hidden shadow-gold-glow/10">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <CreditCard className="w-12 h-12 text-gold" />
                 </div>
@@ -1584,7 +1584,7 @@ export default function AdminDashboardPage() {
                 <span className="text-[11px] text-gold block relative z-10">Montant total : {kpi.pendingPayoutsAmount.toLocaleString()} €</span>
               </div>
 
-              <div className="glass-panel p-6 rounded-2xl border border-purple-900/40 bg-purple-950/10 space-y-2 relative overflow-hidden shadow-purple-glow/10">
+              <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-purple-900/40 bg-purple-950/10 space-y-2 relative overflow-hidden shadow-purple-glow/10">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Activity className="w-12 h-12 text-purple-400" />
                 </div>
@@ -1599,7 +1599,7 @@ export default function AdminDashboardPage() {
 
           {/* 1.5. STATISTIQUES DES AFFILIÉS */}
           {adminTab === 'stats' && (
-            <div className="glass-panel p-6 rounded-2xl border border-purple-500/30 space-y-6">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-purple-500/30 space-y-6">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
                 <div>
                   <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
@@ -1757,7 +1757,7 @@ export default function AdminDashboardPage() {
 
           {/* 2. GESTION DES AFFILIÉS */}
           {adminTab === 'affiliates' && (
-              <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4 relative">
+              <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4 relative">
                  <div className="flex items-center justify-between">
                    <h3 className="font-display font-bold text-lg text-white">Gestion des Affiliés</h3>
                    <div className="flex items-center gap-3">
@@ -1928,7 +1928,7 @@ export default function AdminDashboardPage() {
 
           {/* REMBOURSEMENTS */}
           {adminTab === 'refunds' && (
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
                   <RefreshCw className="w-5 h-5 text-gold" />
@@ -2130,7 +2130,7 @@ export default function AdminDashboardPage() {
 
           {/* 4. GESTION DES PAIEMENTS */}
           {adminTab === 'payouts' && (
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
                <div className="flex justify-between items-center">
                  <h3 className="font-display font-bold text-lg text-white">Demandes de Retrait & Paiements</h3>
                  <button
@@ -2218,7 +2218,7 @@ export default function AdminDashboardPage() {
 
           {/* 5. Tchat & Support */}
           {adminTab === 'support' && (
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <h3 className="font-display font-bold text-lg text-white">Tickets Support des Affiliés</h3>
               
               <div className="overflow-x-auto rounded-xl border border-slate-800/50">
@@ -2292,7 +2292,7 @@ export default function AdminDashboardPage() {
 
           {/* 6. LOGS D'ACTIVITÉ */}
           {adminTab === 'logs' && (
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col items-center justify-center py-20 text-center space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 flex flex-col items-center justify-center py-20 text-center space-y-4">
               <ShieldAlert className="w-12 h-12 text-red-900 mb-2" />
               <h3 className="font-display font-bold text-xl text-white">Audit Logs d&apos;Administration</h3>
               <p className="text-sm text-slate-400 max-w-md mx-auto">

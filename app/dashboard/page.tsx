@@ -1004,7 +1004,7 @@ export default function DashboardPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       
       {/* Header Dashboard */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-surface-border relative overflow-hidden">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-4 sm:p-6 rounded-2xl border border-surface-border relative overflow-hidden">
         {/* Decorative VIP glow */}
         <div className={`absolute top-0 right-1/2 w-64 h-64 blur-3xl pointer-events-none ${getVipInfo(totalHistoricalValid).bg} opacity-20`} />
         
@@ -1244,7 +1244,7 @@ export default function DashboardPage() {
           {/* Graphique & Leaderboard */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Graphique Aperçu */}
-            <div className="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="lg:col-span-2 glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <h3 className="font-display font-bold text-lg text-white">
                   Performance {timeRange === '7d' ? '7 Derniers Jours' : timeRange === '30d' ? '30 Derniers Jours' : 'Globale'}
@@ -1285,7 +1285,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Leaderboard */}
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-gold shrink-0" />
                 Classement Affiliés
@@ -1319,9 +1319,9 @@ export default function DashboardPage() {
           
           {/* Statistiques Détaillées par Casino */}
           {Object.keys(clicksData).length > 0 && (
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <h3 className="font-display font-bold text-lg text-white">Répartition par Casino</h3>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto w-full -mx-4 sm:mx-0 px-4 sm:px-0">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-slate-800">
@@ -1356,7 +1356,7 @@ export default function DashboardPage() {
       {/* 2. MES LIENS & QR CODE */}
       {activeTab === 'links' && (
         <div className="space-y-6">
-          <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2">
+          <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-2">
             <h3 className="font-display font-bold text-lg text-white">Générateur de Liens d&apos;Affiliation</h3>
             <p className="text-xs text-slate-400">
               Copiez vos liens trackés uniques pour chaque casino partenaire. Chaque clic et inscription sera crédité à votre compte.
@@ -1437,7 +1437,7 @@ export default function DashboardPage() {
 
       {/* 3. STATISTIQUES RECHARTS */}
       {activeTab === 'stats' && (
-        <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
+        <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h3 className="font-display font-bold text-lg text-white">Statistiques Clics & Conversions</h3>
             <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -1482,7 +1482,7 @@ export default function DashboardPage() {
 
       {/* 4. HISTORIQUE COMMISSIONS */}
       {activeTab === 'commissions' && (
-        <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+        <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="font-display font-bold text-lg text-white">Historique des Commissions</h3>
             <button
@@ -1493,7 +1493,7 @@ export default function DashboardPage() {
               <span>Exporter CSV</span>
             </button>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto w-full -mx-4 sm:mx-0 px-4 sm:px-0">
             <table className="w-full text-left text-xs text-slate-300">
               <thead className="bg-surface uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
                 <tr>
@@ -1727,7 +1727,7 @@ export default function DashboardPage() {
           {/* Historique des transactions */}
           <div className="max-w-xl md:max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
             {/* Payouts list */}
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <div className="flex justify-between items-center">
                 <h4 className="font-display font-bold text-sm text-white">Vos Retraits</h4>
                 <button
@@ -1768,7 +1768,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Refunds list */}
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
               <div className="flex justify-between items-center">
                 <h4 className="font-display font-bold text-sm text-white">Vos Remboursements</h4>
                 <button
@@ -1996,7 +1996,7 @@ export default function DashboardPage() {
       {/* 7. SUPPORT & TCHAT */}
       {activeTab === 'support' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-5 glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div className="lg:col-span-5 glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
             <h3 className="font-display font-bold text-lg text-white">Ouvrir un Ticket de Support</h3>
             <form onSubmit={handleCreateTicket} className="space-y-3">
               <input
@@ -2025,7 +2025,7 @@ export default function DashboardPage() {
             </form>
           </div>
 
-          <div className="lg:col-span-7 glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div className="lg:col-span-7 glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
             <h3 className="font-display font-bold text-lg text-white">Vos Tickets en Cours</h3>
             <div className="space-y-3">
               {ticketsList.length === 0 ? (
@@ -2060,7 +2060,7 @@ export default function DashboardPage() {
       {activeTab === 'marketing' && (
         <div className="space-y-6">
           {/* Header Block */}
-          <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
+          <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30">
                 <Megaphone className="w-5 h-5 text-primary-light" />

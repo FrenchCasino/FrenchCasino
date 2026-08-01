@@ -52,7 +52,7 @@ export default async function HomePage() {
             </div>
 
             {/* Titre Impactant H1 */}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
+            <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
               Bienvenue sur <span className="text-gradient-purple">French</span> <span className="text-gradient-gold">Casino</span>
             </h1>
 
