@@ -39,18 +39,18 @@ export default function AdminLayout({
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-purple-300 hover:text-white bg-purple-900/30 border border-purple-800 transition-colors"
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-xs font-semibold text-purple-300 hover:text-white bg-purple-900/30 border border-purple-800 transition-colors"
           >
             <LayoutDashboard className="w-3.5 h-3.5" />
-            <span>Affilié</span>
+            <span className="hidden sm:inline">Affilié</span>
           </Link>
 
           <Link
             href="/recruiter"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-300 hover:text-white bg-amber-900/30 border border-amber-800 transition-colors"
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-xs font-semibold text-amber-300 hover:text-white bg-amber-900/30 border border-amber-800 transition-colors"
           >
             <Users className="w-3.5 h-3.5" />
-            <span>Recruteur</span>
+            <span className="hidden sm:inline">Recruteur</span>
           </Link>
 
           <Link

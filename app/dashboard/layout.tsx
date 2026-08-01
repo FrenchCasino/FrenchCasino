@@ -77,20 +77,20 @@ export default function DashboardLayout({
           {role === 'admin' && (
             <Link
               href="/admin"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-300 hover:text-white bg-red-900/30 border border-red-800 transition-colors"
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-xs font-semibold text-red-300 hover:text-white bg-red-900/30 border border-red-800 transition-colors"
             >
               <Shield className="w-3.5 h-3.5" />
-              <span>Admin</span>
+              <span className="hidden sm:inline">Admin</span>
             </Link>
           )}
 
           {(role === 'admin' || role === 'recruiter') && (
             <Link
               href="/recruiter"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-300 hover:text-white bg-amber-900/30 border border-amber-800 transition-colors"
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-xs font-semibold text-amber-300 hover:text-white bg-amber-900/30 border border-amber-800 transition-colors"
             >
               <Users className="w-3.5 h-3.5" />
-              <span>Recruteur</span>
+              <span className="hidden sm:inline">Recruteur</span>
             </Link>
           )}
 
