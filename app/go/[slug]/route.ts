@@ -48,80 +48,36 @@ export async function GET(
 
     let response = NextResponse.redirect(finalLink)
 
-    // 2. Si on a un code affilié (ref), on logge le clic de manière sécurisée (try/catch)
+    // 2. Si on a un code affilié (ref), on logge le clic de manière sécurisée via l'API interne
     if (refCode) {
       try {
         console.log(`[TRACKING] Processing click for ref: ${refCode}, slug: ${slug}`)
-        const ip = request.headers.get('x-forwarded-for') || 'unknown'
-        const cacheKey = `${ip}_${slug}_${refCode}`
-        const lastClick = ipCache.get(cacheKey)
-        const hasClickedCookie = cookieStore.get(`clk_${slug}`)
+        
+        // Trouver l'affilié et insérer le clic via Supabase Direct Admin
+        const { data: affSelect } = await supabase
+          .from('affiliates')
+          .select('id')
+          .or(`referral_code.ilike.${refCode},referral_code.ilike.FR-${refCode},referral_code.ilike.%${refCode}%`)
+          .limit(1)
+          .maybeSingle()
 
-        console.log(`[TRACKING] IP: ${ip}, lastClick: ${lastClick}, hasClickedCookie: ${hasClickedCookie}`)
-
-        // Enregistrer le clic (souple pour tests et production)
-        if (true) {
-          // Appeler la fonction RPC ou faire un select direct en fallback pour contourner les problèmes d'existence du RPC
-          let affiliateId: string | null = null;
-          
-          try {
-            const { data, error: rpcError } = await supabase.rpc('get_affiliate_id_by_ref', {
-              p_ref: refCode
-            })
-            if (!rpcError && data) {
-              affiliateId = data;
-            }
-          } catch (rpcErr) {
-            console.log('[TRACKING] RPC get_affiliate_id_by_ref not available, using fallback select.')
-          }
-
-          if (!affiliateId) {
-            // Fallback Select direct (recherche insensible à la casse)
-            const { data: affSelect, error: selectErr } = await supabase
-              .from('affiliates')
-              .select('id')
-              .or(`referral_code.ilike.${refCode},referral_code.ilike.FR-${refCode},referral_code.ilike.%${refCode}%`)
-              .limit(1)
-              .maybeSingle()
-
-            if (selectErr) {
-              console.error('[TRACKING] Fallback select error:', selectErr)
-            } else if (affSelect) {
-              affiliateId = affSelect.id
-            }
-          }
-
-          console.log(`[TRACKING] Resolved Affiliate ID: ${affiliateId}`)
-
-          if (affiliateId) {
-            ipCache.set(cacheKey, Date.now())
-            
-            // Enregistrer le clic dans la table de tracking (avec casino_id ET casino_slug)
-            const { error: insertError } = await supabase.from('casino_clicks').insert({
-              affiliate_id: affiliateId,
-              casino_id: casino.id,
-              casino_slug: casino.slug,
-            })
-
-            console.log(`[TRACKING] Insert Result:`, { insertError })
-
-            // Set cookie to prevent tracking again for 24h
-            response.cookies.set(`clk_${slug}`, '1', { maxAge: 60 * 60 * 24 })
-          } else {
-            console.log(`[TRACKING] Affiliate NOT FOUND for ref: ${refCode}`)
-          }
+        if (affSelect) {
+          const { error: insertError } = await supabase.from('casino_clicks').insert({
+            affiliate_id: affSelect.id,
+            casino_id: casino.id,
+            casino_slug: casino.slug,
+          })
+          console.log(`[TRACKING] Direct Insert Result:`, { insertError })
         } else {
-          console.log(`[TRACKING] Click ignored due to rate limit or cookie`)
+          console.log(`[TRACKING] Affiliate NOT FOUND for ref: ${refCode}`)
         }
       } catch (trackErr) {
-        // En cas d'erreur de base de données sur le tracking, on log mais on ne bloque pas la redirection
         console.error('[TRACKING ERROR] Failed to log click:', trackErr)
       }
 
       // On ajoute toujours le "ref" en paramètre pour le casino (subid)
       const paramSeparator = finalLink.includes('?') ? '&' : '?'
       finalLink = `${finalLink}${paramSeparator}subid=${refCode}`
-      // Update redirect location with subid
       response = NextResponse.redirect(finalLink)
     }
 
