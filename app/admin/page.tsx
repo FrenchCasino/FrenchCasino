@@ -523,6 +523,30 @@ export default function AdminDashboardPage() {
     }
   }
 
+  const handleDeleteAffiliate = async (id: string) => {
+    requestConfirm('Êtes-vous sûr de vouloir supprimer DÉFINITIVEMENT cet affilié ? Toutes ses données, clics et commissions seront perdus à jamais.', async () => {
+      try {
+        toast.loading('Suppression en cours...')
+        const res = await fetch(`/api/admin/affiliates/${id}`, { method: 'DELETE' })
+        
+        if (!res.ok) {
+          const data = await res.json()
+          throw new Error(data.error || 'Erreur lors de la suppression')
+        }
+        
+        toast.dismiss()
+        toast.success('Affilié et toutes ses données supprimés avec succès')
+        setAffiliates(affiliates.filter(a => a.id !== id))
+        setSelectedAff(null)
+        loadData()
+      } catch (err: any) {
+        toast.dismiss()
+        toast.error(err.message || 'Erreur lors de la suppression')
+      }
+    })
+  }
+
+
   const handleUpdateCommissionRate = async (id: string, currentRate: number) => {
     const newRateStr = window.prompt("Nouveau taux de commission (ex: 0.35 pour 35%)", currentRate.toString())
     if (!newRateStr) return
@@ -1311,6 +1335,15 @@ export default function AdminDashboardPage() {
                     className="w-full py-2 rounded-xl bg-red-950/50 text-red-400 border border-red-900/50 font-bold text-[11px] hover:bg-red-900/60 transition-colors"
                   >
                     {selectedAff.status === 'suspended' ? '↩ Réactiver' : '⊘ Suspendre'}
+                  </button>
+                </div>
+                
+                <div className="pt-2">
+                  <button
+                    onClick={() => handleDeleteAffiliate(selectedAff.id)}
+                    className="w-full py-2 rounded-xl bg-red-600 text-white font-bold text-[11px] hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20"
+                  >
+                    🗑 Supprimer Définitivement le Compte
                   </button>
                 </div>
               </div>
