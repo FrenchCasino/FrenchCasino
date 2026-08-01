@@ -89,7 +89,6 @@ export default async function GoPage({
         await supabase.from('casino_clicks').insert({
           affiliate_id: affSelect.id,
           casino_id: casino.id,
-          casino_slug: casino.slug,
         })
       }
     } catch (trackErr) {
