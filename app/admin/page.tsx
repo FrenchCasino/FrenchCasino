@@ -381,6 +381,17 @@ export default function AdminDashboardPage() {
         .order('created_at', { ascending: false })
       if (refundData) setRefundRequests(refundData)
 
+      // Load Partners from database
+      try {
+        const partnersRes = await fetch('/api/admin/partners')
+        if (partnersRes.ok) {
+          const partnersData = await partnersRes.json()
+          setPartners(partnersData)
+        }
+      } catch (err) {
+        console.error("Error loading partners:", err)
+      }
+
       // Calculate KPIs
       const validAffData = affData || []
       const validPayData = payData || []
@@ -899,33 +910,33 @@ export default function AdminDashboardPage() {
     setCasinoModal({isOpen: true, editingId: casino.id})
   }
 
-  // Load saved partners from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('french_casino_partners')
-    if (saved) {
-      try {
-        setPartners(JSON.parse(saved))
-      } catch(e) {}
-    }
-  }, [])
-
-  const handleSavePartner = (e: React.FormEvent) => {
+  const handleSavePartner = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newPartner.name || !newPartner.dashboard_url) {
       toast.error('Veuillez renseigner au moins le nom et le lien du dashboard.')
       return
     }
 
-    let updated: any[]
-    if (partnerModal.editingId) {
-      updated = partners.map(p => p.id === partnerModal.editingId ? { ...newPartner, id: p.id } : p)
-    } else {
-      updated = [...partners, { ...newPartner, id: 'partner_' + Date.now() }]
-    }
+    try {
+      const res = await fetch('/api/admin/partners', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: partnerModal.editingId,
+          ...newPartner
+        })
+      })
 
-    setPartners(updated)
-    localStorage.setItem('french_casino_partners', JSON.stringify(updated))
-    setPartnerModal({ isOpen: false, editingId: null })
+      if (res.ok) {
+        toast.success(`Partenaire ${partnerModal.editingId ? 'modifié' : 'ajouté'} avec succès !`)
+        setPartnerModal({ isOpen: false, editingId: null })
+        loadData()
+      } else {
+        toast.error('Erreur lors de la sauvegarde : ' + await res.text())
+      }
+    } catch (err) {
+      toast.error('Erreur réseau')
+    }
   }
 
   const handleDeletePartner = async (id: string) => {
@@ -936,10 +947,21 @@ export default function AdminDashboardPage() {
       variant: 'danger',
     })
     if (!ok) return
-    const updated = partners.filter(p => p.id !== id)
-    setPartners(updated)
-    localStorage.setItem('french_casino_partners', JSON.stringify(updated))
-    toast.success('Partenaire supprimé avec succès.')
+
+    try {
+      const res = await fetch(`/api/admin/partners?id=${id}`, {
+        method: 'DELETE'
+      })
+
+      if (res.ok) {
+        toast.success('Partenaire supprimé avec succès.')
+        loadData()
+      } else {
+        toast.error('Erreur lors de la suppression : ' + await res.text())
+      }
+    } catch (err) {
+      toast.error('Erreur réseau')
+    }
   }
 
   const toggleCasinoInPartner = (casinoName: string) => {
