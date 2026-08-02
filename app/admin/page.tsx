@@ -1836,7 +1836,7 @@ export default function AdminDashboardPage() {
                   <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
                     <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
                       <BarChart3 className="w-4 h-4 text-purple-400" />
-                      Évolution Quotidienne des Visites (30 jours)
+                      Évolution Quotidienne des Visites (7 jours)
                     </h4>
                     <div className="overflow-x-auto rounded-xl border border-slate-900">
                       <table className="w-full text-left border-collapse text-xs">

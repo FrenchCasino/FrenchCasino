@@ -122,9 +122,9 @@ export async function GET(request: Request) {
     }
   })
 
-  // Hourly or Daily trend for chart
+  // Hourly or Daily trend for chart (last 7 days, most recent first)
   const dailyTrendMap: Record<string, { views: number; visitors: Set<string> }> = {}
-  for (let i = 29; i >= 0; i--) {
+  for (let i = 0; i < 7; i++) {
     const d = new Date()
     d.setDate(d.getDate() - i)
     const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
