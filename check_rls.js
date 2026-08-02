@@ -11,13 +11,13 @@ const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function checkDb() {
-  const { data: clicks, error: clicksErr } = await supabase.from('casino_clicks').select('*');
-  console.log('Clicks Error:', clicksErr);
-  console.log('Total Clicks:', clicks?.length);
-  
-  if (clicks && clicks.length > 0) {
-    console.log('Sample clicks:', clicks.slice(-5));
-  }
+async function checkRLS() {
+  const { data, error } = await supabase.rpc('execute_sql', { sql_string: `
+    SELECT tablename, policyname, permissive, roles, cmd, qual, with_qual 
+    FROM pg_policies 
+    WHERE tablename = 'casino_clicks';
+  `});
+  console.log('RLS Policies casino_clicks:', data);
+  console.log('Error:', error);
 }
-checkDb();
+checkRLS();

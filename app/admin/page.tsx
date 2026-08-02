@@ -33,7 +33,10 @@ import {
   Award,
   RefreshCw,
   TrendingUp,
-  Power
+  Power,
+  Globe,
+  BarChart3,
+  Search
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { CASINOS_MOCK } from '@/lib/data/casinos'
@@ -106,7 +109,9 @@ const AdminMessageEditor = ({ affiliate, onSave }: { affiliate: any, onSave: (id
 }
 
 export default function AdminDashboardPage() {
-  const [adminTab, setAdminTab] = useState<'kpi' | 'stats' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'refunds' | 'support' | 'telegram' | 'logs'>('kpi')
+  const [adminTab, setAdminTab] = useState<'kpi' | 'stats' | 'site' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'refunds' | 'support' | 'telegram' | 'logs'>('kpi')
+  const [siteAnalytics, setSiteAnalytics] = useState<any>(null)
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false)
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
   const { confirm, ConfirmDialog } = useConfirm()
@@ -400,6 +405,29 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  const loadAnalytics = useCallback(async () => {
+    setLoadingAnalytics(true)
+    try {
+      const res = await fetch('/api/admin/analytics')
+      if (res.ok) {
+        const data = await res.json()
+        setSiteAnalytics(data)
+      } else {
+        console.error('Error loading analytics:', await res.text())
+      }
+    } catch (err) {
+      console.error('Network error loading analytics:', err)
+    } finally {
+      setLoadingAnalytics(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (adminTab === 'site') {
+      loadAnalytics()
+    }
+  }, [adminTab, loadAnalytics])
 
   useEffect(() => {
     if (!selectedAff) {
@@ -1389,7 +1417,8 @@ export default function AdminDashboardPage() {
         <div className="w-full lg:w-64 flex-shrink-0 flex flex-col gap-2 lg:sticky lg:top-24">
           {[
             { id: 'kpi', label: 'KPIs Globaux', icon: Activity },
-            { id: 'stats', label: 'Statistiques', icon: TrendingUp },
+            { id: 'site', label: 'Statistiques Site', icon: Globe },
+            { id: 'stats', label: 'Clics Affiliés', icon: TrendingUp },
             { id: 'affiliates', label: 'Gestion Affiliés', icon: Users },
             { id: 'casinos', label: 'Gestion Casinos', icon: Plus },
             { id: 'partners', label: 'Mes Partenaires', icon: Building },
@@ -1594,6 +1623,255 @@ export default function AdminDashboardPage() {
                 </span>
                 <span className="text-[11px] text-purple-400 block relative z-10">Enregistrés sur le réseau</span>
               </div>
+            </div>
+          )}
+
+          {/* 1.1. STATISTIQUES GLOBALES DU SITE (AUDIENCE & SEO) */}
+          {adminTab === 'site' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-4 rounded-xl border border-slate-800">
+                <div>
+                  <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
+                    <Globe className="w-5 h-5 text-purple-400 animate-pulse" />
+                    Audience, Provenance et SEO de FrenchCasino.net
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Suivi des visiteurs uniques, des pages vues, de la provenance géolocalisée et du SEO sur les 30 derniers jours.</p>
+                </div>
+                <button 
+                  onClick={loadAnalytics} 
+                  disabled={loadingAnalytics}
+                  className="px-4 py-2 bg-slate-900 border border-slate-700 hover:bg-slate-800 rounded-xl text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-purple-400 ${loadingAnalytics ? 'animate-spin' : ''}`} />
+                  {loadingAnalytics ? 'Chargement...' : 'Actualiser'}
+                </button>
+              </div>
+
+              {loadingAnalytics && !siteAnalytics ? (
+                <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                  <Loader2 className="w-10 h-10 animate-spin text-purple-400" />
+                  <p className="text-sm text-slate-500 font-mono">Récupération des statistiques d'audience...</p>
+                </div>
+              ) : !siteAnalytics ? (
+                <div className="glass-panel p-10 rounded-2xl border border-slate-800 text-center space-y-3">
+                  <ShieldAlert className="w-12 h-12 text-amber-500 mx-auto" />
+                  <h4 className="font-bold text-white">Aucune donnée disponible</h4>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                    La table <code className="bg-slate-900 px-1 py-0.5 rounded font-mono text-purple-300">page_views</code> n'est pas encore alimentée ou créée en base de données.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* KPI Summary Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block">Visiteurs Uniques (30j)</span>
+                      <span className="text-3xl font-extrabold font-mono text-white mt-1 block">{siteAnalytics.summary.uniqueVisitors.toLocaleString()}</span>
+                      <span className="text-[10px] text-slate-500 block mt-1">Identifiants de navigation uniques</span>
+                    </div>
+
+                    <div className="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block">Pages Vues (30j)</span>
+                      <span className="text-3xl font-extrabold font-mono text-purple-300 mt-1 block">{siteAnalytics.summary.totalViews.toLocaleString()}</span>
+                      <span className="text-[10px] text-slate-500 block mt-1">Trafic brut accumulé</span>
+                    </div>
+
+                    <div className="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block">Aujourd'hui</span>
+                      <span className="text-2xl font-extrabold font-mono text-emerald mt-1 block">
+                        {siteAnalytics.summary.viewsToday} <span className="text-xs text-slate-500 font-normal">vues</span> / {siteAnalytics.summary.visitorsToday} <span className="text-xs text-slate-500 font-normal">visiteurs</span>
+                      </span>
+                      <span className="text-[10px] text-slate-500 block mt-1.5">Activité temps réel des dernières 24h</span>
+                    </div>
+
+                    <div className="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block">7 Derniers Jours</span>
+                      <span className="text-2xl font-extrabold font-mono text-gold mt-1 block">
+                        {siteAnalytics.summary.views7Days} <span className="text-xs text-slate-500 font-normal">vues</span> / {siteAnalytics.summary.visitors7Days} <span className="text-xs text-slate-500 font-normal">visiteurs</span>
+                      </span>
+                      <span className="text-[10px] text-slate-500 block mt-1.5">Tendance globale de la semaine</span>
+                    </div>
+                  </div>
+
+                  {/* 2-Column Layout: Pages & Provenance */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Top Visited Pages */}
+                    <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
+                      <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-purple-400" />
+                        Pages les plus visitées
+                      </h4>
+                      <div className="space-y-3">
+                        {siteAnalytics.topPages.length === 0 ? (
+                          <p className="text-xs text-slate-500 italic">Aucune page consultée enregistrée.</p>
+                        ) : (
+                          siteAnalytics.topPages.map((page: any, idx: number) => {
+                            const percent = siteAnalytics.summary.totalViews > 0 
+                              ? (page.count / siteAnalytics.summary.totalViews) * 100 
+                              : 0
+                            return (
+                              <div key={idx} className="space-y-1">
+                                <div className="flex justify-between items-center text-xs">
+                                  <span className="font-mono text-purple-300 truncate max-w-[280px]" title={page.path}>{page.path}</span>
+                                  <span className="font-semibold text-white">{page.count} <span className="text-[10px] text-slate-500 font-normal">vues</span></span>
+                                </div>
+                                <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                                  <div className="bg-purple-500 h-1.5 rounded-full" style={{ width: `${percent}%` }} />
+                                </div>
+                              </div>
+                            )
+                          })
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Geolocation / Top Countries */}
+                    <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
+                      <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-blue-400" />
+                        Provenance Géographique (Top Pays)
+                      </h4>
+                      <div className="space-y-3">
+                        {siteAnalytics.topCountries.length === 0 ? (
+                          <p className="text-xs text-slate-500 italic">Aucune géolocalisation enregistrée.</p>
+                        ) : (
+                          siteAnalytics.topCountries.map((item: any, idx: number) => {
+                            const percent = siteAnalytics.summary.totalViews > 0 
+                              ? (item.count / siteAnalytics.summary.totalViews) * 100 
+                              : 0
+                            const flagMap: Record<string, string> = {
+                              'FR': '🇫🇷 France',
+                              'BE': '🇧🇪 Belgique',
+                              'CH': '🇨🇭 Suisse',
+                              'CA': '🇨🇦 Canada',
+                              'LU': '🇱🇺 Luxembourg',
+                              'ES': '🇪🇸 Espagne',
+                              'DE': '🇩🇪 Allemagne',
+                              'GB': '🇬🇧 Royaume-Uni',
+                              'US': '🇺🇸 États-Unis',
+                              'IT': '🇮🇹 Italie'
+                            }
+                            const countryName = flagMap[item.country.toUpperCase()] || `🌐 ${item.country}`
+                            return (
+                              <div key={idx} className="space-y-1">
+                                <div className="flex justify-between items-center text-xs">
+                                  <span className="font-semibold text-slate-300">{countryName}</span>
+                                  <span className="font-mono text-white">{item.count} <span className="text-[10px] text-slate-500">({percent.toFixed(1)}%)</span></span>
+                                </div>
+                                <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                                  <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${percent}%` }} />
+                                </div>
+                              </div>
+                            )
+                          })
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2-Column Layout: Sources & SEO Keywords */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Traffic Sources & Referrers */}
+                    <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
+                      <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-emerald" />
+                        Sources de Trafic (Referrers)
+                      </h4>
+                      <div className="space-y-3">
+                        {siteAnalytics.topReferrers.length === 0 ? (
+                          <p className="text-xs text-slate-500 italic">Aucun referrer enregistré.</p>
+                        ) : (
+                          siteAnalytics.topReferrers.map((item: any, idx: number) => {
+                            const percent = siteAnalytics.summary.totalViews > 0 
+                              ? (item.count / siteAnalytics.summary.totalViews) * 100 
+                              : 0
+                            return (
+                              <div key={idx} className="space-y-1">
+                                <div className="flex justify-between items-center text-xs">
+                                  <span className="font-medium text-slate-300 truncate max-w-[280px]">{item.referrer}</span>
+                                  <span className="font-mono text-emerald">{item.count} <span className="text-[10px] text-slate-500">({percent.toFixed(1)}%)</span></span>
+                                </div>
+                                <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                                  <div className="bg-emerald h-1.5 rounded-full" style={{ width: `${percent}%` }} />
+                                </div>
+                              </div>
+                            )
+                          })
+                        )}
+                      </div>
+                    </div>
+
+                    {/* SEO Terms / UTM Campaigns */}
+                    <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
+                      <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                        <Search className="w-4 h-4 text-gold" />
+                        Mots-Clés Recherchés & Campagnes SEO
+                      </h4>
+                      <div className="space-y-3">
+                        {siteAnalytics.topSeoTerms.length === 0 ? (
+                          <p className="text-xs text-slate-500 italic">Aucun mot-clé ou campagne UTM tracké sur les liens d'entrée.</p>
+                        ) : (
+                          siteAnalytics.topSeoTerms.map((item: any, idx: number) => {
+                            const percent = siteAnalytics.summary.totalViews > 0 
+                              ? (item.count / siteAnalytics.summary.totalViews) * 100 
+                              : 0
+                            return (
+                              <div key={idx} className="space-y-1">
+                                <div className="flex justify-between items-center text-xs">
+                                  <span className="font-mono text-gold truncate max-w-[280px]" title={item.term}>"{item.term}"</span>
+                                  <span className="font-semibold text-white">{item.count} <span className="text-[10px] text-slate-500">({percent.toFixed(1)}%)</span></span>
+                                </div>
+                                <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                                  <div className="bg-gold h-1.5 rounded-full" style={{ width: `${percent}%` }} />
+                                </div>
+                              </div>
+                            )
+                          })
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Daily Trend Table / Timeline Chart */}
+                  <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4 text-purple-400" />
+                      Évolution Quotidienne des Visites (30 jours)
+                    </h4>
+                    <div className="overflow-x-auto rounded-xl border border-slate-900">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="bg-slate-900/80 border-b border-slate-800 text-slate-400 font-bold uppercase">
+                            <th className="px-4 py-3">Date</th>
+                            <th className="px-4 py-3 text-center">Pages Vues</th>
+                            <th className="px-4 py-3 text-center">Visiteurs Uniques</th>
+                            <th className="px-4 py-3">Graphique de Tendance</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/40 bg-surface/10 font-mono">
+                          {siteAnalytics.dailyTrend.map((day: any, idx: number) => {
+                            // Max views in daily trend to scale progress bar
+                            const maxViews = Math.max(...siteAnalytics.dailyTrend.map((d: any) => d.views), 1)
+                            const widthPercent = (day.views / maxViews) * 100
+                            return (
+                              <tr key={idx} className="hover:bg-slate-800/10 transition-colors">
+                                <td className="px-4 py-2.5 text-slate-300 font-semibold">{day.date}</td>
+                                <td className="px-4 py-2.5 text-center text-white font-bold">{day.views}</td>
+                                <td className="px-4 py-2.5 text-center text-purple-300">{day.visitors}</td>
+                                <td className="px-4 py-2.5">
+                                  <div className="w-full bg-slate-900 rounded h-2 overflow-hidden flex">
+                                    <div className="bg-purple-600/80 h-full rounded" style={{ width: `${widthPercent}%` }} />
+                                  </div>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

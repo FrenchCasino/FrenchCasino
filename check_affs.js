@@ -11,13 +11,9 @@ const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function checkDb() {
-  const { data: clicks, error: clicksErr } = await supabase.from('casino_clicks').select('*');
-  console.log('Clicks Error:', clicksErr);
-  console.log('Total Clicks:', clicks?.length);
-  
-  if (clicks && clicks.length > 0) {
-    console.log('Sample clicks:', clicks.slice(-5));
-  }
+async function checkAffs() {
+  const { data, error } = await supabase.from('affiliates').select('id, referral_code, profiles!affiliates_id_fkey(full_name, email)');
+  console.log('Error:', error);
+  console.log('Affiliates:', JSON.stringify(data, null, 2));
 }
-checkDb();
+checkAffs();

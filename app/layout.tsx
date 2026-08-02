@@ -3,6 +3,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "sonner";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 
 export const metadata: Metadata = {
   title: "FrenchCasino V2 — Le Comparateur & Guide Casino N°1 en France (2026)",
@@ -63,6 +64,7 @@ export default function RootLayout({
           </main>
           <Footer />
         </div>
+        <AnalyticsTracker />
         <Toaster
           theme="dark"
           position="bottom-right"
@@ -81,3 +83,4 @@ export default function RootLayout({
     </html>
   );
 }
+
