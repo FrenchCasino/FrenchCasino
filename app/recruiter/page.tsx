@@ -150,6 +150,7 @@ export default function RecruiterDashboard() {
     }
 
     loadRecruiterData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const copyToClipboard = (text: string) => {

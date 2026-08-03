@@ -20,10 +20,20 @@ export default function AdminCasinosTab({
   const [isSubmittingCasino, setIsSubmittingCasino] = useState(false)
   const [casinoModal, setCasinoModal] = useState<{isOpen: boolean, editingId: string | null}>({isOpen: false, editingId: null})
   const [newCasino, setNewCasino] = useState({
-    name: '', slug: '', lien_affilie: '', logo_url: '', commission_cpa: '', 
-    bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', 
-    remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', 
-    minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true
+    name: '',
+    slug: '',
+    lien_affilie: '',
+    logo_url: '',
+    commission_cpa: '',
+    bonus_depot: '100% jusqu\'à 500€',
+    bonus_sans_depot: 'Aucun',
+    licence: 'Curaçao',
+    remboursement_depot: false,
+    commission_conditions: 'Nouveau inscrit seulement',
+    minimum_depot: '20€',
+    ordre_classement: 1,
+    visible_affiliate: true,
+    allowed_countries: [] as string[]
   })
 
   // Handle Add / Edit Casino
@@ -50,7 +60,8 @@ export default function AdminCasinosTab({
         commission_conditions: newCasino.commission_conditions,
         minimum_depot: newCasino.minimum_depot,
         ordre_classement: Number(newCasino.ordre_classement),
-        visible_affiliate: newCasino.visible_affiliate
+        visible_affiliate: newCasino.visible_affiliate,
+        allowed_countries: newCasino.allowed_countries
       }
 
       if (casinoModal.editingId) {
@@ -62,9 +73,9 @@ export default function AdminCasinosTab({
       }
 
       if (error) {
-        if (error.code === '42703' || error.code === 'PGRST204' || (error.message && (error.message.includes('visible_affiliate') || error.message.includes('commission_cpa')))) {
+        if (error.code === '42703' || error.code === 'PGRST204' || (error.message && (error.message.includes('visible_affiliate') || error.message.includes('commission_cpa') || error.message.includes('allowed_countries')))) {
           // Columns might not exist in SQL DB yet, fallback without them so update succeeds
-          const { visible_affiliate, commission_cpa, ...fallbackData } = casinoData
+          const { visible_affiliate, commission_cpa, allowed_countries, ...fallbackData } = casinoData
           let fallbackRes;
           if (casinoModal.editingId) {
             fallbackRes = await supabase.from('casinos').update(fallbackData).eq('id', casinoModal.editingId)
@@ -117,7 +128,7 @@ export default function AdminCasinosTab({
       }
 
       setCasinoModal({isOpen: false, editingId: null})
-      setNewCasino({ name: '', slug: '', lien_affilie: '', logo_url: '', commission_cpa: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true })
+      setNewCasino({ name: '', slug: '', lien_affilie: '', logo_url: '', commission_cpa: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true, allowed_countries: [] })
       loadData()
     } catch (err) {
       toast.error('Erreur réseau')
@@ -156,7 +167,8 @@ export default function AdminCasinosTab({
       commission_conditions: casino.commission_conditions || '',
       minimum_depot: casino.minimum_depot || '',
       ordre_classement: casino.ordre_classement || 1,
-      visible_affiliate: casino.visible_affiliate !== false
+      visible_affiliate: casino.visible_affiliate !== false,
+      allowed_countries: casino.allowed_countries || []
     })
     setCasinoModal({isOpen: true, editingId: casino.id})
   }
@@ -196,7 +208,7 @@ export default function AdminCasinosTab({
           <h3 className="font-display font-bold text-lg text-white">Casinos Référencés sur la Vitrine</h3>
           <button 
             onClick={() => {
-              setNewCasino({ name: '', slug: '', lien_affilie: '', logo_url: '', commission_cpa: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true })
+              setNewCasino({ name: '', slug: '', lien_affilie: '', logo_url: '', commission_cpa: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true, allowed_countries: [] })
               setCasinoModal({isOpen: true, editingId: null})
             }}
             className="px-4 py-2 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-primary-hover shadow-purple-glow"
@@ -240,6 +252,13 @@ export default function AdminCasinosTab({
                 <div className="space-y-1">
                   <p className="text-slate-400 flex justify-between"><span>Sans dépôt:</span> <span className="text-emerald-400 font-semibold truncate ml-2" title={casino.bonus_sans_depot}>{casino.bonus_sans_depot || 'N/A'}</span></p>
                   <p className="text-slate-400 flex justify-between"><span>CPA:</span> <span className="text-purple-300 font-semibold ml-2 truncate" title={casino.commission_cpa}>{casino.commission_cpa || 'N/A'}</span></p>
+                </div>
+                <div className="col-span-2 pt-1 border-t border-slate-800/50 flex gap-1.5 items-center text-xs">
+                  <span className="text-slate-500">Pays:</span>
+                  {(casino.allowed_countries || []).includes('FR') && <span title="France">🇫🇷</span>}
+                  {(casino.allowed_countries || []).includes('BE') && <span title="Belgique">🇧🇪</span>}
+                  {(casino.allowed_countries || []).includes('LU') && <span title="Luxembourg">🇱🇺</span>}
+                  {!(casino.allowed_countries && casino.allowed_countries.length > 0) && <span className="text-slate-500 italic text-[10px]">Non défini</span>}
                 </div>
               </div>
 
@@ -421,6 +440,52 @@ export default function AdminCasinosTab({
                     <span>Visible Espace Affilié</span>
                   </label>
                   <p className="text-[10px] text-slate-400">Si coché, apparaît dans le tableau affilié.</p>
+                </div>
+              </div>
+
+              {/* Pays Autorisés */}
+              <div className="space-y-2 pt-2 pb-2">
+                <label className="text-xs font-semibold text-slate-300">Pays Autorisés</label>
+                <div className="flex gap-4 p-3 bg-[#0a0a0f] border border-slate-700 rounded-xl">
+                  <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
+                    <input
+                      type="checkbox"
+                      className="accent-primary w-4 h-4"
+                      checked={newCasino.allowed_countries?.includes('FR')}
+                      onChange={(e) => {
+                        const current = newCasino.allowed_countries || []
+                        if (e.target.checked) setNewCasino({ ...newCasino, allowed_countries: [...current, 'FR'] })
+                        else setNewCasino({ ...newCasino, allowed_countries: current.filter(c => c !== 'FR') })
+                      }}
+                    />
+                    <span>🇫🇷 France</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
+                    <input
+                      type="checkbox"
+                      className="accent-primary w-4 h-4"
+                      checked={newCasino.allowed_countries?.includes('BE')}
+                      onChange={(e) => {
+                        const current = newCasino.allowed_countries || []
+                        if (e.target.checked) setNewCasino({ ...newCasino, allowed_countries: [...current, 'BE'] })
+                        else setNewCasino({ ...newCasino, allowed_countries: current.filter(c => c !== 'BE') })
+                      }}
+                    />
+                    <span>🇧🇪 Belgique</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
+                    <input
+                      type="checkbox"
+                      className="accent-primary w-4 h-4"
+                      checked={newCasino.allowed_countries?.includes('LU')}
+                      onChange={(e) => {
+                        const current = newCasino.allowed_countries || []
+                        if (e.target.checked) setNewCasino({ ...newCasino, allowed_countries: [...current, 'LU'] })
+                        else setNewCasino({ ...newCasino, allowed_countries: current.filter(c => c !== 'LU') })
+                      }}
+                    />
+                    <span>🇱🇺 Luxembourg</span>
+                  </label>
                 </div>
               </div>
 

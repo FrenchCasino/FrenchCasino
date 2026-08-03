@@ -29,6 +29,7 @@ export default function ReviewSection({ casinoSlug }: { casinoSlug: string }) {
 
   useEffect(() => {
     fetchReviews()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [casinoSlug])
 
   const fetchReviews = async () => {

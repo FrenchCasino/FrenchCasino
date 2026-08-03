@@ -319,6 +319,7 @@ export default function DashboardPage() {
       setLoadingData(false)
     }
     loadAffiliateData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Dynamic statistics calculator based on timeRange
@@ -467,6 +468,7 @@ export default function DashboardPage() {
     }
     setChartData(chart)
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRange, rawClicksList, commissionsList, payoutsList, loadingData])
   
   // State IBAN Masqué
@@ -2085,9 +2087,15 @@ export default function DashboardPage() {
                 className="bg-[#0f0f15] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primary max-w-xs w-full"
               >
                 <option value="generic">🎲 Lien & Casino Générique (Placeholder)</option>
-                {casinosList.map(c => (
-                  <option key={c.id} value={c.id}>🎰 {c.name}</option>
-                ))}
+                {casinosList.map(c => {
+                  let flags = ''
+                  if (c.allowed_countries?.includes('FR')) flags += '🇫🇷 '
+                  if (c.allowed_countries?.includes('BE')) flags += '🇧🇪 '
+                  if (c.allowed_countries?.includes('LU')) flags += '🇱🇺 '
+                  return (
+                    <option key={c.id} value={c.id}>🎰 {c.name} {flags ? `(${flags.trim()})` : ''}</option>
+                  )
+                })}
               </select>
             </div>
           </div>

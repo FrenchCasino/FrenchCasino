@@ -131,6 +131,7 @@ export default function AdminAffiliatesTab({
     }
 
     fetchAffStats()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAff?.id, supabase])
 
   const handleSaveAdminMessage = async (affiliateId: string, message: string) => {

@@ -49,8 +49,13 @@ export default async function CasinoDetailPage({ params }: Props) {
             </div>
 
             <div className="space-y-2">
-              <h1 className="font-display text-3xl font-extrabold text-white">
+              <h1 className="font-display text-3xl font-extrabold text-white flex items-center gap-2">
                 {casino.name}
+                <div className="flex gap-1 text-2xl ml-2">
+                  {casino.allowedCountries?.includes('FR') && <span title="France">🇫🇷</span>}
+                  {casino.allowedCountries?.includes('BE') && <span title="Belgique">🇧🇪</span>}
+                  {casino.allowedCountries?.includes('LU') && <span title="Luxembourg">🇱🇺</span>}
+                </div>
               </h1>
               
               <div className="flex items-center gap-3 text-xs">
