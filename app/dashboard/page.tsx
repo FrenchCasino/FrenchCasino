@@ -181,13 +181,13 @@ export default function DashboardPage() {
       let casData: any[] | null = null
       const res = await supabase
         .from('casinos')
-        .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot, visible_affiliate, lien_affilie')
+        .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot, visible_affiliate, lien_affilie, allowed_countries')
         .eq('is_active', true)
       
       if (res.error) {
         const { data: fallbackData } = await supabase
           .from('casinos')
-          .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot, lien_affilie')
+          .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot, lien_affilie, allowed_countries')
           .eq('is_active', true)
         casData = fallbackData
       } else {

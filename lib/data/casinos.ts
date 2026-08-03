@@ -578,7 +578,13 @@ export async function getCasinos(): Promise<Casino[]> {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://pxbngvmnfsxvbmvxnbsq.supabase.co'
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_fZTXmdvRiz7jKprwItGPfg_MkHaqKy2'
     
-    const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey)
+    const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: 'no-store' })
+        }
+      }
+    })
     
     const { data, error } = await supabase
       .from('casinos')
