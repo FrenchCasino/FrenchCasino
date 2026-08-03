@@ -23,6 +23,13 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_FR",
     siteName: "FrenchCasino",
+    images: [{ url: "https://frenchcasino.net/og-default.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FrenchCasino V2 — Comparateur Casino & Affiliation N°1",
+    description: "Bonus sans dépôt, avis vérifiés et programme d'affiliation casino d'exception.",
+    images: ["https://frenchcasino.net/og-default.png"],
   },
   verification: {
     other: {

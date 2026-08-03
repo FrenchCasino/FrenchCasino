@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     openGraph: {
       title: `Jouer sur ${casino.name} - Offre Exclusive FrenchCasino`,
       description: `Découvrez ${casino.name}, l'un de nos casinos certifiés. Profitez d'avantages uniques en passant par notre lien partenaire !`,
-      images: [{ url: casino.logo || 'https://frenchcasino.net/og-default.jpg' }],
+      images: [{ url: casino.logo || 'https://frenchcasino.net/og-default.png' }],
       type: 'website',
     },
     twitter: {
