@@ -94,14 +94,6 @@ export default async function GoPage({
     } catch (trackErr) {
       console.error('[TRACKING ERROR]', trackErr)
     }
-
-    // On passe le code affilié à la plateforme du casino si demandé (remplacement de la balise {ref})
-    if (finalLink.includes('{ref}')) {
-      finalLink = finalLink.replace('{ref}', refCode)
-    } else {
-      const paramSeparator = finalLink.includes('?') ? '&' : '?'
-      finalLink = `${finalLink}${paramSeparator}subid=${refCode}`
-    }
   }
 
   // Redirection Serveur (HTTP 307) ultra rapide et fiable pour le tracking partenaire !
