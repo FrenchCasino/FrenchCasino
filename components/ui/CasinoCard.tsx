@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Casino } from '@/lib/data/casinos'
 import { Star, ShieldCheck, Zap, Gift, ExternalLink, ChevronRight, Check } from 'lucide-react'
+import { FlagIcon } from '@/components/ui/FlagIcon'
 
 interface CasinoCardProps {
   casino: Casino
@@ -65,10 +66,10 @@ export function CasinoCard({ casino, rank }: CasinoCardProps) {
             <Link href={`/casino/${casino.slug}`} className="hover:text-gold transition-colors">
               <h3 className="font-display font-bold text-lg sm:text-xl text-white flex items-center gap-2">
                 {casino.name}
-                <div className="flex gap-0.5 ml-1 text-base">
-                  {casino.allowedCountries?.includes('FR') && <span title="France">🇫🇷</span>}
-                  {casino.allowedCountries?.includes('BE') && <span title="Belgique">🇧🇪</span>}
-                  {casino.allowedCountries?.includes('LU') && <span title="Luxembourg">🇱🇺</span>}
+                <div className="flex gap-1.5 ml-2 items-center">
+                  {casino.allowedCountries?.includes('FR') && <FlagIcon country="FR" />}
+                  {casino.allowedCountries?.includes('BE') && <FlagIcon country="BE" />}
+                  {casino.allowedCountries?.includes('LU') && <FlagIcon country="LU" />}
                 </div>
               </h3>
             </Link>

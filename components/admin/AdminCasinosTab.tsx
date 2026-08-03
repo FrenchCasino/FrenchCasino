@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { Plus, Award, Eye, EyeOff, Edit, Power, Trash2, XCircle, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useConfirm } from '@/components/ui/ConfirmModal'
+import { FlagIcon } from '@/components/ui/FlagIcon'
 
 export default function AdminCasinosTab({ 
   casinos, 
@@ -255,9 +256,11 @@ export default function AdminCasinosTab({
                 </div>
                 <div className="col-span-2 pt-1 border-t border-slate-800/50 flex gap-1.5 items-center text-xs">
                   <span className="text-slate-500">Pays:</span>
-                  {(casino.allowed_countries || []).includes('FR') && <span title="France">🇫🇷</span>}
-                  {(casino.allowed_countries || []).includes('BE') && <span title="Belgique">🇧🇪</span>}
-                  {(casino.allowed_countries || []).includes('LU') && <span title="Luxembourg">🇱🇺</span>}
+                  <div className="flex gap-1.5 items-center">
+                    {(casino.allowed_countries || []).includes('FR') && <FlagIcon country="FR" />}
+                    {(casino.allowed_countries || []).includes('BE') && <FlagIcon country="BE" />}
+                    {(casino.allowed_countries || []).includes('LU') && <FlagIcon country="LU" />}
+                  </div>
                   {!(casino.allowed_countries && casino.allowed_countries.length > 0) && <span className="text-slate-500 italic text-[10px]">Non défini</span>}
                 </div>
               </div>
@@ -458,7 +461,10 @@ export default function AdminCasinosTab({
                         else setNewCasino({ ...newCasino, allowed_countries: current.filter(c => c !== 'FR') })
                       }}
                     />
-                    <span>🇫🇷 France</span>
+                    <div className="flex items-center gap-1.5">
+                      <FlagIcon country="FR" />
+                      <span>France</span>
+                    </div>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
                     <input
@@ -471,7 +477,10 @@ export default function AdminCasinosTab({
                         else setNewCasino({ ...newCasino, allowed_countries: current.filter(c => c !== 'BE') })
                       }}
                     />
-                    <span>🇧🇪 Belgique</span>
+                    <div className="flex items-center gap-1.5">
+                      <FlagIcon country="BE" />
+                      <span>Belgique</span>
+                    </div>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
                     <input
@@ -484,7 +493,10 @@ export default function AdminCasinosTab({
                         else setNewCasino({ ...newCasino, allowed_countries: current.filter(c => c !== 'LU') })
                       }}
                     />
-                    <span>🇱🇺 Luxembourg</span>
+                    <div className="flex items-center gap-1.5">
+                      <FlagIcon country="LU" />
+                      <span>Luxembourg</span>
+                    </div>
                   </label>
                 </div>
               </div>

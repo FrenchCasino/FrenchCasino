@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { getCasinos } from '@/lib/data/casinos'
 import { Star, ShieldCheck, Zap, Gift, ExternalLink, Check, Clock, FileText, ArrowLeft } from 'lucide-react'
 import ReviewSection from '@/components/casino/ReviewSection'
+import { FlagIcon } from '@/components/ui/FlagIcon'
 
 interface Props {
   params: {
@@ -51,10 +52,10 @@ export default async function CasinoDetailPage({ params }: Props) {
             <div className="space-y-2">
               <h1 className="font-display text-3xl font-extrabold text-white flex items-center gap-2">
                 {casino.name}
-                <div className="flex gap-1 text-2xl ml-2">
-                  {casino.allowedCountries?.includes('FR') && <span title="France">🇫🇷</span>}
-                  {casino.allowedCountries?.includes('BE') && <span title="Belgique">🇧🇪</span>}
-                  {casino.allowedCountries?.includes('LU') && <span title="Luxembourg">🇱🇺</span>}
+                <div className="flex gap-1.5 items-center ml-2">
+                  {casino.allowedCountries?.includes('FR') && <FlagIcon country="FR" />}
+                  {casino.allowedCountries?.includes('BE') && <FlagIcon country="BE" />}
+                  {casino.allowedCountries?.includes('LU') && <FlagIcon country="LU" />}
                 </div>
               </h1>
               

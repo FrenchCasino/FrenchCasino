@@ -1386,10 +1386,10 @@ export default function DashboardPage() {
                     <span className="font-bold text-white text-sm flex items-center gap-1.5">
                       {casino.name}
                       {casino.allowed_countries?.length > 0 && (
-                        <div className="flex gap-0.5 text-base">
-                          {casino.allowed_countries.includes('FR') && <span title="France">🇫🇷</span>}
-                          {casino.allowed_countries.includes('BE') && <span title="Belgique">🇧🇪</span>}
-                          {casino.allowed_countries.includes('LU') && <span title="Luxembourg">🇱🇺</span>}
+                        <div className="flex gap-1.5 items-center ml-2">
+                          {casino.allowed_countries.includes('FR') && <FlagIcon country="FR" />}
+                          {casino.allowed_countries.includes('BE') && <FlagIcon country="BE" />}
+                          {casino.allowed_countries.includes('LU') && <FlagIcon country="LU" />}
                         </div>
                       )}
                     </span>
