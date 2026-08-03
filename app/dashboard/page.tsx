@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { FlagIcon } from '@/components/ui/FlagIcon'
 import {
   TrendingUp,
   MousePointerClick,
