@@ -75,7 +75,14 @@ export default async function TopCasinoPage() {
                 <span className="text-[10px] font-bold text-slate-800 tracking-wider drop-shadow-sm">2ND</span>
               </div>
               <div className="mt-8 text-center space-y-3">
-                <h3 className="font-display font-bold text-xl text-white">{casinos[1].name}</h3>
+                <h3 className="font-display font-bold text-xl text-white flex items-center justify-center gap-2">
+                  {casinos[1].name}
+                  <div className="flex gap-0.5 ml-1 text-base">
+                    {casinos[1].allowedCountries?.includes('FR') && <span title="France">🇫🇷</span>}
+                    {casinos[1].allowedCountries?.includes('BE') && <span title="Belgique">🇧🇪</span>}
+                    {casinos[1].allowedCountries?.includes('LU') && <span title="Luxembourg">🇱🇺</span>}
+                  </div>
+                </h3>
                 <div className="flex justify-center items-center gap-1 text-slate-300 bg-slate-800/50 px-3 py-1 rounded-full text-xs font-semibold mx-auto w-fit border border-slate-700">
                   <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                   {casinos[1].noteFiabilite}/5
@@ -98,7 +105,14 @@ export default async function TopCasinoPage() {
               </div>
               <div className="mt-10 text-center space-y-4">
                 <div className="inline-block px-3 py-1 bg-gold/20 border border-gold/40 text-gold text-[10px] font-bold uppercase tracking-widest rounded-full mb-1">№ 1 — Meilleur casino FR 2026</div>
-                <h3 className="font-display font-black text-2xl text-white">{casinos[0].name}</h3>
+                <h3 className="font-display font-black text-2xl text-white flex items-center justify-center gap-2">
+                  {casinos[0].name}
+                  <div className="flex gap-0.5 ml-1 text-base">
+                    {casinos[0].allowedCountries?.includes('FR') && <span title="France">🇫🇷</span>}
+                    {casinos[0].allowedCountries?.includes('BE') && <span title="Belgique">🇧🇪</span>}
+                    {casinos[0].allowedCountries?.includes('LU') && <span title="Luxembourg">🇱🇺</span>}
+                  </div>
+                </h3>
                 <div className="flex justify-center items-center gap-1 text-gold bg-gold/10 px-4 py-1.5 rounded-full text-sm font-bold mx-auto w-fit border border-gold/20">
                   <Star className="w-4 h-4 text-gold fill-gold" />
                   {casinos[0].noteFiabilite}/5
@@ -123,7 +137,14 @@ export default async function TopCasinoPage() {
                 <span className="text-[10px] font-bold text-orange-950 tracking-wider drop-shadow-sm">3EME</span>
               </div>
               <div className="mt-8 text-center space-y-3">
-                <h3 className="font-display font-bold text-xl text-white">{casinos[2].name}</h3>
+                <h3 className="font-display font-bold text-xl text-white flex items-center justify-center gap-2">
+                  {casinos[2].name}
+                  <div className="flex gap-0.5 ml-1 text-base">
+                    {casinos[2].allowedCountries?.includes('FR') && <span title="France">🇫🇷</span>}
+                    {casinos[2].allowedCountries?.includes('BE') && <span title="Belgique">🇧🇪</span>}
+                    {casinos[2].allowedCountries?.includes('LU') && <span title="Luxembourg">🇱🇺</span>}
+                  </div>
+                </h3>
                 <div className="flex justify-center items-center gap-1 text-orange-300 bg-orange-900/30 px-3 py-1 rounded-full text-xs font-semibold mx-auto w-fit border border-orange-800/50">
                   <Star className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
                   {casinos[2].noteFiabilite}/5
