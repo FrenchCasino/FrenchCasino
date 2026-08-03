@@ -1383,7 +1383,16 @@ export default function DashboardPage() {
               return (
                 <div key={casino.id} className="glass-panel p-5 rounded-xl border border-slate-800 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-white text-sm">{casino.name}</span>
+                    <span className="font-bold text-white text-sm flex items-center gap-1.5">
+                      {casino.name}
+                      {casino.allowed_countries?.length > 0 && (
+                        <div className="flex gap-0.5 text-base">
+                          {casino.allowed_countries.includes('FR') && <span title="France">🇫🇷</span>}
+                          {casino.allowed_countries.includes('BE') && <span title="Belgique">🇧🇪</span>}
+                          {casino.allowed_countries.includes('LU') && <span title="Luxembourg">🇱🇺</span>}
+                        </div>
+                      )}
+                    </span>
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] bg-primary/20 text-primary-light px-2 py-0.5 rounded font-mono">
                         {clickCount} Clic{clickCount > 1 ? 's' : ''}
