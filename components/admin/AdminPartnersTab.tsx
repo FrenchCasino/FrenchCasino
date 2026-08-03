@@ -40,6 +40,42 @@ export default function AdminPartnersTab({ casinos }: { casinos: any[] }) {
       const partnersRes = await fetch('/api/admin/partners')
       if (partnersRes.ok) {
         const partnersData = await partnersRes.json()
+        
+        // Migration automatique depuis le localStorage s'il existe et si la base de données est vide
+        const localPartnersStr = localStorage.getItem('french_casino_partners')
+        if (localPartnersStr && partnersData.length === 0) {
+          try {
+            const localPartners = JSON.parse(localPartnersStr)
+            if (Array.isArray(localPartners) && localPartners.length > 0) {
+              console.log("Migration des partenaires depuis le localStorage vers Supabase...")
+              for (const p of localPartners) {
+                await fetch('/api/admin/partners', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    name: p.name,
+                    dashboard_url: p.dashboard_url,
+                    cpa_commission: p.cpa_commission,
+                    rs_commission: p.rs_commission,
+                    casinos_relies: p.casinos_relies || []
+                  })
+                })
+              }
+              // Recharger les partenaires après la migration
+              const newRes = await fetch('/api/admin/partners')
+              if (newRes.ok) {
+                const newData = await newRes.json()
+                setPartners(newData)
+              }
+              // Optionnel: nettoyer le localStorage après migration
+              // localStorage.removeItem('french_casino_partners')
+              return
+            }
+          } catch (e) {
+            console.error("Erreur lors de la migration du localStorage:", e)
+          }
+        }
+        
         setPartners(partnersData)
       }
     } catch (err) {

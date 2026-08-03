@@ -6,15 +6,11 @@ import { TrendingUp, DollarSign } from 'lucide-react'
 export default function AdminStatsTab({ 
   affiliates, 
   casinos, 
-  affClicksBreakdown, 
-  setCommissionModal, 
-  handleUpdateAffiliateStatus 
+  affClicksBreakdown
 }: { 
   affiliates: any[], 
   casinos: any[], 
-  affClicksBreakdown: Record<string, Record<string, number>>, 
-  setCommissionModal: any, 
-  handleUpdateAffiliateStatus: any 
+  affClicksBreakdown: Record<string, Record<string, number>>
 }) {
   const [selectedFilterAff1, setSelectedFilterAff1] = useState<string>('ALL')
   const [selectedFilterAff2, setSelectedFilterAff2] = useState<string>('')
@@ -69,7 +65,6 @@ export default function AdminStatsTab({
               <th className="px-4 py-3.5 text-center">Clics Totaux</th>
               <th className="px-4 py-3.5">Répartition des Clics par Casino</th>
               <th className="px-4 py-3.5 text-center">Statut</th>
-              <th className="px-4 py-3.5 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60 bg-surface/30">
@@ -144,29 +139,7 @@ export default function AdminStatsTab({
                       </span>
                     </td>
 
-                    {/* Quick Actions */}
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {aff.status === 'active' && (
-                          <button
-                            onClick={() => setCommissionModal({ isOpen: true, affiliateId: aff.id, affiliateName: aff.profiles?.full_name || 'Inconnu' })}
-                            className="px-2.5 py-1 rounded-lg bg-gold/10 hover:bg-gold/20 text-gold border border-gold/30 font-semibold text-[11px] transition-colors flex items-center gap-1"
-                            title="Ajouter une commission CPA"
-                          >
-                            <DollarSign className="w-3.5 h-3.5" />
-                            <span>+ CPA</span>
-                          </button>
-                        )}
-                        {aff.status === 'pending' && (
-                          <button
-                            onClick={() => handleUpdateAffiliateStatus(aff.id, 'active')}
-                            className="px-2.5 py-1 rounded-lg bg-emerald/20 hover:bg-emerald/30 text-emerald border border-emerald/30 font-semibold text-[11px] transition-colors"
-                          >
-                            Valider
-                          </button>
-                        )}
-                      </div>
-                    </td>
+
                   </tr>
                 )
               })}
