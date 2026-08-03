@@ -95,31 +95,16 @@ export default async function GoPage({
       console.error('[TRACKING ERROR]', trackErr)
     }
 
-    // On passe le code affilié à la plateforme du casino (très important pour les commissions)
-    const paramSeparator = finalLink.includes('?') ? '&' : '?'
-    finalLink = `${finalLink}${paramSeparator}subid=${refCode}`
+    // On passe le code affilié à la plateforme du casino si demandé (remplacement de la balise {ref})
+    if (finalLink.includes('{ref}')) {
+      finalLink = finalLink.replace('{ref}', refCode)
+    } else {
+      const paramSeparator = finalLink.includes('?') ? '&' : '?'
+      finalLink = `${finalLink}${paramSeparator}subid=${refCode}`
+    }
   }
 
-  return (
-    <html lang="fr">
-      <head>
-        <meta httpEquiv="refresh" content={`1;url=${finalLink}`} />
-      </head>
-      <body className="bg-[#0f0f17] text-white min-h-screen flex flex-col items-center justify-center font-sans antialiased">
-        <div className="flex flex-col items-center gap-6 p-8 text-center animate-pulse">
-          <div className="w-16 h-16 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold font-display text-white">Redirection en cours...</h1>
-            <p className="text-slate-400">Nous vous redirigeons vers {casino.name} en toute sécurité.</p>
-          </div>
-        </div>
-        
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `setTimeout(function() { window.location.replace("${finalLink}"); }, 500);`
-          }}
-        />
-      </body>
-    </html>
-  )
+  // Redirection Serveur (HTTP 307) ultra rapide et fiable pour le tracking partenaire !
+  // Cela garantit que le "Referer" est transmis au casino partenaire.
+  redirect(finalLink)
 }
