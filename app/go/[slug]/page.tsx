@@ -96,8 +96,6 @@ export default async function GoPage({
     }
   }
 
-  }
-
   // Pour forcer le "Referer" à être frenchcasino.net aux yeux des partenaires (et cacher Facebook),
   // il est obligatoire de charger une page HTML intermédiaire qui déclenche ensuite la navigation.
   return (
