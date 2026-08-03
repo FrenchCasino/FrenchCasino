@@ -96,7 +96,32 @@ export default async function GoPage({
     }
   }
 
-  // Redirection Serveur (HTTP 307) ultra rapide et fiable pour le tracking partenaire !
-  // Cela garantit que le "Referer" est transmis au casino partenaire.
-  redirect(finalLink)
+  }
+
+  // Pour forcer le "Referer" à être frenchcasino.net aux yeux des partenaires (et cacher Facebook),
+  // il est obligatoire de charger une page HTML intermédiaire qui déclenche ensuite la navigation.
+  return (
+    <html lang="fr">
+      <head>
+        <meta name="referrer" content="origin" />
+        <meta httpEquiv="refresh" content={`1;url=${finalLink}`} />
+        <title>Redirection en cours...</title>
+      </head>
+      <body className="bg-[#0f0f17] text-white min-h-screen flex flex-col items-center justify-center font-sans antialiased">
+        <div className="flex flex-col items-center gap-6 p-8 text-center animate-pulse">
+          <div className="w-16 h-16 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold font-display text-white">Redirection en cours...</h1>
+            <p className="text-slate-400">Nous vous redirigeons vers {casino.name} en toute sécurité.</p>
+          </div>
+        </div>
+        
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `setTimeout(function() { window.location.href = "${finalLink}"; }, 500);`
+          }}
+        />
+      </body>
+    </html>
+  )
 }
