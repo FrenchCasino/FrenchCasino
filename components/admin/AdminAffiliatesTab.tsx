@@ -56,8 +56,7 @@ export default function AdminAffiliatesTab({
   const [commissionNote, setCommissionNote] = useState('Dépôt Joueur')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [telegramMessage, setTelegramMessage] = useState('')
-  const [isSendingTelegram, setIsSendingTelegram] = useState(false)
+
   const [isAdminMessageSaving, setIsAdminMessageSaving] = useState(false)
 
   useEffect(() => {
@@ -298,31 +297,6 @@ export default function AdminAffiliatesTab({
     ]);
     downloadCSVAdmin(headers, rows, `affilies_frenchcasino_${new Date().toISOString().split('T')[0]}.csv`);
   };
-
-  const handleSendTelegramBroadcast = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!telegramMessage.trim()) return
-
-    setIsSendingTelegram(true)
-    try {
-      const res = await fetch('/api/telegram/broadcast', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: telegramMessage })
-      })
-      const data = await res.json()
-      if (data.success) {
-        toast.success('Message envoyé au canal avec succès !')
-        setTelegramMessage('')
-      } else {
-        toast.error("Erreur lors de l'envoi : " + data.error)
-      }
-    } catch (err) {
-      toast.error('Erreur réseau')
-    } finally {
-      setIsSendingTelegram(false)
-    }
-  }
 
   // If an affiliate is selected, show the overlay UI
   if (selectedAff) {
@@ -676,65 +650,6 @@ export default function AdminAffiliatesTab({
           ))}
         </div>
 
-        <div className="pt-6 border-t border-slate-800/50">
-          <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-            <Send className="w-4 h-4 text-blue-500" /> Message Global (Telegram)
-          </h4>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            <button 
-              onClick={() => setTelegramMessage("🚨 <b>Qualité du Trafic</b>\n\nPetit rappel important : tout trafic frauduleux ou non conforme sera pénalisé.\n\nNous surveillons de près la qualité des joueurs envoyés, merci de respecter nos conditions !\n\nL'équipe FrenchCasino")}
-              className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
-            >
-              <span className="text-xl mb-2 block">🚨</span>
-              <h3 className="font-bold text-white text-sm mb-1">Qualité & Règles</h3>
-              <p className="text-[10px] text-slate-400">Alerte Fraude ou KPI</p>
-            </button>
-            <button 
-              onClick={() => setTelegramMessage("👋 <b>Bienvenue aux nouveaux affiliés !</b>\n\nFrench Casino vous rémunère de la façon suivante :\n\n💰 <b>Commissions (CPA) :</b>\nSi un membre dépose 15€ sur un casino via votre lien de partage, vous remportez de 20€ à 70€ selon la promotion du jour.\n\n🎁 <b>Remboursement des dépôts :</b>\nVous pouvez profiter de nos promotions pour rembourser vos membres lors de leur dépôt ! Vous avez juste à faire une demande de remboursement dans la rubrique \"Paiement\" de votre tableau de bord. Le remboursement interviendra généralement le lendemain du dépôt.\n\n📅 <b>Paiement de vos soldes :</b>\nNous faisons les virements de vos soldes entre le 15 et le 20 du mois suivant.\n<i>Exemple : En septembre, vous avez un solde disponible de 530€. Ce montant sera remis à zéro le 1er octobre et vous pourrez demander le paiement de 530€ (ou moins) à partir du 15 octobre.</i>\n\n❓ Si vous avez des questions, n'hésitez pas à vous adresser à votre recruteur.\n\nL'équipe FrenchCasino")}
-              className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors md:col-span-2 lg:col-span-3"
-            >
-              <span className="text-xl mb-2 block">👋</span>
-              <h3 className="font-bold text-white text-sm mb-1">Bienvenue Nouvel Affilié</h3>
-              <p className="text-[10px] text-slate-400">Explication détaillée (Commissions, Remboursements, Virements 15-20)</p>
-            </button>
-          </div>
-
-          <form onSubmit={handleSendTelegramBroadcast} className="relative z-10">
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-semibold text-slate-300">Message (Supporte le HTML Telegram &lt;b&gt;, &lt;i&gt;, &lt;a href=""&gt;)</label>
-                <div className="flex gap-1">
-                  {['🎰', '🔥', '💰', '🏆', '🚨', '🆕', '💸', '💎', '🚀', '🎁', '📈', '✅', '⚠️', '🎉', '🤑'].map(emoji => (
-                    <button
-                      key={emoji}
-                      type="button"
-                      onClick={() => setTelegramMessage(prev => prev + emoji)}
-                      className="w-6 h-6 flex items-center justify-center text-sm bg-slate-800 hover:bg-slate-700 hover:text-xl rounded transition-all"
-                      title="Ajouter l'émoji"
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <textarea 
-                value={telegramMessage}
-                onChange={(e) => setTelegramMessage(e.target.value)}
-                className="w-full h-48 bg-[#0a0a0f] border border-slate-700 rounded-xl p-4 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-y font-mono text-sm"
-                placeholder="Saisissez votre message ici..."
-                required
-              />
-            </div>
-            <button 
-              type="submit"
-              disabled={isSendingTelegram || !telegramMessage.trim()}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSendingTelegram ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-5 h-5" /> Envoyer à tous les affiliés (Canal)</>}
-            </button>
-          </form>
-        </div>
       </div>
 
       {/* Commission Modal */}
