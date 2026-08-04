@@ -95,7 +95,7 @@ export default function AdminStatsTab({
       </div>
 
       {/* AFFILIATES GRID (Replaces Table) */}
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-3">
         {filteredAffiliates.map((aff, index) => {
           const detailedClicks = affClicksBreakdown[aff.id] || {}
           const totalClicks = aff.total_clicks || 0
@@ -120,25 +120,25 @@ export default function AdminStatsTab({
               <div className="flex flex-col md:flex-row">
                 
                 {/* Left Section: User Info & Total Clicks */}
-                <div className="flex-1 p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6 border-b md:border-b-0 md:border-r border-slate-800 relative">
+                <div className="flex-1 p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center gap-4 border-b md:border-b-0 md:border-r border-slate-800 relative">
                   
                   {/* Rank Badge for Top 3 */}
                   {isTop3 && (
-                    <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-purple-500 to-blue-500"></div>
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-purple-500 to-blue-500"></div>
                   )}
 
                   {/* Avatar & Identité */}
-                  <div className="flex items-center gap-5 min-w-[250px]">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center font-black text-xl shrink-0 shadow-lg border ${highlightClass}`}>
+                  <div className="flex items-center gap-3 min-w-[200px]">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-base shrink-0 shadow-sm border ${highlightClass}`}>
                       {isTop3 ? `#${index + 1}` : (aff.profiles?.full_name || '?')[0]}
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg text-white mb-1 flex items-center gap-2">
+                      <h4 className="font-bold text-base text-white flex items-center gap-2 mb-0.5">
                         {aff.profiles?.full_name || 'Sans Nom'}
-                        {aff.status === 'active' && <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" title="Actif"></span>}
+                        {aff.status === 'active' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" title="Actif"></span>}
                       </h4>
-                      <p className="text-xs text-slate-400 font-mono mb-2">{aff.profiles?.email}</p>
-                      <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 text-[10px] font-mono text-slate-300">
+                      <p className="text-[10px] text-slate-400 font-mono mb-1">{aff.profiles?.email}</p>
+                      <div className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-[9px] font-mono text-slate-300">
                         Code: <span className="text-purple-400 font-bold ml-1">{aff.referral_code}</span>
                       </div>
                     </div>
@@ -148,13 +148,13 @@ export default function AdminStatsTab({
                   <div className="hidden md:block flex-1"></div>
 
                   {/* Total Clicks BIG Display */}
-                  <div className="flex items-center gap-4 bg-[#0a0a0f] p-4 rounded-2xl border border-slate-800 md:min-w-[200px]">
-                    <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
-                      <TrendingUp className="w-5 h-5 text-purple-400" />
+                  <div className="flex items-center gap-3 bg-[#0a0a0f] py-2 px-4 rounded-xl border border-slate-800 md:min-w-[150px]">
+                    <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
+                      <TrendingUp className="w-4 h-4 text-purple-400" />
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Total Clics</div>
-                      <div className="text-3xl font-black font-mono text-white leading-none">
+                      <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Total Clics</div>
+                      <div className="text-2xl font-black font-mono text-white leading-none">
                         {totalClicks.toLocaleString()}
                       </div>
                     </div>
@@ -162,8 +162,8 @@ export default function AdminStatsTab({
                 </div>
 
                 {/* Right Section: Breakdown per Casino */}
-                <div className="flex-[1.2] p-6 md:p-8 bg-surface/30">
-                  <h5 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <div className="flex-[1.2] p-4 sm:p-5 bg-surface/30">
+                  <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                     Répartition par Casino <span className="text-slate-600">({Object.keys(detailedClicks).length})</span>
                   </h5>
                   
@@ -179,18 +179,18 @@ export default function AdminStatsTab({
                         const percentage = totalClicks > 0 ? Math.round(((count as number) / totalClicks) * 100) : 0;
                         
                         return (
-                          <div key={casinoKey} className="group relative bg-[#0a0a0f] border border-slate-700 hover:border-purple-500/50 rounded-xl p-2.5 pr-4 flex items-center gap-3 transition-colors">
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-slate-800 rounded-l-xl overflow-hidden">
+                          <div key={casinoKey} className="group relative bg-[#0a0a0f] border border-slate-700 hover:border-purple-500/50 rounded-lg p-1.5 pr-3 flex items-center gap-2 transition-colors">
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-slate-800 rounded-l-lg overflow-hidden">
                               <div className="absolute bottom-0 left-0 w-full bg-purple-500 transition-all duration-500" style={{ height: `${percentage}%` }}></div>
                             </div>
                             
-                            <div className="pl-2 flex flex-col justify-center">
-                              <span className="text-[11px] font-semibold text-slate-300 leading-tight block mb-0.5">{name}</span>
-                              <span className="text-[9px] text-slate-500 font-mono">{percentage}% du trafic</span>
+                            <div className="pl-1.5 flex flex-col justify-center">
+                              <span className="text-[10px] font-semibold text-slate-300 leading-tight block mb-0.5">{name}</span>
+                              <span className="text-[8px] text-slate-500 font-mono uppercase">{percentage}% trafic</span>
                             </div>
                             
-                            <div className="ml-auto bg-slate-800/80 px-2 py-1 rounded-md border border-slate-700">
-                              <span className="text-gold font-black font-mono text-sm leading-none">{count as number}</span>
+                            <div className="ml-auto bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700">
+                              <span className="text-gold font-black font-mono text-[11px] leading-none">{count as number}</span>
                             </div>
                           </div>
                         )
