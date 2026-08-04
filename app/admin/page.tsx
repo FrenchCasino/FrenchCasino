@@ -20,7 +20,6 @@ import {
   Download,
   Loader2,
   MessageSquare,
-  Send,
   CornerDownRight,
   Building,
   ExternalLink,
@@ -693,8 +692,6 @@ export default function AdminDashboardPage() {
             { id: 'partners', label: 'Mes Partenaires', icon: Building },
             { id: 'payouts', label: 'Paiements & Exports', icon: CreditCard },
             { id: 'refunds', label: 'Remboursements', icon: RefreshCw },
-            { id: 'support', label: 'Tickets Support', icon: Clock },
-            { id: 'telegram', label: 'Diffusion Telegram', icon: Send },
             { id: 'logs', label: 'Logs & Alertes', icon: FileText },
           ].map(tab => {
             const Icon = tab.icon
@@ -731,117 +728,6 @@ export default function AdminDashboardPage() {
         {/* CONTENU PRINCIPAL */}
         <div className="flex-1 w-full min-w-0">
 
-          {/* TELEGRAM BROADCAST TAB */}
-          {adminTab === 'telegram' && (
-            <div className="space-y-6">
-              <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-surface-border bg-surface relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
-                <h2 className="text-xl font-display font-bold text-white mb-6 flex items-center gap-2 relative z-10">
-                  <Send className="w-5 h-5 text-blue-400" />
-                  Diffuser un message (Telegram)
-                </h2>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 relative z-10">
-                  <button 
-                    onClick={() => setTelegramMessage("🎰 <b>Nouvelle Promo Commission !</b>\n\nChers affiliés, nous venons de booster les commissions sur [Nom du Casino].\n\nProfitez-en pour envoyer du trafic dès maintenant !\n\nL'équipe FrenchCasino")}
-                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
-                  >
-                    <span className="text-xl mb-2 block">🎰</span>
-                    <h3 className="font-bold text-white text-sm mb-1">Nouvelle Promo</h3>
-                    <p className="text-[10px] text-slate-400">Hausse de commission CPA/RS</p>
-                  </button>
-
-                  <button 
-                    onClick={() => setTelegramMessage("🆕 <b>Nouveau Casino Intégré !</b>\n\nBonne nouvelle, [Nom du Casino] est maintenant disponible sur votre tableau de bord.\n\nRécupérez vite votre lien et commencez l'acquisition !\n\nL'équipe FrenchCasino")}
-                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
-                  >
-                    <span className="text-xl mb-2 block">🆕</span>
-                    <h3 className="font-bold text-white text-sm mb-1">Nouveau Casino</h3>
-                    <p className="text-[10px] text-slate-400">Annonce d'une nouvelle marque</p>
-                  </button>
-
-                  <button 
-                    onClick={() => setTelegramMessage("🔥 <b>Boostez vos troupes !</b>\n\nLe mois se termine bientôt ! Continuez vos efforts pour atteindre les paliers VIP et débloquer vos primes bonus.\n\nBon courage à tous ! 💪")}
-                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
-                  >
-                    <span className="text-xl mb-2 block">🔥</span>
-                    <h3 className="font-bold text-white text-sm mb-1">Booster les troupes</h3>
-                    <p className="text-[10px] text-slate-400">Message de motivation fin de mois</p>
-                  </button>
-
-                  <button 
-                    onClick={() => setTelegramMessage("💰 <b>Rappel : Demandes de Paiement</b>\n\nN'oubliez pas, les demandes de paiement pour ce mois-ci se terminent le [Date].\n\nRendez-vous sur votre tableau de bord pour valider votre facture.\n\nL'équipe FrenchCasino")}
-                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
-                  >
-                    <span className="text-xl mb-2 block">💰</span>
-                    <h3 className="font-bold text-white text-sm mb-1">Rappel Paiement</h3>
-                    <p className="text-[10px] text-slate-400">Facturation & encaissements</p>
-                  </button>
-
-                  <button 
-                    onClick={() => setTelegramMessage("🏆 <b>Félicitations aux meilleurs !</b>\n\nBravo à notre top 3 de la semaine pour leurs performances exceptionnelles. Vos commissions viennent d'être validées !\n\nÀ qui le tour ? 😉")}
-                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
-                  >
-                    <span className="text-xl mb-2 block">🏆</span>
-                    <h3 className="font-bold text-white text-sm mb-1">Félicitations</h3>
-                    <p className="text-[10px] text-slate-400">Récompenser les Tops Affiliés</p>
-                  </button>
-                  
-                  <button 
-                    onClick={() => setTelegramMessage("🚨 <b>Qualité du Trafic</b>\n\nPetit rappel important : tout trafic frauduleux ou non conforme sera pénalisé.\n\nNous surveillons de près la qualité des joueurs envoyés, merci de respecter nos conditions !\n\nL'équipe FrenchCasino")}
-                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors"
-                  >
-                    <span className="text-xl mb-2 block">🚨</span>
-                    <h3 className="font-bold text-white text-sm mb-1">Qualité & Règles</h3>
-                    <p className="text-[10px] text-slate-400">Alerte Fraude ou KPI</p>
-                  </button>
-                  <button 
-                    onClick={() => setTelegramMessage("👋 <b>Bienvenue aux nouveaux affiliés !</b>\n\nFrench Casino vous rémunère de la façon suivante :\n\n💰 <b>Commissions (CPA) :</b>\nSi un membre dépose 15€ sur un casino via votre lien de partage, vous remportez de 20€ à 70€ selon la promotion du jour.\n\n🎁 <b>Remboursement des dépôts :</b>\nVous pouvez profiter de nos promotions pour rembourser vos membres lors de leur dépôt ! Vous avez juste à faire une demande de remboursement dans la rubrique \"Paiement\" de votre tableau de bord. Le remboursement interviendra généralement le lendemain du dépôt.\n\n📅 <b>Paiement de vos soldes :</b>\nNous faisons les virements de vos soldes entre le 15 et le 20 du mois suivant.\n<i>Exemple : En septembre, vous avez un solde disponible de 530€. Ce montant sera remis à zéro le 1er octobre et vous pourrez demander le paiement de 530€ (ou moins) à partir du 15 octobre.</i>\n\n❓ Si vous avez des questions, n'hésitez pas à vous adresser à votre recruteur.\n\nL'équipe FrenchCasino")}
-                    className="p-4 bg-slate-900 border border-slate-700 hover:border-blue-500 hover:bg-slate-800 rounded-xl text-left transition-colors md:col-span-2 lg:col-span-3"
-                  >
-                    <span className="text-xl mb-2 block">👋</span>
-                    <h3 className="font-bold text-white text-sm mb-1">Bienvenue Nouvel Affilié</h3>
-                    <p className="text-[10px] text-slate-400">Explication détaillée (Commissions, Remboursements, Virements 15-20)</p>
-                  </button>
-                </div>
-
-                <form onSubmit={handleSendTelegramBroadcast} className="relative z-10">
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="block text-sm font-semibold text-slate-300">Message (Supporte le HTML Telegram &lt;b&gt;, &lt;i&gt;, &lt;a href=""&gt;)</label>
-                      <div className="flex gap-1">
-                        {['🎰', '🔥', '💰', '🏆', '🚨', '🆕', '💸', '💎', '🚀', '🎁', '📈', '✅', '⚠️', '🎉', '🤑'].map(emoji => (
-                          <button
-                            key={emoji}
-                            type="button"
-                            onClick={() => setTelegramMessage(prev => prev + emoji)}
-                            className="w-6 h-6 flex items-center justify-center text-sm bg-slate-800 hover:bg-slate-700 hover:text-xl rounded transition-all"
-                            title="Ajouter l'émoji"
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <textarea 
-                      value={telegramMessage}
-                      onChange={(e) => setTelegramMessage(e.target.value)}
-                      className="w-full h-48 bg-[#0a0a0f] border border-slate-700 rounded-xl p-4 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-y font-mono text-sm"
-                      placeholder="Saisissez votre message ici..."
-                      required
-                    />
-                  </div>
-                  <button 
-                    type="submit"
-                    disabled={isSendingTelegram || !telegramMessage.trim()}
-                    className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSendingTelegram ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-5 h-5" /> Envoyer à tous les affiliés (Canal)</>}
-                  </button>
-                </form>
-              </div>
-            </div>
-          )}
 
       {/* Loading State */}
       {loading ? (
