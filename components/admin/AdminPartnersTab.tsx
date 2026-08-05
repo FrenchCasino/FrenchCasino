@@ -166,7 +166,7 @@ export default function AdminPartnersTab({ casinos }: { casinos: any[] }) {
       dashboard_url: partner.dashboard_url || '',
       cpa_commission: partner.cpa_commission || '',
       rs_commission: partner.rs_commission || '',
-      casinos_relies: partner.casinos_relies || []
+      casinos_relies: (partner.casinos_relies || []).filter((cName: string) => casinos.some(c => c.name === cName))
     })
     setPartnerModal({ isOpen: true, editingId: partner.id })
   }
@@ -260,11 +260,13 @@ export default function AdminPartnersTab({ casinos }: { casinos: any[] }) {
                     <Handshake className="w-3.5 h-3.5 text-purple-400 shrink-0" />
                     Casinos Reliés
                   </span>
-                  <span className="font-mono text-gold text-[10px] bg-gold/10 px-1.5 py-0.5 rounded-full">({partner.casinos_relies?.length || 0})</span>
+                  <span className="font-mono text-gold text-[10px] bg-gold/10 px-1.5 py-0.5 rounded-full">
+                    ({(partner.casinos_relies || []).filter((cName: string) => casinos.some(c => c.name === cName)).length})
+                  </span>
                 </div>
                 <div className="flex flex-wrap gap-1 max-h-14 overflow-y-auto pr-1">
-                  {partner.casinos_relies && partner.casinos_relies.length > 0 ? (
-                    partner.casinos_relies.map((cName: string, idx: number) => (
+                  {(partner.casinos_relies || []).filter((cName: string) => casinos.some(c => c.name === cName)).length > 0 ? (
+                    (partner.casinos_relies || []).filter((cName: string) => casinos.some(c => c.name === cName)).map((cName: string, idx: number) => (
                       <span key={idx} className="px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[10px] font-medium text-slate-200 flex items-center gap-1">
                         <span className="w-1 h-1 rounded-full bg-gold shrink-0" />
                         {cName}
