@@ -52,7 +52,16 @@ export async function DELETE(
     // Utiliser le service_role client pour forcer la suppression (bypass RLS)
     const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
 
+    // Nullify references in parent_affiliate_id to avoid deleting recruited affiliates
+    await adminClient.from('affiliates').update({ parent_affiliate_id: null }).eq('parent_affiliate_id', affiliateId)
+    
     // Suppression explicite de toutes les tables liées pour éviter les erreurs de clés étrangères
+    await adminClient.from('ticket_messages').delete().eq('sender_id', affiliateId)
+    await adminClient.from('tickets').delete().eq('affiliate_id', affiliateId)
+    await adminClient.from('payout_requests').delete().eq('affiliate_id', affiliateId)
+    await adminClient.from('page_views').delete().eq('affiliate_id', affiliateId)
+    await adminClient.from('refund_requests').delete().eq('affiliate_id', affiliateId)
+    await adminClient.from('casino_reviews').delete().eq('user_id', affiliateId)
     await adminClient.from('casino_clicks').delete().eq('affiliate_id', affiliateId)
     await adminClient.from('recruiter_commissions').delete().eq('affiliate_id', affiliateId)
     await adminClient.from('recruiter_commissions').delete().eq('recruiter_id', affiliateId)
