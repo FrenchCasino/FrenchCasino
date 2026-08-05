@@ -39,7 +39,7 @@ export default function AdminAffiliatesTab({
   supabase: any,
   downloadCSVAdmin: (headers: string[], rows: any[][], filename: string) => void
 }) {
-  const { confirm } = useConfirm()
+  const { confirm, ConfirmDialog } = useConfirm()
 
   const [selectedAff, setSelectedAff] = useState<any>(null)
   const [selectedAffStats, setSelectedAffStats] = useState<{
@@ -736,6 +736,7 @@ export default function AdminAffiliatesTab({
           </div>
         </div>
       )}
+      <ConfirmDialog />
     </>
   )
 }

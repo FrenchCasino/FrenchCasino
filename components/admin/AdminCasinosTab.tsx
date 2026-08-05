@@ -17,7 +17,7 @@ export default function AdminCasinosTab({
   loadData: () => void,
   supabase: any
 }) {
-  const { confirm } = useConfirm()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [isSubmittingCasino, setIsSubmittingCasino] = useState(false)
   const [casinoModal, setCasinoModal] = useState<{isOpen: boolean, editingId: string | null}>({isOpen: false, editingId: null})
   const [newCasino, setNewCasino] = useState({
@@ -548,6 +548,7 @@ export default function AdminCasinosTab({
           </div>
         </div>
       )}
+      <ConfirmDialog />
     </>
   )
 }
