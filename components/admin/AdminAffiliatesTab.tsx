@@ -42,21 +42,11 @@ export default function AdminAffiliatesTab({
   const { confirm, ConfirmDialog } = useConfirm()
 
   const [selectedAff, setSelectedAff] = useState<any>(null)
-  const [selectedAffStats, setSelectedAffStats] = useState<{
-    loading: boolean;
-    totalClicks: number;
-    conversionRate: number;
-    clicksByCasino: Record<string, { clicks: number, commissions: number }>;
-    recentCommissions: any[];
-  } | null>(null)
-  
   const [commissionModal, setCommissionModal] = useState<{isOpen: boolean, affiliateId: string, affiliateName: string}>({ isOpen: false, affiliateId: '', affiliateName: '' })
   const [commissionAmount, setCommissionAmount] = useState('')
   const [commissionType, setCommissionType] = useState<'add' | 'deduct'>('add')
   const [commissionNote, setCommissionNote] = useState('Dépôt Joueur')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'all'>('7d')
-
   const [isAdminMessageSaving, setIsAdminMessageSaving] = useState(false)
 
   useEffect(() => {
@@ -64,89 +54,6 @@ export default function AdminAffiliatesTab({
     fetch('/api/admin/clean-clicks', { method: 'POST' }).catch(console.error)
   }, [])
 
-  useEffect(() => {
-    if (!selectedAff) {
-      setSelectedAffStats(null)
-      return
-    }
-
-    async function fetchAffStats() {
-      if (!selectedAff?.id) return;
-      setSelectedAffStats({ loading: true, totalClicks: 0, conversionRate: 0, clicksByCasino: {}, recentCommissions: [] })
-      
-      try {
-        let clicksData = []
-        try {
-          const res = await fetch(`/api/admin/clicks?affiliate_id=${selectedAff.id}`)
-          if (res.ok) {
-            clicksData = await res.json()
-          }
-        } catch (err) {
-          console.error('Error loading clicks from API:', err)
-        }
-
-        const { data: commsData, error: commsErr } = await supabase
-          .from('commissions')
-          .select('*')
-          .eq('affiliate_id', selectedAff.id)
-          .order('created_at', { ascending: false })
-
-        if (commsErr) console.error('Error loading commissions:', commsErr)
-        
-        let filteredClicks: any[] = clicksData || []
-        let filteredComms: any[] = commsData || []
-
-        if (timeRange === '7d') {
-          const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime()
-          filteredClicks = filteredClicks.filter(c => new Date(c.created_at).getTime() > sevenDaysAgo)
-          filteredComms = filteredComms.filter(c => new Date(c.created_at).getTime() > sevenDaysAgo)
-        } else if (timeRange === '30d') {
-          const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime()
-          filteredClicks = filteredClicks.filter(c => new Date(c.created_at).getTime() > thirtyDaysAgo)
-          filteredComms = filteredComms.filter(c => new Date(c.created_at).getTime() > thirtyDaysAgo)
-        }
-
-        const totalClicks = filteredClicks.length
-        const validComms = filteredComms.filter((c: any) => c.statut === 'validated' || c.statut === 'paid')
-        const totalConversions = validComms.length
-        const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
-
-        const statsByCasino: Record<string, { clicks: number, commissions: number }> = {}
-        
-        filteredClicks.forEach((c: any) => {
-          const slug = c.casino_slug || c.casino_id || 'général'
-          if (!statsByCasino[slug]) statsByCasino[slug] = { clicks: 0, commissions: 0 }
-          statsByCasino[slug].clicks += 1
-        })
-
-        validComms.forEach((c: any) => {
-          const key = c.casino_slug || c.casino_name || 'général'
-          if (!statsByCasino[key]) statsByCasino[key] = { clicks: 0, commissions: 0 }
-          statsByCasino[key].commissions += 1
-        })
-
-        setSelectedAffStats({
-          loading: false,
-          totalClicks: filteredClicks.length,
-          conversionRate,
-          clicksByCasino: statsByCasino,
-          recentCommissions: (commsData || []).slice(0, 5) // Always show recent regardless of timeRange
-        })
-      } catch (err) {
-        console.error('Error in fetchAffStats:', err)
-        setSelectedAffStats({
-          loading: false,
-          totalClicks: 0,
-          conversionRate: 0,
-          clicksByCasino: {},
-          recentCommissions: []
-        })
-      }
-    }
-
-    fetchAffStats()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAff?.id, supabase, timeRange])
 
   const handleSaveAdminMessage = async (affiliateId: string, message: string) => {
     setIsAdminMessageSaving(true)
@@ -224,20 +131,20 @@ export default function AdminAffiliatesTab({
     }
   }
 
-  const handleUpdateCommissionRate = async (id: string, currentRate: number) => {
-    const newRateStr = window.prompt("Nouveau taux de commission (ex: 0.35 pour 35%)", currentRate.toString())
+  const handleUpdateCPA = async (id: string, currentRate: number) => {
+    const newRateStr = window.prompt("Nouveau CPA (€) par dépôt (ex: 20 ou 50)", currentRate.toString())
     if (!newRateStr) return
     const newRate = parseFloat(newRateStr)
-    if (isNaN(newRate) || newRate < 0 || newRate > 1) {
-      toast.error('Taux invalide. Doit être entre 0 et 1.')
+    if (isNaN(newRate) || newRate < 0) {
+      toast.error('Montant invalide.')
       return
     }
     const { error } = await supabase.from('affiliates').update({ commission_rate: newRate }).eq('id', id)
     if (!error) {
       setAffiliates(affiliates.map(a => a.id === id ? { ...a, commission_rate: newRate } : a))
-      toast.success(`Taux mis à jour : ${(newRate * 100).toFixed(0)}%`)
+      toast.success(`CPA mis à jour : ${newRate}€`)
     } else {
-      toast.error('Erreur lors de la mise à jour du taux')
+      toast.error('Erreur lors de la mise à jour du CPA')
     }
   }
 
@@ -297,7 +204,7 @@ export default function AdminAffiliatesTab({
   const handleExportAffiliates = () => {
     if (affiliates.length === 0) return toast.error("Aucun affilié à exporter.");
     const headers = [
-      "Nom", "Email", "Rôle", "Taux de commission", "Total accumulé (€)", "Statut", "IBAN Titulaire", "IBAN", "BIC"
+      "Nom", "Email", "Rôle", "CPA (€)", "Total accumulé (€)", "Statut", "IBAN Titulaire", "IBAN", "BIC"
     ];
     const rows = affiliates.map(aff => [
       aff.profiles?.full_name || 'Sans nom',
@@ -393,11 +300,11 @@ export default function AdminAffiliatesTab({
                 </div>
 
                 <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                  <span className="text-xs text-slate-400">Commission (CPA)</span>
+                  <span className="text-xs text-slate-400">CPA (€)</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-white">{(selectedAff.commission_rate * 100).toFixed(0)}%</span>
+                    <span className="text-sm font-semibold text-white">{selectedAff.commission_rate} €</span>
                     <button 
-                      onClick={() => handleUpdateCommissionRate(selectedAff.id, selectedAff.commission_rate)}
+                      onClick={() => handleUpdateCPA(selectedAff.id, selectedAff.commission_rate)}
                       className="text-slate-500 hover:text-white"
                     >
                       <Edit className="w-3 h-3" />
@@ -467,10 +374,13 @@ export default function AdminAffiliatesTab({
 
                 {selectedAff.status === 'active' && (
                   <button 
-                    onClick={() => setCommissionModal({ isOpen: true, affiliateId: selectedAff.id, affiliateName: selectedAff.profiles?.full_name || 'Inconnu' })}
+                    onClick={() => {
+                      setCommissionAmount(selectedAff.commission_rate?.toString() || '0')
+                      setCommissionModal({ isOpen: true, affiliateId: selectedAff.id, affiliateName: selectedAff.profiles?.full_name || 'Inconnu' })
+                    }}
                     className="w-full py-2.5 rounded-xl bg-gold/10 border border-gold/30 text-gold font-bold text-xs hover:bg-gold/20 transition-all flex justify-center items-center gap-2"
                   >
-                    <DollarSign className="w-4 h-4" /> Modifier Solde Commission
+                    <DollarSign className="w-4 h-4" /> Ajouter Commission
                   </button>
                 )}
 
@@ -510,80 +420,6 @@ export default function AdminAffiliatesTab({
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 bg-surface/30 relative overflow-hidden">
-              <div className="flex justify-between items-center mb-6 relative z-10">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span> Synthèse des Performances
-                </h3>
-                <select 
-                  value={timeRange} 
-                  onChange={(e: any) => setTimeRange(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2 py-1 outline-none focus:border-primary"
-                >
-                  <option value="7d">Cette Semaine (7j)</option>
-                  <option value="30d">Ce Mois-ci (30j)</option>
-                  <option value="all">Global</option>
-                </select>
-              </div>
-              
-              {selectedAffStats?.loading ? (
-                <div className="py-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-              ) : (
-                <div className="space-y-6 relative z-10">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 text-center">
-                      <span className="block text-xs font-semibold text-slate-400 mb-1">Clics Totaux</span>
-                      <span className="block text-3xl font-extrabold font-mono text-cyan-400">{selectedAffStats?.totalClicks || 0}</span>
-                    </div>
-                    <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 text-center">
-                      <span className="block text-xs font-semibold text-slate-400 mb-1">Conversion (FTD)</span>
-                      <span className="block text-3xl font-extrabold font-mono text-purple-400">
-                        {selectedAffStats?.conversionRate.toFixed(2) || 0}%
-                      </span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Répartition par Casino (Clics / Dépôts)</h4>
-                    {Object.keys(selectedAffStats?.clicksByCasino || {}).length === 0 ? (
-                      <p className="text-xs text-slate-500 font-mono italic">Aucune donnée de clic enregistrée.</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {Object.entries(selectedAffStats?.clicksByCasino || {}).map(([casinoSlug, data]: [string, any]) => (
-                          <div key={casinoSlug} className="flex justify-between items-center p-3 bg-[#0a0a0f] border border-slate-800/80 rounded-lg">
-                            <span className="font-semibold text-white capitalize text-sm">{casinoSlug}</span>
-                            <div className="flex gap-4 font-mono text-xs">
-                              <span className="text-slate-400"><strong className="text-cyan-400">{data.clicks}</strong> clics</span>
-                              <span className="text-slate-400"><strong className="text-gold">{data.commissions}</strong> FTD</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Dernières Commissions Générées</h4>
-                    {selectedAffStats?.recentCommissions && selectedAffStats.recentCommissions.length > 0 ? (
-                      <div className="space-y-2">
-                        {selectedAffStats.recentCommissions.map((c: any) => (
-                          <div key={c.id} className="flex justify-between items-center p-3 bg-[#0a0a0f] border border-slate-800/80 rounded-lg text-xs">
-                            <span className="text-slate-400">{new Date(c.created_at).toLocaleDateString('fr-FR')}</span>
-                            <span className="font-semibold text-white">{c.periode || 'N/A'}</span>
-                            <span className={`font-mono font-bold ${c.amount < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                              {c.amount > 0 ? '+' : ''}{c.amount} €
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-slate-500 font-mono italic">Aucune commission historique.</p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
             <div className="glass-panel p-6 rounded-2xl border border-slate-800 bg-surface/30">
               <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span> Message Dashboard Affilié

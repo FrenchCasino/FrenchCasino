@@ -25,12 +25,10 @@ export default function AdminCasinosTab({
     slug: '',
     lien_affilie: '',
     logo_url: '',
-    commission_cpa: '',
     bonus_depot: '100% jusqu\'à 500€',
     bonus_sans_depot: 'Aucun',
     licence: 'Curaçao',
     remboursement_depot: false,
-    commission_conditions: 'Nouveau inscrit seulement',
     minimum_depot: '20€',
     ordre_classement: 1,
     visible_affiliate: true,
@@ -53,12 +51,10 @@ export default function AdminCasinosTab({
         slug: newCasino.slug,
         lien_affilie: newCasino.lien_affilie,
         logo_url: newCasino.logo_url || '/casinos/placeholder.webp',
-        commission_cpa: newCasino.commission_cpa,
         bonus_depot: newCasino.bonus_depot,
         bonus_sans_depot: newCasino.bonus_sans_depot,
         licence: newCasino.licence,
         remboursement_depot: newCasino.remboursement_depot,
-        commission_conditions: newCasino.commission_conditions,
         minimum_depot: newCasino.minimum_depot,
         ordre_classement: Number(newCasino.ordre_classement),
         visible_affiliate: newCasino.visible_affiliate,
@@ -74,9 +70,9 @@ export default function AdminCasinosTab({
       }
 
       if (error) {
-        if (error.code === '42703' || error.code === 'PGRST204' || (error.message && (error.message.includes('visible_affiliate') || error.message.includes('commission_cpa') || error.message.includes('allowed_countries')))) {
+        if (error.code === '42703' || error.code === 'PGRST204' || (error.message && (error.message.includes('visible_affiliate') || error.message.includes('allowed_countries')))) {
           // Columns might not exist in SQL DB yet, fallback without them so update succeeds
-          const { visible_affiliate, commission_cpa, allowed_countries, ...fallbackData } = casinoData
+          const { visible_affiliate, allowed_countries, ...fallbackData } = casinoData
           let fallbackRes;
           if (casinoModal.editingId) {
             fallbackRes = await supabase.from('casinos').update(fallbackData).eq('id', casinoModal.editingId)
@@ -129,7 +125,7 @@ export default function AdminCasinosTab({
       }
 
       setCasinoModal({isOpen: false, editingId: null})
-      setNewCasino({ name: '', slug: '', lien_affilie: '', logo_url: '', commission_cpa: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true, allowed_countries: [] })
+      setNewCasino({ name: '', slug: '', lien_affilie: '', logo_url: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true, allowed_countries: [] })
       loadData()
     } catch (err) {
       toast.error('Erreur réseau')
@@ -159,14 +155,12 @@ export default function AdminCasinosTab({
       name: casino.name,
       slug: casino.slug,
       lien_affilie: casino.lien_affilie,
-      logo_url: casino.logo_url || casino.logoUrl || '',
-      commission_cpa: casino.commission_cpa || '',
+      logo_url: casino.logo_url || '',
       bonus_depot: casino.bonus_depot || '',
       bonus_sans_depot: casino.bonus_sans_depot || '',
-      licence: casino.licence || '',
+      licence: casino.licence || 'Curaçao',
       remboursement_depot: casino.remboursement_depot || false,
-      commission_conditions: casino.commission_conditions || '',
-      minimum_depot: casino.minimum_depot || '',
+      minimum_depot: casino.minimum_depot || '20€',
       ordre_classement: casino.ordre_classement || 1,
       visible_affiliate: casino.visible_affiliate !== false,
       allowed_countries: casino.allowed_countries || []
@@ -209,7 +203,7 @@ export default function AdminCasinosTab({
           <h3 className="font-display font-bold text-lg text-white">Casinos Référencés sur la Vitrine</h3>
           <button 
             onClick={() => {
-              setNewCasino({ name: '', slug: '', lien_affilie: '', logo_url: '', commission_cpa: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, commission_conditions: 'Nouveau inscrit seulement', minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true, allowed_countries: [] })
+              setNewCasino({ name: '', slug: '', lien_affilie: '', logo_url: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true, allowed_countries: [] })
               setCasinoModal({isOpen: true, editingId: null})
             }}
             className="px-4 py-2 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-primary-hover shadow-purple-glow"
@@ -246,13 +240,9 @@ export default function AdminCasinosTab({
               
               {/* Grid Stats */}
               <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-900/50 p-3 rounded-lg border border-slate-800/50">
-                <div className="space-y-1">
-                  <p className="text-slate-400 flex justify-between"><span>Licence:</span> <span className="text-slate-200 ml-2 truncate" title={casino.licence}>{casino.licence || 'N/A'}</span></p>
-                  <p className="text-slate-400 flex justify-between"><span>Dépôt Min:</span> <span className="text-blue-300 font-semibold ml-2 truncate" title={casino.minimum_depot}>{casino.minimum_depot || 'N/A'}</span></p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-slate-400 flex justify-between"><span>Sans dépôt:</span> <span className="text-emerald-400 font-semibold truncate ml-2" title={casino.bonus_sans_depot}>{casino.bonus_sans_depot || 'N/A'}</span></p>
-                  <p className="text-slate-400 flex justify-between"><span>CPA:</span> <span className="text-purple-300 font-semibold ml-2 truncate" title={casino.commission_cpa}>{casino.commission_cpa || 'N/A'}</span></p>
+                <div className="space-y-1 text-xs">
+                  <p className="text-slate-400 flex justify-between"><span>Dépôt Min:</span> <span className="text-white font-semibold ml-2">{casino.minimum_depot}</span></p>
+                  <p className="text-slate-400 flex justify-between"><span>Bonus:</span> <span className="text-emerald-400 font-semibold ml-2 truncate" title={casino.bonus_depot}>{casino.bonus_depot}</span></p>
                 </div>
                 <div className="col-span-2 pt-1 border-t border-slate-800/50 flex gap-1.5 items-center text-xs">
                   <span className="text-slate-500">Pays:</span>
@@ -381,17 +371,7 @@ export default function AdminCasinosTab({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Commission Affilié (CPA)</label>
-                  <input
-                    type="text"
-                    value={newCasino.commission_cpa}
-                    onChange={e => setNewCasino({ ...newCasino, commission_cpa: e.target.value })}
-                    placeholder="Ex: 50€ CPA"
-                    className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
-                  />
-                </div>
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-300">Bonus de Dépôt (Joueurs)</label>
                   <input
@@ -512,16 +492,6 @@ export default function AdminCasinosTab({
                     />
                     Remboursement Dépôt (Oui/Non)
                   </label>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Conditions de Commission</label>
-                  <input
-                    type="text"
-                    value={newCasino.commission_conditions}
-                    onChange={e => setNewCasino({ ...newCasino, commission_conditions: e.target.value })}
-                    placeholder="Ex: Par dépôt nouveau inscrit"
-                    className="w-full bg-[#0a0a0f] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
-                  />
                 </div>
               </div>
 

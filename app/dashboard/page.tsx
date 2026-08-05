@@ -182,7 +182,7 @@ export default function DashboardPage() {
       let casData: any[] | null = null
       const res = await supabase
         .from('casinos')
-        .select('id, name, slug, remboursement_depot, commission_conditions, commission_cpa, bonus_depot, minimum_depot, visible_affiliate, lien_affilie, allowed_countries')
+        .select('id, name, slug, remboursement_depot, bonus_depot, minimum_depot, visible_affiliate, lien_affilie, allowed_countries')
         .eq('is_active', true)
       
       if (res.error) {
@@ -1404,14 +1404,8 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   
-                  {(casino.commission_conditions || casino.remboursement_depot || casino.commission_cpa || casino.bonus_depot || casino.minimum_depot) && (
+                  {(casino.remboursement_depot || casino.bonus_depot || casino.minimum_depot) && (
                     <div className="flex gap-2 mb-2 flex-wrap">
-                      {casino.commission_cpa && (
-                        <span className="text-[10px] bg-gold/20 text-gold px-2 py-0.5 rounded font-mono border border-gold/30 flex items-center gap-1">
-                          <DollarSign className="w-3 h-3" />
-                          {casino.commission_cpa}
-                        </span>
-                      )}
                       {casino.minimum_depot && (
                         <span className="text-[10px] bg-blue-900/40 text-blue-300 px-2 py-0.5 rounded font-mono border border-blue-800/50">
                           Min: {casino.minimum_depot}
@@ -1420,11 +1414,6 @@ export default function DashboardPage() {
                       {casino.remboursement_depot && (
                         <span className="text-[10px] bg-emerald/20 text-emerald px-2 py-0.5 rounded font-mono border border-emerald/30">
                           Remboursement Dépôt: Oui
-                        </span>
-                      )}
-                      {casino.commission_conditions && (
-                        <span className="text-[10px] bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded font-mono border border-purple-800/50">
-                          {casino.commission_conditions}
                         </span>
                       )}
                     </div>
