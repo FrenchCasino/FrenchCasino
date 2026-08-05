@@ -203,24 +203,34 @@ export default function DashboardPage() {
       let affData: any = null
       const affRes = await supabase
         .from('affiliates')
-        .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic, admin_message, cpa_amount')
+        .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic, admin_message, commission_rate')
         .eq('id', user.id)
         .single()
       
       if (affRes.error) {
         const fallbackAffRes = await supabase
           .from('affiliates')
-          .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic, cpa_amount')
+          .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic, commission_rate')
           .eq('id', user.id)
           .single()
           
         if (fallbackAffRes.error) {
           const superFallback = await supabase
             .from('affiliates')
-            .select('id, referral_code, status, cpa_amount')
+            .select('id, referral_code, status, commission_rate')
             .eq('id', user.id)
             .single()
-          affData = superFallback.data
+            
+          if (superFallback.error) {
+            const ultimateFallback = await supabase
+              .from('affiliates')
+              .select('id, referral_code, status')
+              .eq('id', user.id)
+              .single()
+            affData = ultimateFallback.data
+          } else {
+            affData = superFallback.data
+          }
         } else {
           affData = fallbackAffRes.data
         }
@@ -233,7 +243,7 @@ export default function DashboardPage() {
         setAffiliateId(affData.id)
         setAffiliateStatus(affData.status)
         setAdminMessage(affData.admin_message || null)
-        setCpaAmount(affData.cpa_amount || 0)
+        setCpaAmount(affData.commission_rate || 0)
         
         if (profile?.role === 'admin') {
           setOnboardingCompleted(true)
