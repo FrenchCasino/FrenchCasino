@@ -7,12 +7,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch active casinos
   const { data: casinos } = await supabase
     .from('casinos')
-    .select('slug, updated_at')
+    .select('slug, created_at')
     .eq('is_active', true)
 
   const casinoEntries: MetadataRoute.Sitemap = (casinos || []).map((casino) => ({
     url: `https://frenchcasino.net/casino/${casino.slug}`,
-    lastModified: casino.updated_at ? new Date(casino.updated_at) : new Date(),
+    lastModified: casino.created_at ? new Date(casino.created_at) : new Date(),
     changeFrequency: 'weekly',
     priority: 0.8,
   }))
