@@ -55,9 +55,14 @@ export default function AdminAffiliatesTab({
   const [commissionType, setCommissionType] = useState<'add' | 'deduct'>('add')
   const [commissionNote, setCommissionNote] = useState('Dépôt Joueur')
   const [isSubmitting, setIsSubmitting] = useState(false)
-
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'all'>('7d')
 
   const [isAdminMessageSaving, setIsAdminMessageSaving] = useState(false)
+
+  useEffect(() => {
+    // Automatically clean old clicks in the background when the admin tab loads
+    fetch('/api/admin/clean-clicks', { method: 'POST' }).catch(console.error)
+  }, [])
 
   useEffect(() => {
     if (!selectedAff) {
@@ -88,17 +93,27 @@ export default function AdminAffiliatesTab({
 
         if (commsErr) console.error('Error loading commissions:', commsErr)
         
-        const clicks: any[] = clicksData || []
-        const comms: any[] = commsData || []
+        let filteredClicks: any[] = clicksData || []
+        let filteredComms: any[] = commsData || []
 
-        const totalClicks = clicks.length
-        const validComms = comms.filter((c: any) => c.statut === 'validated' || c.statut === 'paid')
+        if (timeRange === '7d') {
+          const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime()
+          filteredClicks = filteredClicks.filter(c => new Date(c.created_at).getTime() > sevenDaysAgo)
+          filteredComms = filteredComms.filter(c => new Date(c.created_at).getTime() > sevenDaysAgo)
+        } else if (timeRange === '30d') {
+          const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime()
+          filteredClicks = filteredClicks.filter(c => new Date(c.created_at).getTime() > thirtyDaysAgo)
+          filteredComms = filteredComms.filter(c => new Date(c.created_at).getTime() > thirtyDaysAgo)
+        }
+
+        const totalClicks = filteredClicks.length
+        const validComms = filteredComms.filter((c: any) => c.statut === 'validated' || c.statut === 'paid')
         const totalConversions = validComms.length
         const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
 
         const statsByCasino: Record<string, { clicks: number, commissions: number }> = {}
         
-        clicks.forEach((c: any) => {
+        filteredClicks.forEach((c: any) => {
           const slug = c.casino_slug || c.casino_id || 'général'
           if (!statsByCasino[slug]) statsByCasino[slug] = { clicks: 0, commissions: 0 }
           statsByCasino[slug].clicks += 1
@@ -112,10 +127,10 @@ export default function AdminAffiliatesTab({
 
         setSelectedAffStats({
           loading: false,
-          totalClicks: clicks.length,
+          totalClicks: filteredClicks.length,
           conversionRate,
           clicksByCasino: statsByCasino,
-          recentCommissions: comms.slice(0, 5)
+          recentCommissions: (commsData || []).slice(0, 5) // Always show recent regardless of timeRange
         })
       } catch (err) {
         console.error('Error in fetchAffStats:', err)
@@ -131,7 +146,7 @@ export default function AdminAffiliatesTab({
 
     fetchAffStats()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAff?.id, supabase])
+  }, [selectedAff?.id, supabase, timeRange])
 
   const handleSaveAdminMessage = async (affiliateId: string, message: string) => {
     setIsAdminMessageSaving(true)
@@ -496,9 +511,20 @@ export default function AdminAffiliatesTab({
 
           <div className="lg:col-span-2 space-y-6">
             <div className="glass-panel p-6 rounded-2xl border border-slate-800 bg-surface/30 relative overflow-hidden">
-              <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2 relative z-10">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span> Synthèse des Performances
-              </h3>
+              <div className="flex justify-between items-center mb-6 relative z-10">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span> Synthèse des Performances
+                </h3>
+                <select 
+                  value={timeRange} 
+                  onChange={(e: any) => setTimeRange(e.target.value)}
+                  className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2 py-1 outline-none focus:border-primary"
+                >
+                  <option value="7d">Cette Semaine (7j)</option>
+                  <option value="30d">Ce Mois-ci (30j)</option>
+                  <option value="all">Global</option>
+                </select>
+              </div>
               
               {selectedAffStats?.loading ? (
                 <div className="py-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
