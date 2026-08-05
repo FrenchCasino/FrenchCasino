@@ -57,6 +57,7 @@ export default function DashboardPage() {
   const [affiliateId, setAffiliateId] = useState<string | null>(null)
   const [affiliateStatus, setAffiliateStatus] = useState<string>('pending')
   const [adminMessage, setAdminMessage] = useState<string | null>(null)
+  const [cpaAmount, setCpaAmount] = useState<number>(0)
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean>(false)
   const [onboardingStep, setOnboardingStep] = useState<1 | 2>(1)
   const [casinosList, setCasinosList] = useState<any[]>([])
@@ -202,21 +203,21 @@ export default function DashboardPage() {
       let affData: any = null
       const affRes = await supabase
         .from('affiliates')
-        .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic, admin_message')
+        .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic, admin_message, cpa_amount')
         .eq('id', user.id)
         .single()
       
       if (affRes.error) {
         const fallbackAffRes = await supabase
           .from('affiliates')
-          .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic')
+          .select('id, referral_code, status, onboarding_completed, iban_holder, iban, bic, cpa_amount')
           .eq('id', user.id)
           .single()
           
         if (fallbackAffRes.error) {
           const superFallback = await supabase
             .from('affiliates')
-            .select('id, referral_code, status')
+            .select('id, referral_code, status, cpa_amount')
             .eq('id', user.id)
             .single()
           affData = superFallback.data
@@ -232,6 +233,7 @@ export default function DashboardPage() {
         setAffiliateId(affData.id)
         setAffiliateStatus(affData.status)
         setAdminMessage(affData.admin_message || null)
+        setCpaAmount(affData.cpa_amount || 0)
         
         if (profile?.role === 'admin') {
           setOnboardingCompleted(true)
@@ -1123,9 +1125,15 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="bg-surface p-3 rounded-xl border border-slate-800 text-right">
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Solde Disponible</span>
-            <span className="text-xl font-bold font-mono text-gradient-gold">{soldeDisponible.toFixed(2)} €</span>
+          <div className="flex gap-4">
+            <div className="bg-surface p-3 rounded-xl border border-slate-800 text-right">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Mon CPA</span>
+              <span className="text-xl font-bold font-mono text-purple-400">{cpaAmount} €</span>
+            </div>
+            <div className="bg-surface p-3 rounded-xl border border-slate-800 text-right">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Solde Disponible</span>
+              <span className="text-xl font-bold font-mono text-gradient-gold">{soldeDisponible.toFixed(2)} €</span>
+            </div>
           </div>
           <button
             onClick={() => setDepositModalOpen(true)}
