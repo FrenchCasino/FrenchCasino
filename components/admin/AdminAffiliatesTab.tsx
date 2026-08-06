@@ -284,7 +284,7 @@ export default function AdminAffiliatesTab({
           </div>
           
           {/* Action Bar */}
-          <div className="bg-slate-900/80 border-t border-slate-800 p-3 flex flex-wrap items-center justify-between gap-4">
+          <div className="relative z-10 bg-slate-900/80 border-t border-slate-800 p-3 flex flex-wrap items-center justify-between gap-4">
             <button 
               onClick={() => setSelectedAff(null)}
               className="px-4 py-2 rounded-xl bg-surface border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors"
