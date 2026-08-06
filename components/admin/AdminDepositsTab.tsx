@@ -25,9 +25,7 @@ interface DepositDeclaration {
   affiliate_id: string
   affiliates?: {
     id: string
-    code: string
-    first_name: string
-    last_name: string
+    referral_code: string
   }
 }
 
@@ -80,7 +78,7 @@ export default function AdminDepositsTab() {
 
   const filteredDeposits = deposits.filter(d => {
     const matchSearch = 
-      d.affiliates?.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      d.affiliates?.referral_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       getCasinoName(d.casino_id).toLowerCase().includes(searchTerm.toLowerCase())
       
     const matchStatus = filterStatus === 'all' || d.status === filterStatus
@@ -159,12 +157,12 @@ export default function AdminDepositsTab() {
                     <tr key={deposit.id} className="hover:bg-slate-800/20 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
-                            <User className="w-4 h-4" />
+                          <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
+                            <User className="w-5 h-5 text-slate-400" />
                           </div>
                           <div>
-                            <p className="font-semibold text-white">{deposit.affiliates?.code || 'Inconnu'}</p>
-                            <p className="text-xs text-slate-500">{deposit.affiliates?.first_name} {deposit.affiliates?.last_name}</p>
+                            <p className="font-semibold text-white">{deposit.affiliates?.referral_code || 'Inconnu'}</p>
+                            <p className="text-xs text-slate-500 font-mono">{deposit.affiliate_id}</p>
                           </div>
                         </div>
                       </td>

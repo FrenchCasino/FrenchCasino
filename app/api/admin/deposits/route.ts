@@ -18,9 +18,7 @@ export async function GET() {
         affiliate_id,
         affiliates (
           id,
-          code,
-          first_name,
-          last_name
+          referral_code
         )
       `)
       .order('created_at', { ascending: false })
