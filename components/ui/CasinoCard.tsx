@@ -16,13 +16,21 @@ export function CasinoCard({ casino, rank }: CasinoCardProps) {
   const [imgError, setImgError] = useState(false)
 
   return (
-    <div className={`relative group rounded-2xl glass-panel glass-panel-hover p-5 sm:p-6 transition-all duration-300 ${
-      casino.highlighted ? 'border-primary/50 shadow-purple-glow' : 'border-surface-border'
+    <div className={`relative group rounded-2xl p-5 sm:p-6 transition-all duration-500 overflow-hidden ${
+      rank === 1 ? 'bg-gradient-to-br from-surface to-yellow-900/20 border border-yellow-500/50 shadow-[0_0_40px_-10px_rgba(234,179,8,0.4)] hover:shadow-[0_0_60px_-5px_rgba(234,179,8,0.5)] hover:-translate-y-1' :
+      rank === 2 ? 'bg-gradient-to-br from-surface to-slate-800/30 border border-slate-400/50 shadow-[0_0_30px_-10px_rgba(148,163,184,0.3)] hover:shadow-[0_0_50px_-5px_rgba(148,163,184,0.4)] hover:-translate-y-1' :
+      rank === 3 ? 'bg-gradient-to-br from-surface to-amber-900/20 border border-amber-600/50 shadow-[0_0_30px_-10px_rgba(217,119,6,0.3)] hover:shadow-[0_0_50px_-5px_rgba(217,119,6,0.4)] hover:-translate-y-1' :
+      casino.highlighted ? 'glass-panel glass-panel-hover border-primary/50 shadow-purple-glow' : 'glass-panel glass-panel-hover border-surface-border'
     }`}>
       
+      {/* Animated Glow for Rank 1 */}
+      {rank === 1 && (
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/10 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out skew-x-12" />
+      )}
+
       {/* Badge Flottant en haut à droite */}
       {casino.badgeText && (
-        <div className="absolute -top-3 right-6 z-10">
+        <div className="absolute -top-3 right-6 z-20">
           <span className="badge-gold px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase shadow-md flex items-center gap-1">
             <Zap className="w-3 h-3 text-gold" />
             {casino.badgeText}
@@ -30,11 +38,16 @@ export function CasinoCard({ casino, rank }: CasinoCardProps) {
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
         {/* Infos Casino (Logo, Nom, Note) */}
         <div className="flex items-center gap-4 sm:gap-5 min-w-[240px]">
           {rank && (
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-surface-dark border border-gold/30 text-gold font-display font-bold text-sm shadow-inner shrink-0">
+            <div className={`flex items-center justify-center rounded-full font-display font-bold shrink-0 shadow-inner z-10 ${
+              rank === 1 ? 'w-12 h-12 bg-gradient-to-br from-yellow-300 to-yellow-600 border-2 border-yellow-200 text-yellow-950 text-xl shadow-[0_0_15px_rgba(234,179,8,0.6)] animate-float' : 
+              rank === 2 ? 'w-10 h-10 bg-gradient-to-br from-slate-300 to-slate-500 border-2 border-slate-200 text-slate-900 text-lg shadow-[0_0_15px_rgba(148,163,184,0.4)] animate-float' : 
+              rank === 3 ? 'w-10 h-10 bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-amber-500 text-amber-50 text-lg shadow-[0_0_15px_rgba(217,119,6,0.4)] animate-float' : 
+              'w-8 h-8 bg-surface-dark border border-gold/30 text-gold text-sm'
+            }`}>
               #{rank}
             </div>
           )}
