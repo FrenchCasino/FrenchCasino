@@ -245,13 +245,8 @@ export default function AdminDashboardPage() {
       }
       setAffClicksBreakdown(breakdownByAff)
 
-      if (affErr) console.error("Error loading affiliates:", affErr)
-      else {
-        const enrichedAffs = (affData || []).map((a: any) => ({
-          ...a,
-          total_clicks: clickCountsByAff[a.id] || 0
-        }))
-        setAffiliates(enrichedAffs)
+      if (affErr) {
+        console.error("Error loading affiliates:", affErr)
       }
 
       // Load Payouts with Affiliate Profile Info
@@ -269,8 +264,26 @@ export default function AdminDashboardPage() {
         `)
         .order('created_at', { ascending: false })
       
-      if (payErr) console.error("Error loading payouts:", payErr)
-      else setPayouts(payData || [])
+      if (payErr) {
+        console.error("Error loading payouts:", payErr)
+      } else {
+        setPayouts(payData || [])
+      }
+
+      if (!affErr) {
+        const enrichedAffs = (affData || []).map((a: any) => {
+          const affPayouts = (payData || []).filter(p => p.affiliate_id === a.id && p.statut !== 'rejected')
+          const totalPaidOrPending = affPayouts.reduce((acc, curr) => acc + (Number(curr.montant_demande) || 0), 0)
+          const solde_reel = Math.max(0, (Number(a.total_earned) || 0) - totalPaidOrPending)
+
+          return {
+            ...a,
+            total_clicks: clickCountsByAff[a.id] || 0,
+            solde_reel
+          }
+        })
+        setAffiliates(enrichedAffs)
+      }
 
       // Load Casinos
       const { data: casData, error: casErr } = await supabase

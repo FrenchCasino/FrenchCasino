@@ -204,7 +204,7 @@ export default function AdminAffiliatesTab({
   const handleExportAffiliates = () => {
     if (affiliates.length === 0) return toast.error("Aucun affilié à exporter.");
     const headers = [
-      "Nom", "Email", "Rôle", "CPA (€)", "Total accumulé (€)", "Statut", "IBAN Titulaire", "IBAN", "BIC"
+      "Nom", "Email", "Rôle", "CPA (€)", "Total accumulé (€)", "Solde Actuel (€)", "Statut", "IBAN Titulaire", "IBAN", "BIC"
     ];
     const rows = affiliates.map(aff => [
       aff.profiles?.full_name || 'Sans nom',
@@ -212,6 +212,7 @@ export default function AdminAffiliatesTab({
       aff.profiles?.role || 'affiliate',
       aff.commission_rate,
       aff.total_earned,
+      aff.solde_reel,
       aff.status,
       aff.iban_holder || '',
       aff.iban || '',
@@ -280,6 +281,10 @@ export default function AdminAffiliatesTab({
                 <Row label="Email" value={selectedAff.profiles?.email || 'N/A'} mono />
                 <Row label="Rôle Actuel" value={selectedAff.profiles?.role || 'N/A'} />
                 
+                <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
+                  <span className="text-xs text-slate-400">Solde Actuel (Retirable)</span>
+                  <span className="text-emerald-400 font-bold font-mono text-sm">{(Number(selectedAff.solde_reel) || 0).toLocaleString()} €</span>
+                </div>
                 <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
                   <span className="text-xs text-slate-400">Gains Historiques (Classement)</span>
                   <div className="flex items-center gap-2">
@@ -491,7 +496,7 @@ export default function AdminAffiliatesTab({
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
-                <span className="font-mono text-xs font-bold text-gold hidden sm:block">{(Number(aff.total_earned) || 0).toLocaleString()} €</span>
+                <span className="font-mono text-xs font-bold text-gold hidden sm:block">{(Number(aff.solde_reel) || 0).toLocaleString()} €</span>
                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                   aff.status === 'active' ? 'bg-emerald/20 text-emerald border border-emerald/30' :
                   aff.status === 'pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
