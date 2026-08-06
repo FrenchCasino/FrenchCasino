@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
 export async function GET() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
+  
   try {
     const { data: deposits, error } = await supabase
       .from('deposit_declarations')
@@ -38,6 +38,10 @@ export async function GET() {
 }
 
 export async function PATCH(req: Request) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
   try {
     const { id, status } = await req.json()
 
