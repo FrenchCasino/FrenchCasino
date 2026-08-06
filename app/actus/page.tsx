@@ -6,8 +6,11 @@ import { PageHero } from '@/components/ui/PageHero'
 import { ARTICLES_DB } from '@/lib/articles'
 
 export const metadata = {
-  title: 'La Voix du Casino — Actualités iGaming & Guides Stratégiques (2026)',
-  description: 'Blog officiel de FrenchCasino : analyses des nouvelles machines à sous, conseils wager, guides crypto et stratégies de jeu.',
+  title: 'Actualités iGaming & Guides Stratégiques Casino (2026)',
+  description: 'Blog officiel de FrenchCasino : analyses des nouvelles machines à sous, conseils wager, guides crypto et stratégies de jeu de casino.',
+  alternates: {
+    canonical: 'https://frenchcasino.net/actus',
+  }
 }
 
 export default function ActusPage() {

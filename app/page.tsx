@@ -22,8 +22,11 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export const metadata: Metadata = {
-  title: 'Meilleur Casino en Ligne Fiable (2026) — Guide Complet & Comparatif',
+  title: 'Meilleur Casino en Ligne Fiable (2026) — Guide & Comparatif',
   description: 'Trouvez le meilleur casino en ligne fiable en France en 2026. Comparez les bonus sans dépôt exclusifs, les avis détaillés et jouez en toute sécurité.',
+  alternates: {
+    canonical: 'https://frenchcasino.net/',
+  }
 }
 
 export default async function HomePage() {

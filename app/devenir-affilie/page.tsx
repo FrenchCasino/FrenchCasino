@@ -3,8 +3,11 @@ import Link from 'next/link'
 import { TrendingUp, DollarSign, Users, ShieldCheck, CheckCircle2, ArrowRight, Zap, Award } from 'lucide-react'
 
 export const metadata = {
-  title: 'Programme d\'Affiliation Casino — Gagnez de 20€ à 70€ / Joueur | FrenchCasino',
-  description: 'Rejoignez le réseau d\'affiliation casino N°1 en France. Taux de commission de 20€ à 70€ par joueur parrainé, paiements rapides IBAN & Crypto, liens de suivi instantanés et parrainage de sous-affiliés.',
+  title: 'Programme d\'Affiliation Casino — Gagnez de 20€ à 70€ / Joueur',
+  description: 'Rejoignez le réseau d\'affiliation casino N°1 en France. Taux de commission jusqu\'à 70€ par joueur, paiements IBAN & Crypto, liens de suivi instantanés.',
+  alternates: {
+    canonical: 'https://frenchcasino.net/devenir-affilie',
+  }
 }
 
 export default function DevenirAffiliePage() {

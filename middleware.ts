@@ -38,6 +38,12 @@ export async function middleware(request: NextRequest) {
 
     const path = request.nextUrl.pathname
 
+    // Redirection SEO : www vers non-www
+    const hostname = request.headers.get('host')
+    if (hostname === 'www.frenchcasino.net') {
+      return NextResponse.redirect(`https://frenchcasino.net${path}`, 301)
+    }
+
     // Protection des routes /dashboard, /admin, /recruiter
     if (path.startsWith('/dashboard') || path.startsWith('/admin') || path.startsWith('/recruiter')) {
       if (!user) {

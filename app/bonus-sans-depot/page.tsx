@@ -10,8 +10,11 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export const metadata = {
-  title: 'Bonus Sans Dépôt Casino (2026) — Spins Gratuits & Cash Offert',
-  description: 'Liste exclusive et vérifiée des meilleurs bonus casino sans dépôt en France pour 2026. Free spins, jetons gratuits et bonus cash sans carte bancaire.',
+  title: 'Bonus Sans Dépôt Casino (2026) — Spins Gratuits & Cash',
+  description: 'Liste exclusive et vérifiée des meilleurs bonus casino sans dépôt en France pour 2026. Free spins, jetons gratuits et cash offerts sans carte bancaire.',
+  alternates: {
+    canonical: 'https://frenchcasino.net/bonus-sans-depot',
+  }
 }
 
 export default async function BonusSansDepotPage() {

@@ -43,7 +43,7 @@ export function CasinoCard({ casino, rank }: CasinoCardProps) {
             {casino.logoUrl && !imgError ? (
               <Image 
                 src={casino.logoUrl} 
-                alt={`Logo ${casino.name}`}
+                alt={`Logo officiel du casino en ligne ${casino.name}`}
                 fill
                 sizes="(max-width: 768px) 80px, 80px"
                 className="object-contain p-1 drop-shadow-md rounded"

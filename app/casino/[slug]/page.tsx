@@ -19,6 +19,9 @@ export async function generateMetadata({ params }: Props) {
   return {
     title: `Avis ${casino.name} (2026) : Test, Note & Bonus ${casino.bonusSansDepot || casino.bonusDepot}`,
     description: `Découvrez notre avis détaillé sur ${casino.name}. Licence ${casino.licence}, retraits en ${casino.delaiRetrait}, wager ${casino.wager} et bonus exclusifs.`,
+    alternates: {
+      canonical: `https://frenchcasino.net/casino/${params.slug}`,
+    }
   }
 }
 

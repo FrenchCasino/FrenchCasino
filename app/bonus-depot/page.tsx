@@ -9,8 +9,11 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export const metadata = {
-  title: 'Meilleurs Bonus de Dépôt Casino (2026) — Packages de Bienvenue Exclusifs',
-  description: 'Sélection des plus gros bonus de dépôt casino en France. Bonus SANS WAGER, cashback et packages de bienvenue jusqu\'à 2000€ négociés.',
+  title: 'Meilleurs Bonus de Dépôt Casino (2026) — Packages de Bienvenue',
+  description: 'Sélection des plus gros bonus de dépôt casino en France. Bonus sans wager, cashback et packages de bienvenue négociés pour nos joueurs.',
+  alternates: {
+    canonical: 'https://frenchcasino.net/bonus-depot',
+  }
 }
 
 export default async function BonusDepotPage() {

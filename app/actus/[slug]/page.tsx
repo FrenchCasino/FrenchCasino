@@ -13,6 +13,9 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   return {
     title: `${article.title} - FrenchCasino`,
     description: article.excerpt,
+    alternates: {
+      canonical: `https://frenchcasino.net/actus/${params.slug}`,
+    }
   }
 }
 
