@@ -38,11 +38,17 @@ export default async function CasinoDetailPage({ params }: Props) {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
       
-      {/* Back Button */}
-      <Link href="/top-casino" className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors">
-        <ArrowLeft className="w-4 h-4" />
-        <span>Retour au classement des casinos</span>
-      </Link>
+      {/* Back Button & Last Updated */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <Link href="/top-casino" className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          <span>Retour au classement des casinos</span>
+        </Link>
+        <div className="flex items-center gap-2 text-xs text-slate-500 bg-surface px-3 py-1.5 rounded-full border border-slate-800 w-fit">
+          <Clock className="w-3.5 h-3.5" />
+          <span>Dernière mise à jour : Août 2026</span>
+        </div>
+      </div>
 
       {/* Header Fiche Casino */}
       <div className="rounded-3xl glass-panel p-8 sm:p-10 border border-surface-border space-y-6 relative overflow-hidden">
@@ -167,6 +173,24 @@ export default async function CasinoDetailPage({ params }: Props) {
           />
         </div>
       )}
+
+      {/* AUTHOR BOX (E-E-A-T) */}
+      <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 bg-gradient-to-r from-surface to-surface-dark flex flex-col sm:flex-row items-center sm:items-start gap-6 mt-12 mb-12">
+        <div className="w-20 h-20 rounded-full bg-surface-dark border-2 border-gold/40 flex items-center justify-center shrink-0">
+          <span className="text-3xl">👤</span>
+        </div>
+        <div className="text-center sm:text-left space-y-2 flex-1">
+          <h4 className="font-display font-bold text-lg text-white">Testé et rédigé par : Le Fondateur</h4>
+          <p className="text-slate-400 text-sm leading-relaxed">
+            Expert iGaming depuis plus de 10 ans, le Fondateur de FrenchCasino teste personnellement chaque établissement en conditions réelles (dépôt, jeu, et retrait) avant de publier un avis.
+          </p>
+          <div className="pt-2">
+            <Link href="/notre-equipe" className="text-gold text-xs font-semibold hover:underline inline-flex items-center gap-1">
+              En savoir plus sur notre méthodologie
+            </Link>
+          </div>
+        </div>
+      </div>
 
       {/* Section des Avis Joueurs */}
       <ReviewSection casinoSlug={casino.slug} />

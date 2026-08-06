@@ -40,8 +40,9 @@ export function ReviewSchema({ casino }: ReviewSchemaProps) {
               "worstRating": "1"
             },
             "author": {
-              "@type": "Organization",
-              "name": "FrenchCasino Team"
+              "@type": "Person",
+              "name": "Le Fondateur",
+              "url": "https://frenchcasino.net/notre-equipe"
             },
             "publisher": {
               "@type": "Organization",
