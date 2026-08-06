@@ -92,6 +92,15 @@
   background: #7C3AED;
 }
 
+/* Hide scrollbar utility for mobile horizontal scrolling */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* =====================================================
    HEADER — PREMIUM GLASS STYLES
    ===================================================== */

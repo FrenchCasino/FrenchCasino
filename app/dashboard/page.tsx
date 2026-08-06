@@ -1168,7 +1168,7 @@ export default function DashboardPage() {
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Menu Latéral (Sidebar) */}
-        <div className="w-full lg:w-64 flex-shrink-0 flex flex-col gap-2 lg:sticky lg:top-24">
+        <div className="w-full lg:w-64 flex-shrink-0 flex lg:flex-col gap-2 lg:sticky lg:top-24 overflow-x-auto pb-4 lg:pb-0 scrollbar-hide snap-x">
           {[
             { id: 'overview', label: 'Vue d\'ensemble', icon: TrendingUp },
             { id: 'links', label: 'Mes Liens & QR', icon: Copy },
@@ -1185,7 +1185,7 @@ export default function DashboardPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-3 w-full text-left ${
+                className={`px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-3 whitespace-nowrap lg:w-full lg:text-left shrink-0 snap-start ${
                   active
                     ? 'bg-primary text-white shadow-purple-glow'
                     : 'text-slate-400 hover:text-white hover:bg-surface-card border border-transparent hover:border-slate-800'
@@ -1224,10 +1224,13 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             <div className="glass-panel p-4 rounded-2xl border border-slate-800 space-y-1">
               <div className="flex justify-between text-slate-400 text-xs">
-                <span>Clics</span>
+                <span>Clics (Filtre)</span>
                 <MousePointerClick className="w-3.5 h-3.5 text-purple-400" />
               </div>
               <span className="text-xl font-bold font-mono text-white">{totalClicks}</span>
+              <div className="text-[10px] text-slate-500 mt-1">
+                Aujourd'hui : <strong className="text-white">{chartData.length > 0 ? chartData[chartData.length - 1].clics : 0}</strong>
+              </div>
             </div>
 
             <div className="glass-panel p-4 rounded-2xl border border-slate-800 space-y-1">
