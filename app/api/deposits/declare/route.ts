@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sendTelegramNotification } from '@/lib/telegram'
 
 export async function POST(req: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -29,23 +30,10 @@ export async function POST(req: Request) {
       // We will proceed to Telegram to not disrupt existing flow if table is missing.
     }
 
+    const message = `Nouveau dépôt déclaré par l'affilié ${affiliateCode || 'Inconnu'}\n\nCasino : <b>${casinoName || casinoId}</b>\nMontant : <b>${amount} €</b>`
+    
     // Send Telegram Notification
-    const botToken = process.env.TELEGRAM_BOT_TOKEN
-    const chatId = process.env.TELEGRAM_CHAT_ID
-
-    if (botToken && chatId) {
-      const message = `Nouveau dépôt déclaré par l'affilié ${affiliateCode || 'Inconnu'}\n\nCasino : <b>${casinoName || casinoId}</b>\nMontant : <b>${amount} €</b>`
-      
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          parse_mode: 'HTML'
-        })
-      })
-    }
+    await sendTelegramNotification(`💵 <b>Nouveau Dépôt Déclaré</b>\n\n${message}`)
 
     return NextResponse.json({ success: true })
   } catch (error) {
