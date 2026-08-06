@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 export const metadata = {
   title: 'Wager Casino : Tout comprendre sur les exigences de mise (2026)',
-  description: 'Découvrez ce qu\\'est le wager au casino en ligne, comment le calculer facilement et nos astuces pour le compléter afin de retirer vos gains de bonus.',
+  description: "Découvrez ce qu'est le wager au casino en ligne, comment le calculer facilement et nos astuces pour le compléter afin de retirer vos gains de bonus.",
   alternates: {
     canonical: 'https://frenchcasino.net/wager-casino',
   }

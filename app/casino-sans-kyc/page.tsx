@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 export const metadata = {
   title: 'Casino sans KYC & Crypto Casinos 100% Anonymes (2026)',
-  description: 'Jouez au casino sans vérification d\\'identité (sans KYC). Découvrez notre sélection des meilleurs cryptos casinos où l\\'anonymat est garanti pour vos retraits.',
+  description: "Jouez au casino sans vérification d'identité (sans KYC). Découvrez notre sélection des meilleurs cryptos casinos où l'anonymat est garanti pour vos retraits.",
   alternates: {
     canonical: 'https://frenchcasino.net/casino-sans-kyc',
   }
