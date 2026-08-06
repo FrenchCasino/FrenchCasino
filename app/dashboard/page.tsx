@@ -1019,11 +1019,13 @@ export default function DashboardPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       
       {/* Header Dashboard */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-4 sm:p-6 rounded-2xl border border-surface-border relative overflow-hidden">
-        {/* Decorative VIP glow */}
-        <div className={`absolute top-0 right-1/2 w-64 h-64 blur-3xl pointer-events-none ${getVipInfo(totalHistoricalValid).bg} opacity-20`} />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-4 sm:p-6 rounded-2xl border border-surface-border relative">
+        {/* Container for Decorative VIP glow (prevents overflowing the panel) */}
+        <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+          <div className={`absolute top-0 right-1/2 w-64 h-64 blur-3xl ${getVipInfo(totalHistoricalValid).bg} opacity-20`} />
+        </div>
         
-        <div>
+        <div className="relative z-10">
           <div className="flex items-center gap-2 text-xs font-semibold text-gold uppercase tracking-wider mb-2">
             <ShieldCheck className="w-4 h-4" />
             <span>Compte Affilié Vérifié — Statut Actif</span>
