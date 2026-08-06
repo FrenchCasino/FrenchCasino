@@ -40,41 +40,73 @@ export function CasinoCard({ casino, rank }: CasinoCardProps) {
 
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
         {/* Infos Casino (Logo, Nom, Note) */}
-        <div className="flex items-center gap-4 sm:gap-5 min-w-[240px]">
-          {rank && (
-            <div className={`flex items-center justify-center rounded-full font-display font-bold shrink-0 shadow-inner z-10 ${
-              rank === 1 ? 'w-12 h-12 bg-gradient-to-br from-yellow-300 to-yellow-600 border-2 border-yellow-200 text-yellow-950 text-xl shadow-[0_0_15px_rgba(234,179,8,0.6)] animate-float' : 
-              rank === 2 ? 'w-10 h-10 bg-gradient-to-br from-slate-300 to-slate-500 border-2 border-slate-200 text-slate-900 text-lg shadow-[0_0_15px_rgba(148,163,184,0.4)] animate-float' : 
-              rank === 3 ? 'w-10 h-10 bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-amber-500 text-amber-50 text-lg shadow-[0_0_15px_rgba(217,119,6,0.4)] animate-float' : 
-              'w-8 h-8 bg-surface-dark border border-gold/30 text-gold text-sm'
+        <div className="flex items-center gap-4 sm:gap-6 min-w-[240px]">
+          
+          {rank && rank <= 3 ? (
+            /* Special Top 3 Logo: Round, floating, with attached rank badge */
+            <div className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 flex items-center justify-center shrink-0 z-10 animate-[float_3s_ease-in-out_infinite] hover:scale-110 transition-transform duration-300 ${
+              rank === 1 ? 'bg-gradient-to-br from-yellow-300 to-yellow-600 shadow-[0_0_30px_rgba(234,179,8,0.6)]' :
+              rank === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-500 shadow-[0_0_30px_rgba(148,163,184,0.4)]' :
+              'bg-gradient-to-br from-amber-600 to-amber-800 shadow-[0_0_30px_rgba(217,119,6,0.4)]'
             }`}>
-              #{rank}
+              <div className="w-full h-full rounded-full bg-surface relative overflow-hidden flex items-center justify-center">
+                {casino.logoUrl && !imgError ? (
+                  <Image 
+                    src={casino.logoUrl} 
+                    alt={`Logo ${casino.name}`}
+                    fill
+                    sizes="(max-width: 768px) 96px, 96px"
+                    className="object-contain p-2"
+                    onError={() => setImgError(true)}
+                    unoptimized={casino.logoUrl.endsWith('.gif')}
+                    priority
+                  />
+                ) : (
+                  <span className="text-xl font-black text-gold uppercase">{casino.name.substring(0, 3)}</span>
+                )}
+              </div>
+              
+              {/* Rank Label (1er, 2nd, 3ème) attached to logo */}
+              <div className={`absolute -bottom-2 -right-2 px-3 py-1 rounded-full text-[11px] font-extrabold border-2 border-surface tracking-wider uppercase z-20 ${
+                rank === 1 ? 'bg-yellow-400 text-yellow-950 shadow-[0_0_15px_rgba(234,179,8,0.8)]' :
+                rank === 2 ? 'bg-slate-300 text-slate-900 shadow-[0_0_15px_rgba(148,163,184,0.8)]' :
+                'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.8)]'
+              }`}>
+                {rank === 1 ? '1er' : rank === 2 ? '2nd' : '3ème'}
+              </div>
+            </div>
+          ) : (
+            /* Normal Rank & Logo for rank > 3 or no rank */
+            <div className="flex items-center gap-4">
+              {rank && (
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-surface-dark border border-gold/30 text-gold font-display font-bold text-sm shadow-inner shrink-0 z-10">
+                  #{rank}
+                </div>
+              )}
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-purple-900/40 to-slate-900 border border-slate-700/80 p-2 flex items-center justify-center text-center shadow-md group-hover:border-primary/50 transition-colors relative overflow-hidden shrink-0">
+                {casino.logoUrl && !imgError ? (
+                  <Image 
+                    src={casino.logoUrl} 
+                    alt={`Logo officiel du casino en ligne ${casino.name}`}
+                    fill
+                    sizes="(max-width: 768px) 80px, 80px"
+                    className="object-contain p-1 drop-shadow-md rounded"
+                    onError={() => setImgError(true)}
+                    unoptimized={casino.logoUrl.endsWith('.gif')}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-purple-800 to-indigo-950 p-1 rounded">
+                    <span className="text-lg font-black tracking-widest text-gold drop-shadow-sm uppercase">
+                      {casino.name.substring(0, 3)}
+                    </span>
+                    <span className="text-[9px] text-slate-300 font-semibold truncate max-w-[60px] uppercase">
+                      {casino.name.split(' ')[0]}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
-
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-purple-900/40 to-slate-900 border border-slate-700/80 p-2 flex items-center justify-center text-center font-bold text-lg text-white shadow-md group-hover:border-primary/50 transition-colors relative overflow-hidden shrink-0">
-            {casino.logoUrl && !imgError ? (
-              <Image 
-                src={casino.logoUrl} 
-                alt={`Logo officiel du casino en ligne ${casino.name}`}
-                fill
-                sizes="(max-width: 768px) 80px, 80px"
-                className="object-contain p-1 drop-shadow-md rounded"
-                onError={() => setImgError(true)}
-                unoptimized={casino.logoUrl.endsWith('.gif')}
-                priority={rank !== undefined && rank <= 3}
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-purple-800 to-indigo-950 p-1 rounded">
-                <span className="text-lg font-black tracking-widest text-gold drop-shadow-sm uppercase">
-                  {casino.name.substring(0, 3)}
-                </span>
-                <span className="text-[9px] text-slate-300 font-semibold truncate max-w-[60px] uppercase">
-                  {casino.name.split(' ')[0]}
-                </span>
-              </div>
-            )}
-          </div>
 
           <div className="space-y-1">
             <Link href={`/casino/${casino.slug}`} className="hover:text-gold transition-colors">
