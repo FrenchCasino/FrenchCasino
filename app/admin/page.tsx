@@ -678,20 +678,33 @@ export default function AdminDashboardPage() {
       <ConfirmDialog />
       
       {/* Header Admin */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-4 sm:p-6 rounded-2xl border border-purple-500/30 bg-purple-950/10">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-purple-400 uppercase tracking-wider">
-            <ShieldCheck className="w-4 h-4 text-gold" />
-            <span>Panneau de Contrôle Administrateur</span>
+      <div className="relative glass-panel rounded-3xl border border-purple-500/30 bg-surface/50 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/40 via-surface to-gold/10 opacity-60" />
+        <div className="relative p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-primary p-[2px] shadow-[0_0_20px_rgba(168,85,247,0.3)] shrink-0 hidden sm:flex">
+              <div className="w-full h-full bg-surface rounded-2xl flex items-center justify-center">
+                <ShieldCheck className="w-7 h-7 text-gold" />
+              </div>
+            </div>
+            <div>
+              <div className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
+                Panneau de Contrôle Administrateur
+              </div>
+              <h1 className="font-display text-3xl sm:text-4xl font-extrabold text-white">
+                Administration <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-primary">French</span><span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-gold-light drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">Casino</span>
+              </h1>
+            </div>
           </div>
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white mt-1">
-            Administration <span className="text-gradient-purple">French</span><span className="text-gradient-gold">Casino</span>
-          </h1>
+          <button 
+            onClick={loadData} 
+            className="px-5 py-3 bg-surface border border-slate-700 hover:bg-slate-800 hover:border-purple-500/50 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+          >
+            <Activity className="w-4 h-4 text-purple-400" />
+            Rafraîchir les données
+          </button>
         </div>
-        <button onClick={loadData} className="px-4 py-2 bg-slate-900 border border-slate-700 hover:bg-slate-800 rounded-xl text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors">
-          <Activity className="w-4 h-4 text-gold" />
-          Rafraîchir les données
-        </button>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -718,9 +731,9 @@ export default function AdminDashboardPage() {
                   setAdminTab(tab.id as any)
                   setViewedTabs(prev => ({ ...prev, [tab.id]: true }))
                 }}
-                className={`px-4 py-3.5 rounded-xl text-xs font-bold tracking-wider uppercase transition-all flex items-center gap-3 w-full text-left relative ${
+                className={`px-5 py-4 rounded-2xl text-xs font-bold tracking-wider uppercase transition-all flex items-center gap-3 w-full text-left relative ${
                   active
-                    ? 'bg-gradient-to-r from-purple-600 to-primary text-white shadow-purple-glow font-bold scale-[1.02]'
+                    ? 'bg-gradient-to-r from-purple-600/90 to-primary/90 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)] border border-purple-500/50 scale-[1.02]'
                     : pending
                       ? 'text-red-400 hover:text-red-300 hover:bg-red-950/30 border border-red-900/50 animate-pulse'
                       : 'text-slate-400 hover:text-white hover:bg-surface-card border border-transparent hover:border-slate-800'
@@ -752,45 +765,66 @@ export default function AdminDashboardPage() {
         <>
           {/* 1. KPIS GLOBAUX */}
           {adminTab === 'kpi' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-purple-glow/5">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <Users className="w-12 h-12 text-white" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              
+              <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4 relative overflow-hidden bg-surface/40 hover:border-primary/50 transition-colors group">
+                <div className="absolute -top-4 -right-4 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                  <Users className="w-32 h-32 text-white" />
                 </div>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Affiliés Actifs</span>
-                <span className="text-3xl font-extrabold font-mono text-white relative z-10">{kpi.activeAffiliates}</span>
-                <span className="text-[11px] text-emerald block relative z-10">
-                  {kpi.pendingAffiliates > 0 ? `+${kpi.pendingAffiliates} en attente de validation` : 'Tous validés'}
+                <div className="flex items-center gap-3 relative z-10">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
+                    <span className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.8)]" />
+                  </div>
+                  <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold">Affiliés Actifs</span>
+                </div>
+                <span className="text-4xl font-display font-bold text-white relative z-10 block pt-2">{kpi.activeAffiliates}</span>
+                <span className="text-xs text-emerald-400 font-medium block relative z-10">
+                  {kpi.pendingAffiliates > 0 ? `+${kpi.pendingAffiliates} en attente` : 'Tous validés ✅'}
                 </span>
               </div>
 
-              <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-2 relative overflow-hidden shadow-gold-glow/5">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <DollarSign className="w-12 h-12 text-gold" />
+              <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4 relative overflow-hidden bg-surface/40 hover:border-gold/50 transition-colors group">
+                <div className="absolute -top-4 -right-4 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                  <DollarSign className="w-32 h-32 text-gold" />
                 </div>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Gains Distribués / Dus</span>
-                <span className="text-3xl font-extrabold font-mono text-gold relative z-10">{kpi.totalCommissions.toLocaleString()} €</span>
-                <span className="text-[11px] text-gold block relative z-10">Global historique</span>
+                <div className="flex items-center gap-3 relative z-10">
+                  <div className="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center border border-gold/30">
+                    <span className="w-2 h-2 rounded-full bg-gold shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
+                  </div>
+                  <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold">Gains Distribués</span>
+                </div>
+                <span className="text-3xl font-display font-bold text-gold relative z-10 block pt-2">{kpi.totalCommissions.toLocaleString()} €</span>
+                <span className="text-xs text-gold/70 font-medium block relative z-10">Global historique</span>
               </div>
 
-              <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-amber-950/40 bg-amber-950/5 space-y-2 relative overflow-hidden shadow-gold-glow/10">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <CreditCard className="w-12 h-12 text-gold" />
+              <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-amber-900/30 space-y-4 relative overflow-hidden bg-amber-950/10 hover:border-amber-500/50 transition-colors group">
+                <div className="absolute -top-4 -right-4 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                  <CreditCard className="w-32 h-32 text-amber-500" />
                 </div>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Payouts en Attente</span>
-                <span className="text-3xl font-extrabold font-mono text-gold relative z-10">{kpi.pendingPayouts}</span>
-                <span className="text-[11px] text-gold block relative z-10">Montant total : {kpi.pendingPayoutsAmount.toLocaleString()} €</span>
+                <div className="flex items-center gap-3 relative z-10">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center border border-amber-500/30">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
+                  </div>
+                  <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold">Payouts en Attente</span>
+                </div>
+                <span className="text-4xl font-display font-bold text-amber-400 relative z-10 block pt-2">{kpi.pendingPayouts}</span>
+                <span className="text-xs text-amber-500 font-medium block relative z-10">Total : {kpi.pendingPayoutsAmount.toLocaleString()} €</span>
               </div>
 
-              <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-purple-900/40 bg-purple-950/10 space-y-2 relative overflow-hidden shadow-purple-glow/10">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <Activity className="w-12 h-12 text-purple-400" />
+              <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-purple-900/30 space-y-4 relative overflow-hidden bg-purple-950/10 hover:border-purple-500/50 transition-colors group">
+                <div className="absolute -top-4 -right-4 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                  <Activity className="w-32 h-32 text-purple-400" />
                 </div>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold block relative z-10">Total Clics Globaux</span>
-                <span className="text-3xl font-extrabold font-mono text-purple-300 relative z-10">
+                <div className="flex items-center gap-3 relative z-10">
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
+                    <span className="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
+                  </div>
+                  <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold">Clics Réseau</span>
+                </div>
+                <span className="text-4xl font-display font-bold text-purple-400 relative z-10 block pt-2">
                   {affiliates.reduce((acc, a) => acc + (a.total_clicks || 0), 0)}
                 </span>
-                <span className="text-[11px] text-purple-400 block relative z-10">Enregistrés sur le réseau</span>
+                <span className="text-xs text-purple-400/70 font-medium block relative z-10">Trafic global</span>
               </div>
             </div>
           )}
@@ -798,18 +832,22 @@ export default function AdminDashboardPage() {
           {/* 1.1. STATISTIQUES GLOBALES DU SITE (AUDIENCE & SEO) */}
           {adminTab === 'site' && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-4 rounded-xl border border-slate-800">
-                <div>
-                  <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
-                    <Globe className="w-5 h-5 text-purple-400 animate-pulse" />
-                    Audience, Provenance et SEO de FrenchCasino.net
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Suivi des visiteurs uniques, des pages vues, de la provenance géolocalisée et du SEO sur les 30 derniers jours.</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 bg-surface/40">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30 shrink-0">
+                    <Globe className="w-6 h-6 text-purple-400 animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-bold text-xl text-white">
+                      Audience, Provenance & SEO
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">Suivi des visiteurs uniques, géolocalisation et SEO sur les 30 derniers jours.</p>
+                  </div>
                 </div>
                 <button 
                   onClick={loadAnalytics} 
                   disabled={loadingAnalytics}
-                  className="px-4 py-2 bg-slate-900 border border-slate-700 hover:bg-slate-800 rounded-xl text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors disabled:opacity-50"
+                  className="px-5 py-2.5 bg-surface border border-slate-700 hover:bg-slate-800 hover:border-purple-500/50 rounded-xl text-xs font-bold text-slate-300 flex items-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 text-purple-400 ${loadingAnalytics ? 'animate-spin' : ''}`} />
                   {loadingAnalytics ? 'Chargement...' : 'Actualiser'}
@@ -1076,19 +1114,26 @@ export default function AdminDashboardPage() {
 
           {/* REMBOURSEMENTS */}
           {adminTab === 'refunds' && (
-            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
-                  <RefreshCw className="w-5 h-5 text-gold" />
-                  Demandes de Remboursement de Dépôt
-                </h3>
-                <button onClick={loadData} className="text-xs text-slate-400 hover:text-white flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 transition-colors">
-                  <RefreshCw className="w-3 h-3" /> Actualiser
-                </button>
-              </div>
-              <div className="overflow-x-auto rounded-xl border border-slate-800/50">
-                <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-surface/50 uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
+            <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 bg-surface/40 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center border border-gold/30 shrink-0">
+                      <RefreshCw className="w-6 h-6 text-gold" />
+                    </div>
+                    <div>
+                      <h3 className="font-display font-bold text-xl text-white">
+                        Demandes de Remboursement
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1">Gérez les demandes de remboursement des dépôts de vos joueurs.</p>
+                    </div>
+                  </div>
+                  <button onClick={loadData} className="px-5 py-2.5 bg-surface border border-slate-700 hover:bg-slate-800 rounded-xl text-xs font-bold text-slate-300 flex items-center gap-2 transition-all hover:scale-[1.02]">
+                    <RefreshCw className="w-3.5 h-3.5 text-gold" /> Actualiser
+                  </button>
+                </div>
+                <div className="overflow-x-auto rounded-2xl border border-slate-800/80 bg-surface/20">
+                  <table className="w-full text-left text-sm text-slate-300">
+                    <thead className="bg-slate-900/80 uppercase font-bold text-[10px] text-slate-400 border-b border-slate-800/80 tracking-widest">
                     <tr>
                       <th className="p-4">Affilié</th>
                       <th className="p-4">Casino</th>
@@ -1154,28 +1199,38 @@ export default function AdminDashboardPage() {
 
           {/* 4. GESTION DES PAIEMENTS */}
           {adminTab === 'payouts' && (
-            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
-               <div className="flex justify-between items-center">
-                 <h3 className="font-display font-bold text-lg text-white">Demandes de Retrait & Paiements</h3>
-                 <button
-                   onClick={handleExportPayouts}
-                   className="px-3 py-1.5 rounded-lg bg-surface border border-slate-700 text-xs text-slate-300 flex items-center gap-1.5 hover:text-white transition-colors"
-                 >
-                   <Download className="w-4 h-4 text-gold" />
-                   <span>Export CSV Comptabilité</span>
-                 </button>
+            <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 bg-surface/40 space-y-6">
+               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 shrink-0">
+                      <CreditCard className="w-6 h-6 text-emerald-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-display font-bold text-xl text-white">
+                        Paiements & Exports
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1">Gérez les retraits des affiliés et exportez pour la comptabilité.</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleExportPayouts}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold to-gold-light text-black font-bold text-xs shadow-gold-glow flex items-center gap-2 hover:scale-[1.02] transition-transform"
+                  >
+                    <Download className="w-4 h-4" />
+                    Export CSV Comptabilité
+                  </button>
                </div>
 
-              <div className="overflow-x-auto rounded-xl border border-slate-800/50">
-                <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-surface/50 uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
+              <div className="overflow-x-auto rounded-2xl border border-slate-800/80 bg-surface/20">
+                <table className="w-full text-left text-sm text-slate-300">
+                  <thead className="bg-slate-900/80 uppercase font-bold text-[10px] text-slate-400 border-b border-slate-800/80 tracking-widest">
                     <tr>
                       <th className="p-4">Date Demande</th>
                       <th className="p-4">Affilié</th>
                       <th className="p-4 text-right">Montant</th>
                       <th className="p-4">Coordonnées (IBAN)</th>
                       <th className="p-4 text-center">Statut</th>
-                      <th className="p-4">Action Sécurisée</th>
+                      <th className="p-4 text-right">Action Sécurisée</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/40">
@@ -1242,18 +1297,30 @@ export default function AdminDashboardPage() {
 
           {/* 5. Tchat & Support */}
           {adminTab === 'support' && (
-            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
-              <h3 className="font-display font-bold text-lg text-white">Tickets Support des Affiliés</h3>
+            <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 bg-surface/40 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30 shrink-0">
+                      <MessageSquare className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-display font-bold text-xl text-white">
+                        Tickets Support
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1">Gérez les requêtes d'assistance de vos affiliés.</p>
+                    </div>
+                  </div>
+              </div>
               
-              <div className="overflow-x-auto rounded-xl border border-slate-800/50">
-                <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-surface/50 uppercase font-mono text-[10px] text-slate-400 border-b border-slate-800">
+              <div className="overflow-x-auto rounded-2xl border border-slate-800/80 bg-surface/20">
+                <table className="w-full text-left text-sm text-slate-300">
+                  <thead className="bg-slate-900/80 uppercase font-bold text-[10px] text-slate-400 border-b border-slate-800/80 tracking-widest">
                     <tr>
                       <th className="p-4">Date</th>
                       <th className="p-4">Affilié</th>
                       <th className="p-4">Sujet du ticket</th>
                       <th className="p-4 text-center">Statut</th>
-                      <th className="p-4">Actions Admin</th>
+                      <th className="p-4 text-right">Actions Admin</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/40">
@@ -1316,11 +1383,11 @@ export default function AdminDashboardPage() {
 
           {/* 6. LOGS D'ACTIVITÉ */}
           {adminTab === 'logs' && (
-            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 flex flex-col items-center justify-center py-20 text-center space-y-4">
-              <ShieldAlert className="w-12 h-12 text-red-900 mb-2" />
-              <h3 className="font-display font-bold text-xl text-white">Audit Logs d&apos;Administration</h3>
+            <div className="glass-panel p-10 sm:p-16 rounded-3xl border border-slate-800 flex flex-col items-center justify-center text-center space-y-4 bg-surface/40">
+              <ShieldAlert className="w-16 h-16 text-red-900 mb-2" />
+              <h3 className="font-display font-bold text-2xl text-white">Audit Logs d'Administration</h3>
               <p className="text-sm text-slate-400 max-w-md mx-auto">
-                Historique des actions critiques (changements de RIB, validations de paiements, suspensions) avec archivage sécurisé. Module en cours d&apos;activation.
+                Historique des actions critiques (changements de RIB, validations de paiements, suspensions) avec archivage sécurisé. Module en cours d'activation.
               </p>
             </div>
           )}

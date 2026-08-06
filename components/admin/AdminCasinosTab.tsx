@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Plus, Award, Eye, EyeOff, Edit, Power, Trash2, XCircle, Loader2 } from 'lucide-react'
+import { Plus, Award, Eye, EyeOff, Edit, Power, Trash2, XCircle, Loader2, Star } from 'lucide-react'
 import { toast } from 'sonner'
 import { useConfirm } from '@/components/ui/ConfirmModal'
 import { FlagIcon } from '@/components/ui/FlagIcon'
@@ -199,17 +199,25 @@ export default function AdminCasinosTab({
   return (
     <>
       <div className="space-y-6">
-        <div className="flex justify-between items-center glass-panel p-4 rounded-xl border border-slate-800">
-          <h3 className="font-display font-bold text-lg text-white">Casinos Référencés sur la Vitrine</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 bg-surface/40">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30 shrink-0">
+              <Star className="w-6 h-6 text-purple-400" />
+            </div>
+            <div>
+              <h3 className="font-display font-bold text-xl text-white">Casinos Référencés</h3>
+              <p className="text-xs text-slate-400 mt-1">Gérez le catalogue des casinos affichés sur la vitrine.</p>
+            </div>
+          </div>
           <button 
             onClick={() => {
               setNewCasino({ name: '', slug: '', lien_affilie: '', logo_url: '', bonus_depot: '100% jusqu\'à 500€', bonus_sans_depot: 'Aucun', licence: 'Curaçao', remboursement_depot: false, minimum_depot: '20€', ordre_classement: 1, visible_affiliate: true, allowed_countries: [] })
               setCasinoModal({isOpen: true, editingId: null})
             }}
-            className="px-4 py-2 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-primary-hover shadow-purple-glow"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-primary text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-purple-glow hover:scale-[1.02] transition-transform"
           >
             <Plus className="w-4 h-4" />
-            <span>Ajouter un Casino</span>
+            Ajouter un Casino
           </button>
         </div>
 

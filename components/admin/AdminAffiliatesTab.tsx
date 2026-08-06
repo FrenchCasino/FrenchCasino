@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Eye, Download, Send, DollarSign, XCircle, Loader2, RefreshCw, Edit } from 'lucide-react'
+import { Eye, Download, Send, DollarSign, XCircle, Loader2, RefreshCw, Edit, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { useConfirm } from '@/components/ui/ConfirmModal'
 
@@ -516,48 +516,60 @@ export default function AdminAffiliatesTab({
   // Affiliate List view
   return (
     <>
-      <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-4 relative">
-        <div className="flex items-center justify-between">
-          <h3 className="font-display font-bold text-lg text-white">Gestion des Affiliés</h3>
+      <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 bg-surface/40 space-y-6 relative">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30 shrink-0">
+              <Users className="w-6 h-6 text-blue-400" />
+            </div>
+            <div>
+              <h3 className="font-display font-bold text-xl text-white">Gestion des Affiliés</h3>
+              <p className="text-xs text-slate-400 mt-1">Supervisez et gérez tous les membres du programme.</p>
+            </div>
+          </div>
           <div className="flex items-center gap-3">
+            <span className="text-xs text-slate-400 font-mono bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-800">{affiliates.length} membres</span>
             <button
               onClick={handleExportAffiliates}
-              className="px-3 py-1.5 rounded-lg bg-surface border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold to-gold-light text-black font-bold text-xs shadow-gold-glow flex items-center gap-2 hover:scale-[1.02] transition-transform"
             >
-              <Download className="w-3.5 h-3.5 text-gold shrink-0" />
-              <span>Exporter CSV</span>
+              <Download className="w-4 h-4" />
+              Exporter CSV
             </button>
-            <span className="text-xs text-slate-500 font-mono">{affiliates.length} membre(s)</span>
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {affiliates.length === 0 ? (
-            <p className="text-slate-500 font-mono text-sm p-4 text-center">Aucun affilié trouvé.</p>
+            <p className="text-slate-500 font-mono text-sm p-6 text-center bg-surface/20 rounded-2xl border border-slate-800/50">Aucun affilié trouvé.</p>
           ) : affiliates.map((aff) => (
             <div
               key={aff.id}
-              className="flex items-center justify-between px-4 py-3 rounded-xl bg-surface border border-slate-800 hover:border-slate-700 transition-all group"
+              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-2xl bg-surface/30 border border-slate-800/80 hover:border-purple-500/30 hover:bg-surface/50 transition-all group gap-4"
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0 text-sm font-bold text-primary uppercase">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-purple-600/30 border border-primary/40 flex items-center justify-center shrink-0 text-sm font-display font-bold text-primary uppercase shadow-[0_0_10px_rgba(168,85,247,0.2)]">
                   {(aff.profiles?.full_name || '?')[0]}
                 </div>
                 <div className="min-w-0">
-                  <div className="font-bold text-white text-sm truncate flex items-center gap-2">
+                  <div className="font-bold text-white text-base truncate flex items-center gap-2">
                     <span>{aff.profiles?.full_name || 'Sans Nom'}</span>
-                    <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-normal">{aff.profiles?.role}</span>
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${getVipInfo(Number(aff.total_earned) || 0).border} ${getVipInfo(Number(aff.total_earned) || 0).bg} ${getVipInfo(Number(aff.total_earned) || 0).color}`}>
+                    <span className="text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md font-bold uppercase tracking-widest">{aff.profiles?.role}</span>
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border flex items-center gap-1.5 tracking-wider uppercase ${getVipInfo(Number(aff.total_earned) || 0).border} ${getVipInfo(Number(aff.total_earned) || 0).bg} ${getVipInfo(Number(aff.total_earned) || 0).color}`}>
                       {getVipInfo(Number(aff.total_earned) || 0).icon} {getVipInfo(Number(aff.total_earned) || 0).name}
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-500 truncate">{aff.profiles?.email || 'N/A'}</div>
+                  <div className="text-xs text-slate-500 truncate mt-0.5">{aff.profiles?.email || 'N/A'}</div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 shrink-0">
-                <span className="font-mono text-xs font-bold text-gold hidden sm:block">{(Number(aff.solde_reel) || 0).toLocaleString()} €</span>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+              <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 border-t border-slate-800/50 sm:border-0 pt-3 sm:pt-0">
+                <div className="text-center sm:text-right hidden sm:block">
+                  <p className="text-[9px] uppercase tracking-wider text-slate-500 font-bold mb-0.5">Solde Actuel</p>
+                  <span className="font-mono text-sm font-bold text-emerald-400 drop-shadow-[0_0_5px_rgba(52,211,153,0.3)]">{(Number(aff.solde_reel) || 0).toLocaleString()} €</span>
+                </div>
+                
+                <span className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
                   aff.status === 'active' ? 'bg-emerald/20 text-emerald border border-emerald/30' :
                   aff.status === 'pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
                   'bg-red-500/20 text-red-400 border border-red-500/30'
@@ -566,11 +578,11 @@ export default function AdminAffiliatesTab({
                 </span>
                 <button
                   onClick={() => setSelectedAff(aff)}
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-primary/20 border border-slate-700 hover:border-primary/40 text-slate-400 hover:text-primary transition-all flex items-center gap-1 text-xs font-semibold"
+                  className="px-4 py-2 rounded-xl bg-slate-800/50 hover:bg-primary/20 border border-slate-700 hover:border-primary/40 text-slate-300 hover:text-white transition-all flex items-center gap-2 text-xs font-bold"
                   title="Voir les détails et statistiques"
                 >
-                  <Eye className="w-4 h-4" />
-                  <span className="hidden md:inline">Détails</span>
+                  <Eye className="w-4 h-4 text-purple-400" />
+                  <span>Détails</span>
                 </button>
               </div>
             </div>

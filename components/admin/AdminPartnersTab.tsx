@@ -175,22 +175,26 @@ export default function AdminPartnersTab({ casinos }: { casinos: any[] }) {
     <>
       <ConfirmDialog />
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-panel p-5 rounded-xl border border-slate-800">
-          <div>
-            <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
-              <Building className="w-5 h-5 text-gold" />
-              <span>Plateformes Partenaires & Réseaux (Affiliate Networks)</span>
-            </h3>
-            <p className="text-xs text-slate-400 mt-1">
-              Gérez vos comptes partenaires externes, accédez rapidement à leurs dashboards (ouverture dans un nouvel onglet), configurez vos taux CPA & RS et attribuez les casinos reliés du Top Casino.
-            </p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 bg-surface/40">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center border border-gold/30 shrink-0">
+              <Building className="w-6 h-6 text-gold" />
+            </div>
+            <div>
+              <h3 className="font-display font-bold text-xl text-white">
+                Plateformes Partenaires & Réseaux
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 max-w-xl">
+                Gérez vos comptes partenaires externes, accédez rapidement à leurs dashboards, configurez vos taux CPA & RS et attribuez les casinos reliés.
+              </p>
+            </div>
           </div>
           <button 
             onClick={openCreatePartnerModal}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-gold text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:brightness-110 shadow-gold-glow shrink-0 transition-all"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-gold text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:scale-[1.02] shadow-gold-glow shrink-0 transition-transform"
           >
             <Plus className="w-4 h-4" />
-            <span>Ajouter un Partenaire</span>
+            Ajouter un Partenaire
           </button>
         </div>
 
