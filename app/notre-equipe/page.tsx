@@ -83,24 +83,23 @@ export default function NotreEquipePage() {
           </div>
 
         </div>
-      </>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Person",
-            "name": "Le Fondateur",
-            "jobTitle": "Expert iGaming & Testeur Principal",
-            "url": "https://frenchcasino.net/notre-equipe",
-            "worksFor": {
-              "@type": "Organization",
-              "name": "FrenchCasino"
-            }
-          })
-        }}
-      />
-    </>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              "name": "Le Fondateur",
+              "jobTitle": "Expert iGaming & Testeur Principal",
+              "url": "https://frenchcasino.net/notre-equipe",
+              "worksFor": {
+                "@type": "Organization",
+                "name": "FrenchCasino"
+              }
+            })
+          }}
+        />
+      </>
   )
 }
