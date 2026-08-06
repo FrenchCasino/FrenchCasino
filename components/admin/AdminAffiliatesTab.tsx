@@ -225,153 +225,235 @@ export default function AdminAffiliatesTab({
   if (selectedAff) {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Back Button & Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 bg-surface/50">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setSelectedAff(null)}
-              className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 flex items-center gap-1.5 transition-colors"
-            >
-              ← Retour aux affiliés
-            </button>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center font-bold text-primary uppercase text-lg">
-                {(selectedAff.profiles?.full_name || '?')[0]}
+        
+        {/* Banner Header */}
+        <div className="relative glass-panel rounded-3xl border border-slate-800 bg-surface/50 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-gold/10 via-purple-500/5 to-transparent opacity-50" />
+          <div className="relative p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            
+            {/* User Identity */}
+            <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-purple-600 p-[2px] shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+                <div className="w-full h-full rounded-full bg-surface flex items-center justify-center font-display font-bold text-primary uppercase text-4xl">
+                  {(selectedAff.profiles?.full_name || '?')[0]}
+                </div>
               </div>
-              <div>
-                <h1 className="font-display font-bold text-xl text-white flex items-center gap-2">
+              <div className="space-y-1">
+                <h1 className="font-display font-bold text-3xl text-white flex items-center justify-center sm:justify-start gap-3">
                   <span>{selectedAff.profiles?.full_name || 'Sans Nom'}</span>
-                  <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-normal">{selectedAff.profiles?.role}</span>
+                  <span className="text-[10px] bg-slate-800 text-slate-400 px-2.5 py-1 rounded-md font-bold uppercase tracking-wider">{selectedAff.profiles?.role}</span>
                 </h1>
-                <p className="text-xs text-slate-500">{selectedAff.profiles?.email}</p>
+                <p className="text-sm text-slate-400">{selectedAff.profiles?.email}</p>
+                <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
+                  <span className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider ${
+                    selectedAff.status === 'active' ? 'bg-emerald/20 text-emerald border border-emerald/30' :
+                    selectedAff.status === 'pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                    'bg-red-500/20 text-red-400 border border-red-500/30'
+                  }`}>{selectedAff.status}</span>
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded border flex items-center gap-1.5 ${getVipInfo(Number(selectedAff.total_earned) || 0).border} ${getVipInfo(Number(selectedAff.total_earned) || 0).bg} ${getVipInfo(Number(selectedAff.total_earned) || 0).color}`}>
+                    {getVipInfo(Number(selectedAff.total_earned) || 0).icon} VIP {getVipInfo(Number(selectedAff.total_earned) || 0).name}
+                  </span>
+                </div>
               </div>
             </div>
+
+            {/* Balances */}
+            <div className="flex items-center gap-6">
+              <div className="text-center md:text-right">
+                <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Solde Retirable</p>
+                <p className="text-3xl font-display font-bold text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.3)]">
+                  {(Number(selectedAff.solde_reel) || 0).toLocaleString()} <span className="text-xl">€</span>
+                </p>
+              </div>
+              <div className="w-px h-12 bg-slate-800 hidden md:block"></div>
+              <div className="text-center md:text-right">
+                <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Gains Classement</p>
+                <p className="text-2xl font-display font-bold text-gold opacity-80 flex items-center justify-end gap-2">
+                  {(Number(selectedAff.total_earned) || 0).toLocaleString()} <span className="text-lg">€</span>
+                  <button 
+                    onClick={async () => {
+                      const newEarned = await handleUpdateTotalEarned(selectedAff.id, Number(selectedAff.total_earned) || 0)
+                      if (newEarned !== undefined) setSelectedAff({ ...selectedAff, total_earned: newEarned })
+                    }}
+                    className="text-slate-500 hover:text-white"
+                  ><Edit className="w-3.5 h-3.5" /></button>
+                </p>
+              </div>
+            </div>
+
           </div>
           
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                const copy = { ...selectedAff };
-                setSelectedAff(null);
-                setTimeout(() => setSelectedAff(copy), 50);
-              }}
-              className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 flex items-center gap-1.5 transition-colors"
-              title="Rafraîchir les statistiques de cet affilié"
+          {/* Action Bar */}
+          <div className="bg-slate-900/80 border-t border-slate-800 p-3 flex flex-wrap items-center justify-between gap-4">
+            <button 
+              onClick={() => setSelectedAff(null)}
+              className="px-4 py-2 rounded-xl bg-surface border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-purple-400" />
-              <span>Actualiser Stats</span>
+              ← Retour à la liste
             </button>
-            <span className={`px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider ${
-              selectedAff.status === 'active' ? 'bg-emerald/20 text-emerald border border-emerald/30' :
-              selectedAff.status === 'pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
-              'bg-red-500/20 text-red-400 border border-red-500/30'
-            }`}>{selectedAff.status}</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  const copy = { ...selectedAff };
+                  setSelectedAff(null);
+                  setTimeout(() => setSelectedAff(copy), 50);
+                }}
+                className="px-4 py-2 rounded-xl bg-surface border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-purple-400" />
+                Actualiser
+              </button>
+            </div>
           </div>
         </div>
 
+        {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Identity & Technical Info */}
-          <div className="space-y-6">
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 bg-surface/30">
-              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Identité & Technique
-              </h3>
-              <div className="space-y-1">
-                <Row label="ID Unique" value={selectedAff.id} mono />
-                <Row label="Email" value={selectedAff.profiles?.email || 'N/A'} mono />
-                <Row label="Rôle Actuel" value={selectedAff.profiles?.role || 'N/A'} />
-                
-                <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                  <span className="text-xs text-slate-400">Solde Actuel (Retirable)</span>
-                  <span className="text-emerald-400 font-bold font-mono text-sm">{(Number(selectedAff.solde_reel) || 0).toLocaleString()} €</span>
+          
+          {/* General Specs */}
+          <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 bg-surface/40 space-y-8 lg:col-span-2">
+            <h3 className="font-display font-bold text-lg text-white flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
+                <span className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.8)]"></span>
+              </div>
+              Paramètres du compte
+            </h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-slate-900/50 rounded-2xl p-5 border border-slate-800/50">
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">CPA Actuel</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-bold text-white">{selectedAff.commission_rate} €</span>
+                  <button onClick={() => handleUpdateCPA(selectedAff.id, selectedAff.commission_rate)} className="text-slate-500 hover:text-white p-1.5 bg-slate-800 rounded-lg"><Edit className="w-3.5 h-3.5" /></button>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                  <span className="text-xs text-slate-400">Gains Historiques (Classement)</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-gold font-bold font-mono text-sm">{(Number(selectedAff.total_earned) || 0).toLocaleString()} €</span>
-                    <button 
-                      onClick={async () => {
-                        const newEarned = await handleUpdateTotalEarned(selectedAff.id, Number(selectedAff.total_earned) || 0)
-                        if (newEarned !== undefined) {
-                          setSelectedAff({ ...selectedAff, total_earned: newEarned })
-                        }
-                      }}
-                      className="text-slate-500 hover:text-white"
-                      title="Modifier les gains manuellement"
-                    >
-                      <Edit className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
+              </div>
+              
+              <div className="bg-slate-900/50 rounded-2xl p-5 border border-slate-800/50">
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-2">Code Parrainage</span>
+                <span className="font-mono text-purple-300 bg-purple-900/30 px-3 py-1.5 rounded-lg text-sm border border-purple-800/50 block w-fit">{selectedAff.referral_code}</span>
+              </div>
+              
+              <div className="bg-slate-900/50 rounded-2xl p-5 border border-slate-800/50">
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-2">Recruteur</span>
+                <select 
+                  value={selectedAff.recruiter_id || ''}
+                  onChange={(e) => {
+                    handleAssignRecruiter(selectedAff.id, e.target.value)
+                    setSelectedAff({ ...selectedAff, recruiter_id: e.target.value })
+                  }}
+                  className="bg-surface border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary w-full"
+                >
+                  <option value="">Aucun</option>
+                  {recruiters.map(r => (
+                    <option key={r.id} value={r.id}>{r.full_name}</option>
+                  ))}
+                </select>
+              </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                  <span className="text-xs text-slate-400">CPA (€)</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-white">{selectedAff.commission_rate} €</span>
-                    <button 
-                      onClick={() => handleUpdateCPA(selectedAff.id, selectedAff.commission_rate)}
-                      className="text-slate-500 hover:text-white"
-                    >
-                      <Edit className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-                <Row label="Telegram" value={selectedAff.contact_telegram || '—'} color="text-blue-400" />
-                <Row label="WhatsApp" value={selectedAff.contact_whatsapp || '—'} color="text-green-400" />
-                <Row label="Téléphone" value={selectedAff.contact_phone || '—'} />
-                
-                <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                  <span className="text-xs text-slate-400">Code Parrainage</span>
-                  <span className="font-mono text-purple-300 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-800/50 text-[11px]">{selectedAff.referral_code}</span>
-                </div>
-
-                <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                  <span className="text-xs text-slate-400">Recruteur Assigné</span>
-                  <select 
-                    value={selectedAff.recruiter_id || ''}
-                    onChange={(e) => {
-                      handleAssignRecruiter(selectedAff.id, e.target.value)
-                      setSelectedAff({ ...selectedAff, recruiter_id: e.target.value })
-                    }}
-                    className="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-primary"
-                  >
-                    <option value="">Aucun</option>
-                    {recruiters.map(r => (
-                      <option key={r.id} value={r.id}>{r.full_name}</option>
-                    ))}
-                  </select>
-                </div>
-
+              <div className="bg-slate-900/50 rounded-2xl p-5 border border-slate-800/50">
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-2">ID Unique</span>
+                <span className="font-mono text-xs text-slate-400">{selectedAff.id}</span>
               </div>
             </div>
 
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 bg-surface/30">
-              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Coordonnées Bancaires
+            <div className="pt-6 border-t border-slate-800/50">
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Contacts</h4>
+              <div className="flex flex-wrap gap-3">
+                <div className="px-5 py-3 bg-blue-900/10 border border-blue-800/30 rounded-xl flex items-center gap-3 min-w-[200px]">
+                  <Send className="w-4 h-4 text-blue-400" />
+                  <div>
+                    <span className="text-[10px] text-blue-400/70 font-bold uppercase block">Telegram</span>
+                    <span className="text-sm text-white">{selectedAff.contact_telegram || 'Non renseigné'}</span>
+                  </div>
+                </div>
+                <div className="px-5 py-3 bg-green-900/10 border border-green-800/30 rounded-xl flex items-center gap-3 min-w-[200px]">
+                  <span className="w-4 h-4 text-green-400 flex items-center justify-center font-bold text-xs">W</span>
+                  <div>
+                    <span className="text-[10px] text-green-400/70 font-bold uppercase block">WhatsApp</span>
+                    <span className="text-sm text-white">{selectedAff.contact_whatsapp || 'Non renseigné'}</span>
+                  </div>
+                </div>
+                <div className="px-5 py-3 bg-slate-800/30 border border-slate-700/50 rounded-xl flex items-center gap-3 min-w-[200px]">
+                  <span className="w-4 h-4 text-slate-400 flex items-center justify-center font-bold text-xs">P</span>
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Téléphone</span>
+                    <span className="text-sm text-white">{selectedAff.contact_phone || 'Non renseigné'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-slate-800/50">
+               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Message Dashboard Affilié</h4>
+               <p className="text-[11px] text-slate-500 mb-4">Ce message s'affichera tout en haut du tableau de bord de cet affilié spécifiquement (ex: rappel de qualité de trafic).</p>
+               <div className="flex flex-col sm:flex-row gap-3">
+                  <textarea
+                    value={selectedAff.admin_message || ''}
+                    onChange={(e) => setSelectedAff({ ...selectedAff, admin_message: e.target.value })}
+                    placeholder="Tapez un message d'alerte ou d'encouragement..."
+                    className="flex-1 min-h-[60px] bg-[#0a0a0f] border border-slate-700 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-blue-500 resize-y"
+                  />
+                  <button
+                    disabled={isAdminMessageSaving}
+                    onClick={() => handleSaveAdminMessage(selectedAff.id, selectedAff.admin_message)}
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-colors disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {isAdminMessageSaving ? 'En cours...' : 'Publier le message'}
+                  </button>
+               </div>
+            </div>
+          </div>
+
+          {/* Right Column: Banking & Actions */}
+          <div className="space-y-6">
+            
+            <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 bg-surface/40">
+              <h3 className="font-display font-bold text-lg text-white flex items-center gap-2 mb-6">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span>
+                </div>
+                Données Bancaires
               </h3>
-              <div className="space-y-1">
+              
+              <div className="space-y-4">
                 {selectedAff.iban ? (
                   <>
-                    <Row label="Titulaire" value={selectedAff.iban_holder || 'N/A'} color="text-gold" />
-                    <Row label="IBAN" value={selectedAff.iban} mono />
-                    {selectedAff.bic && <Row label="BIC" value={selectedAff.bic} mono />}
+                    <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-800/50">
+                      <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold block mb-1">Titulaire du compte</span>
+                      <span className="text-sm font-bold text-gold break-words">{selectedAff.iban_holder || 'N/A'}</span>
+                    </div>
+                    <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-800/50">
+                      <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold block mb-1">IBAN</span>
+                      <span className="text-xs font-mono text-slate-300 break-all">{selectedAff.iban}</span>
+                    </div>
+                    {selectedAff.bic && (
+                      <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-800/50">
+                        <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold block mb-1">BIC / SWIFT</span>
+                        <span className="text-xs font-mono text-slate-300 break-all">{selectedAff.bic}</span>
+                      </div>
+                    )}
                   </>
                 ) : (
-                  <p className="text-xs text-slate-500 font-mono text-center py-4">Aucun IBAN renseigné</p>
+                  <div className="bg-slate-900/30 rounded-2xl p-8 border border-slate-800/30 text-center border-dashed">
+                    <p className="text-xs text-slate-500 font-mono">Aucun RIB renseigné par l'affilié.</p>
+                  </div>
                 )}
               </div>
             </div>
 
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 bg-surface/30">
-              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span> Gestion Rapide
+            <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 bg-surface/40">
+              <h3 className="font-display font-bold text-lg text-white flex items-center gap-2 mb-6">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
+                  <span className="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_10px_rgba(192,132,252,0.8)]"></span>
+                </div>
+                Actions Rapides
               </h3>
-              <div className="space-y-2">
-                
+              
+              <div className="space-y-3">
                 {selectedAff.status === 'pending' && (
                   <button 
                     onClick={() => { handleUpdateAffiliateStatus(selectedAff.id, 'active'); setSelectedAff({ ...selectedAff, status: 'active' }) }}
-                    className="w-full py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs hover:bg-emerald-500/20 transition-all"
+                    className="w-full py-4 rounded-xl bg-emerald-500 text-black font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:scale-[1.02] transition-transform"
                   >
                     Approuver l'affilié
                   </button>
@@ -383,70 +465,48 @@ export default function AdminAffiliatesTab({
                       setCommissionAmount(selectedAff.commission_rate?.toString() || '0')
                       setCommissionModal({ isOpen: true, affiliateId: selectedAff.id, affiliateName: selectedAff.profiles?.full_name || 'Inconnu' })
                     }}
-                    className="w-full py-2.5 rounded-xl bg-gold/10 border border-gold/30 text-gold font-bold text-xs hover:bg-gold/20 transition-all flex justify-center items-center gap-2"
+                    className="w-full py-4 rounded-xl bg-gradient-to-r from-gold to-gold-light text-black font-bold text-sm shadow-gold-glow hover:scale-[1.02] transition-transform flex justify-center items-center gap-2"
                   >
-                    <DollarSign className="w-4 h-4" /> Ajouter Commission
+                    <DollarSign className="w-5 h-5" /> Ajouter Commission
                   </button>
                 )}
 
-                <div className="pt-4 border-t border-slate-800/50 mt-4 space-y-2">
+                <div className="pt-3">
                   {selectedAff.profiles?.role !== 'recruiter' ? (
                     <button 
                       onClick={() => { handleUpdateRole(selectedAff.id, 'recruiter'); setSelectedAff({ ...selectedAff, profiles: { ...selectedAff.profiles, role: 'recruiter' } }) }}
-                      className="w-full py-2 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-semibold hover:bg-blue-500/20 border border-blue-500/20 transition-all"
+                      className="w-full py-3 rounded-xl bg-blue-500/10 text-blue-400 text-xs font-bold hover:bg-blue-500/20 border border-blue-500/20 transition-colors"
                     >
                       Promouvoir en Recruteur
                     </button>
                   ) : (
                     <button 
                       onClick={() => { handleUpdateRole(selectedAff.id, 'affiliate'); setSelectedAff({ ...selectedAff, profiles: { ...selectedAff.profiles, role: 'affiliate' } }) }}
-                      className="w-full py-2 rounded-lg bg-slate-800 text-slate-400 text-xs font-semibold hover:bg-slate-700 border border-slate-700 transition-all"
+                      className="w-full py-3 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold hover:bg-slate-700 border border-slate-700 transition-colors"
                     >
                       Rétrograder en Affilié
                     </button>
                   )}
+                </div>
 
+                <div className="flex gap-3 pt-3">
                   <button 
                     onClick={() => { handleUpdateAffiliateStatus(selectedAff.id, selectedAff.status === 'suspended' ? 'active' : 'suspended'); setSelectedAff({ ...selectedAff, status: selectedAff.status === 'suspended' ? 'active' : 'suspended' }) }}
-                    className="w-full py-2 rounded-lg bg-amber-500/10 text-amber-500 text-xs font-semibold hover:bg-amber-500/20 border border-amber-500/20 transition-all"
+                    className="flex-1 py-3 rounded-xl bg-amber-500/10 text-amber-500 text-xs font-bold hover:bg-amber-500/20 border border-amber-500/20 transition-colors"
                   >
                     {selectedAff.status === 'suspended' ? '↩ Réactiver' : '⊘ Suspendre'}
                   </button>
                   
                   <button 
                     onClick={() => handleDeleteAffiliate(selectedAff.id)}
-                    className="w-full py-2 rounded-lg bg-red-500/10 text-red-500 text-xs font-semibold hover:bg-red-500/20 border border-red-500/20 transition-all"
+                    className="flex-1 py-3 rounded-xl bg-red-500/10 text-red-500 text-xs font-bold hover:bg-red-500/20 border border-red-500/20 transition-colors"
                   >
-                    Supprimer DÉFINITIVEMENT
+                    Détruire
                   </button>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="lg:col-span-2 space-y-6">
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 bg-surface/30">
-              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span> Message Dashboard Affilié
-              </h3>
-              <p className="text-xs text-slate-400 mb-4">Ce message s'affichera tout en haut du tableau de bord de cet affilié spécifiquement.</p>
-              
-              <div className="space-y-3">
-                <textarea
-                  value={selectedAff.admin_message || ''}
-                  onChange={(e) => setSelectedAff({ ...selectedAff, admin_message: e.target.value })}
-                  placeholder="Ex: Attention, la qualité de votre trafic est mauvaise..."
-                  className="w-full h-24 bg-[#0a0a0f] border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-blue-500"
-                />
-                <button
-                  disabled={isAdminMessageSaving}
-                  onClick={() => handleSaveAdminMessage(selectedAff.id, selectedAff.admin_message)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition-colors disabled:opacity-50"
-                >
-                  {isAdminMessageSaving ? 'Sauvegarde...' : 'Enregistrer le message'}
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
