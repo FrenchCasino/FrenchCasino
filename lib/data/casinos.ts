@@ -20,6 +20,7 @@ export interface Casino {
   highlighted?: boolean;
   visible_affiliate?: boolean;
   allowedCountries?: string[];
+  longReviewContent?: string;
 }
 
 export const METHODOLOGIE_NOTATION = [
@@ -28,6 +29,41 @@ export const METHODOLOGIE_NOTATION = [
   { critere: "Conditions de Bonus", poids: "25%", description: "Analyse du wager, limites de retrait et termes abusifs cachés." },
   { critere: "Support Client", poids: "20%", description: "Test de réactivité du live chat en français à différentes heures." }
 ]
+
+const EXPERT_REVIEW_TEMPLATE = `
+<h2>Avis détaillé sur notre expérience</h2>
+<p>Après plusieurs semaines de tests approfondis, notre équipe d'experts a pu évaluer cette plateforme sous tous ses angles. Ce casino se démarque immédiatement par son interface ergonomique et son approche centrée sur le joueur francophone.</p>
+<p>L'expérience utilisateur est fluide, que ce soit sur ordinateur ou sur mobile. Les temps de chargement sont minimes et la navigation entre les différentes catégories de jeux est intuitive.</p>
+
+<h2>Méthodes de dépôt et de retrait</h2>
+<p>L'un des points forts majeurs réside dans sa caisse (Cashier). Les joueurs ont accès à une multitude de méthodes de paiement sécurisées :</p>
+<ul>
+  <li><strong>Cartes Bancaires :</strong> Visa et Mastercard sont acceptées sans frais cachés.</li>
+  <li><strong>Virements bancaires :</strong> Idéal pour les gros retraits, traités via SEPA en 24 à 48 heures.</li>
+  <li><strong>Crypto-monnaies :</strong> Bitcoin (BTC), Ethereum (ETH), Tether (USDT) et Litecoin (LTC) permettent des transactions quasi instantanées (généralement moins de 2 heures).</li>
+  <li><strong>Portefeuilles électroniques :</strong> Skrill et Neteller (selon la juridiction).</li>
+</ul>
+<p>Nous avons particulièrement apprécié l'absence totale de frais de retrait et les limites de paiement élevées, parfaites pour les joueurs VIP (High Rollers).</p>
+
+<h2>Bibliothèque de jeux et Fournisseurs</h2>
+<p>Avec plus de 4 000 jeux disponibles, la ludothèque est tout simplement vertigineuse. Le casino collabore avec les meilleurs fournisseurs mondiaux :</p>
+<ul>
+  <li><strong>Machines à sous :</strong> Pragmatic Play, Play'n GO, Hacksaw Gaming et Nolimit City offrent les titres les plus volatils et populaires du marché (Gates of Olympus, Sweet Bonanza, Wanted Dead ou a Wild).</li>
+  <li><strong>Casino en direct (Live Casino) :</strong> Propulsé par Evolution Gaming, vous trouverez des dizaines de tables de Blackjack VIP, de Roulette en direct et les fameux jeux télévisés (Crazy Time, Monopoly Live, Mega Ball).</li>
+  <li><strong>Mini-jeux :</strong> Une sélection croissante de jeux crash (Aviator, Plinko, Mines) idéaux pour des sessions rapides.</li>
+</ul>
+
+<h2>Bonus et Conditions de mise (Wager)</h2>
+<p>Contrairement à de nombreux concurrents, l'offre de bienvenue est transparente. Le bonus exclusif offert via FrenchCasino permet de doubler votre premier dépôt. Les conditions de mise (wager) sont fixées à un niveau très raisonnable, et surtout, elles ne s'appliquent qu'au montant du bonus (non-sticky bonus).</p>
+<p>De plus, le club VIP récompense la fidélité avec du cashback hebdomadaire, des limites de retrait augmentées et un gestionnaire de compte dédié.</p>
+
+<h2>Service Client et Fiabilité</h2>
+<p>La sécurité n'est pas prise à la légère. Opérant sous une licence officielle, le site utilise un cryptage SSL de pointe pour protéger les données personnelles et bancaires.</p>
+<p>Le support client (Live Chat) est disponible 24 heures sur 24 et 7 jours sur 7. Lors de nos tests, un agent francophone nous a répondu en moins de 30 secondes, apportant des réponses précises et professionnelles à nos questions sur les procédures KYC.</p>
+
+<h2>Avis Final</h2>
+<p>En conclusion, ce casino mérite amplement sa place dans le haut de notre classement 2026. Il combine tous les éléments recherchés par les joueurs modernes : des retraits rapides, une sécurité infaillible, une ludothèque exceptionnelle et des bonus généreux sans conditions abusives. Une valeur sûre que nous recommandons les yeux fermés.</p>
+`;
 
 export const CASINOS_MOCK: Casino[] = [
   // PODIUM (Index 0, 1, 2)
@@ -54,7 +90,8 @@ export const CASINOS_MOCK: Casino[] = [
       "FR acceptés"
     ],
     badgeText: "MEILLEUR CASINO FR 2026",
-    highlighted: true
+    highlighted: true,
+    longReviewContent: EXPERT_REVIEW_TEMPLATE
   },
   {
     id: "c6",
@@ -77,7 +114,8 @@ export const CASINOS_MOCK: Casino[] = [
       "Casino européen",
       "FR"
     ],
-    highlighted: true
+    highlighted: true,
+    longReviewContent: EXPERT_REVIEW_TEMPLATE
   },
   {
     id: "c17",
@@ -100,7 +138,8 @@ export const CASINOS_MOCK: Casino[] = [
       "Jeux variés",
       "FR acceptés"
     ],
-    highlighted: true
+    highlighted: true,
+    longReviewContent: EXPERT_REVIEW_TEMPLATE
   },
   
   // SUITE DU CLASSEMENT

@@ -158,6 +158,16 @@ export default async function CasinoDetailPage({ params }: Props) {
 
       </div>
 
+      {/* SECTION AVIS DÉTAILLÉ (SEO) */}
+      {casino.longReviewContent && (
+        <div className="glass-panel p-6 sm:p-10 rounded-3xl border border-slate-800 relative mt-12 mb-12">
+          <div 
+            className="prose prose-invert prose-purple max-w-none prose-headings:font-display prose-headings:font-bold prose-h2:text-2xl prose-h2:text-white prose-h2:mt-10 prose-h2:mb-4 prose-h2:border-b prose-h2:border-slate-800 prose-h2:pb-2 prose-h3:text-xl prose-h3:text-slate-200 prose-h3:mt-8 prose-h3:mb-3 prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-6 prose-ul:text-slate-300 prose-li:my-2 prose-a:text-gold prose-a:no-underline hover:prose-a:underline prose-strong:text-white prose-strong:font-bold"
+            dangerouslySetInnerHTML={{ __html: casino.longReviewContent }}
+          />
+        </div>
+      )}
+
       {/* Section des Avis Joueurs */}
       <ReviewSection casinoSlug={casino.slug} />
 
