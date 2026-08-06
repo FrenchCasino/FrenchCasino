@@ -1231,7 +1231,7 @@ export default function AdminDashboardPage() {
           )}
 
           {adminTab === 'deposits' && (
-            <AdminDepositsTab />
+            <AdminDepositsTab casinos={casinos} />
           )}
 
           {/* 4. GESTION DES PAIEMENTS */}

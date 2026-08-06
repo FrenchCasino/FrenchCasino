@@ -26,10 +26,13 @@ interface DepositDeclaration {
   affiliates?: {
     id: string
     referral_code: string
+    profiles?: {
+      full_name: string
+    }
   }
 }
 
-export default function AdminDepositsTab() {
+export default function AdminDepositsTab({ casinos = [] }: { casinos?: any[] }) {
   const [deposits, setDeposits] = useState<DepositDeclaration[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -72,13 +75,14 @@ export default function AdminDepositsTab() {
   }
 
   const getCasinoName = (casinoId: string) => {
-    const c = CASINOS_MOCK.find(c => c.id === casinoId)
+    const c = casinos.find(c => c.id === casinoId)
     return c ? c.name : casinoId
   }
 
   const filteredDeposits = deposits.filter(d => {
     const matchSearch = 
       d.affiliates?.referral_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      d.affiliates?.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       getCasinoName(d.casino_id).toLowerCase().includes(searchTerm.toLowerCase())
       
     const matchStatus = filterStatus === 'all' || d.status === filterStatus
@@ -161,8 +165,8 @@ export default function AdminDepositsTab() {
                             <User className="w-5 h-5 text-slate-400" />
                           </div>
                           <div>
-                            <p className="font-semibold text-white">{deposit.affiliates?.referral_code || 'Inconnu'}</p>
-                            <p className="text-xs text-slate-500 font-mono">{deposit.affiliate_id}</p>
+                            <p className="font-semibold text-white">{deposit.affiliates?.profiles?.full_name || 'Sans nom'}</p>
+                            <p className="text-xs text-slate-400 font-mono">{deposit.affiliates?.referral_code || 'Inconnu'}</p>
                           </div>
                         </div>
                       </td>
