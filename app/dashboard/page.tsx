@@ -791,12 +791,15 @@ export default function DashboardPage() {
     const casinoName = casino ? casino.name : depositForm.casinoId
 
     try {
-      await fetch('/api/telegram', {
+      await fetch('/api/deposits/declare', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'deposit_declaration',
-          message: `Nouveau dépôt déclaré par l'affilié ${affiliateCode}\n\nCasino : <b>${casinoName}</b>\nMontant : <b>${depositForm.amount} €</b>`
+          affiliateId,
+          affiliateCode,
+          casinoId: depositForm.casinoId,
+          casinoName,
+          amount: depositForm.amount
         })
       })
       toast.success('Déclaration de dépôt envoyée avec succès.')

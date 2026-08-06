@@ -45,6 +45,7 @@ import AdminPartnersTab from '@/components/admin/AdminPartnersTab'
 import AdminStatsTab from '@/components/admin/AdminStatsTab'
 import AdminCasinosTab from '@/components/admin/AdminCasinosTab'
 import AdminAffiliatesTab from '@/components/admin/AdminAffiliatesTab'
+import AdminDepositsTab from '@/components/admin/AdminDepositsTab'
 
 const AdminMessageEditor = ({ affiliate, onSave }: { affiliate: any, onSave: (id: string, msg: string) => Promise<void> }) => {
   const [msg, setMsg] = useState(affiliate.admin_message || '')
@@ -99,7 +100,7 @@ const AdminMessageEditor = ({ affiliate, onSave }: { affiliate: any, onSave: (id
 }
 
 export default function AdminDashboardPage() {
-  const [adminTab, setAdminTab] = useState<'kpi' | 'stats' | 'site' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'refunds' | 'support' | 'telegram' | 'logs'>('kpi')
+  const [adminTab, setAdminTab] = useState<'kpi' | 'stats' | 'site' | 'affiliates' | 'casinos' | 'partners' | 'payouts' | 'refunds' | 'support' | 'deposits' | 'telegram' | 'logs'>('kpi')
   const [siteAnalytics, setSiteAnalytics] = useState<any>(null)
   const [loadingAnalytics, setLoadingAnalytics] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -749,6 +750,7 @@ export default function AdminDashboardPage() {
             { id: 'casinos', label: 'Gestion Casinos', icon: Plus },
             { id: 'partners', label: 'Mes Partenaires', icon: Building },
             { id: 'payouts', label: 'Paiements & Exports', icon: CreditCard },
+            { id: 'deposits', label: 'Dépôts Déclarés', icon: DollarSign },
             { id: 'refunds', label: 'Remboursements', icon: RefreshCw },
             { id: 'logs', label: 'Logs & Alertes', icon: FileText },
           ].map(tab => {
@@ -1226,6 +1228,10 @@ export default function AdminDashboardPage() {
           {/* 3.5. GESTION DES PARTENAIRES */}
           {adminTab === 'partners' && (
             <AdminPartnersTab casinos={casinos} />
+          )}
+
+          {adminTab === 'deposits' && (
+            <AdminDepositsTab />
           )}
 
           {/* 4. GESTION DES PAIEMENTS */}
