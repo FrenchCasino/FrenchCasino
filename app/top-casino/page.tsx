@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getCasinos, METHODOLOGIE_NOTATION } from '@/lib/data/casinos'
 import { FlagIcon } from '@/components/ui/FlagIcon'
 import { CasinoCard } from '@/components/ui/CasinoCard'
@@ -75,9 +76,11 @@ export default async function TopCasinoPage() {
           {/* Rang 2 (Argent) */}
           <div className="order-2 md:order-1 flex-1 max-w-[280px] w-full flex flex-col items-center">
             <div className="group w-full glass-panel border border-slate-700/50 bg-gradient-to-t from-slate-800/40 to-slate-800/10 p-6 rounded-t-3xl relative transform md:translate-y-8 shadow-[0_0_30px_rgba(148,163,184,0.1)] hover:-translate-y-0 hover:shadow-[0_0_40px_rgba(148,163,184,0.25)] transition-all duration-500">
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 bg-gradient-to-br from-slate-300 to-slate-500 rounded-full border-4 border-[#0a0a0f] flex flex-col items-center justify-center shadow-lg shadow-slate-400/30 animate-[float_4s_ease-in-out_infinite_0.5s] group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
-                <span className="text-2xl drop-shadow-md">🥈</span>
-                <span className="text-[10px] font-bold text-slate-800 tracking-wider drop-shadow-sm">2ND</span>
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-slate-300 to-slate-500 rounded-full border-4 border-[#0a0a0f] p-1 shadow-[0_0_30px_rgba(148,163,184,0.6)] animate-[float_4s_ease-in-out_infinite_0.5s] group-hover:scale-110 transition-transform duration-500 z-20 flex items-center justify-center">
+                <div className="w-full h-full rounded-full bg-surface relative overflow-hidden flex items-center justify-center">
+                  <Image src={casinos[1].logoUrl} alt={casinos[1].name} fill sizes="96px" className="object-contain p-2" unoptimized={casinos[1].logoUrl.endsWith('.gif')} priority />
+                </div>
+                <div className="absolute -bottom-3 px-3 py-1 rounded-full bg-slate-300 text-slate-900 font-black text-[10px] shadow-[0_0_15px_rgba(148,163,184,0.8)] border-2 border-[#0a0a0f]">2ND 🥈</div>
               </div>
               <div className="mt-8 text-center space-y-3">
                 <h3 className="font-display font-bold text-xl text-white flex items-center justify-center gap-2">
@@ -104,9 +107,11 @@ export default async function TopCasinoPage() {
           {/* Rang 1 (Or) */}
           <div className="order-1 md:order-2 flex-1 max-w-[320px] w-full flex flex-col items-center z-10">
             <div className="group w-full glass-panel border-2 border-gold/60 bg-gradient-to-t from-amber-900/50 to-amber-900/10 p-6 sm:p-8 rounded-t-3xl relative shadow-[0_0_60px_rgba(251,191,36,0.2)] hover:-translate-y-4 hover:shadow-[0_0_80px_rgba(251,191,36,0.4)] transition-all duration-500">
-              <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-gold to-yellow-300 rounded-full border-4 border-[#0a0a0f] flex flex-col items-center justify-center shadow-xl shadow-gold/50 animate-float group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
-                <span className="text-4xl drop-shadow-md">👑</span>
-                <span className="text-xs font-black text-amber-950 mt-1 tracking-widest drop-shadow-sm">1ER</span>
+              <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-28 h-28 bg-gradient-to-br from-yellow-300 to-yellow-600 rounded-full border-4 border-[#0a0a0f] p-1 shadow-[0_0_40px_rgba(234,179,8,0.8)] animate-[float_3s_ease-in-out_infinite] group-hover:scale-110 transition-transform duration-500 z-20 flex items-center justify-center">
+                <div className="w-full h-full rounded-full bg-surface relative overflow-hidden flex items-center justify-center">
+                  <Image src={casinos[0].logoUrl} alt={casinos[0].name} fill sizes="112px" className="object-contain p-2.5" unoptimized={casinos[0].logoUrl.endsWith('.gif')} priority />
+                </div>
+                <div className="absolute -bottom-3 px-4 py-1 rounded-full bg-yellow-400 text-yellow-950 font-black text-xs shadow-[0_0_15px_rgba(234,179,8,1)] border-2 border-[#0a0a0f]">1ER 👑</div>
               </div>
               <div className="mt-10 text-center space-y-4">
                 <div className="inline-block px-3 py-1 bg-gold/20 border border-gold/40 text-gold text-[10px] font-bold uppercase tracking-widest rounded-full mb-1">№ 1 — Meilleur casino FR 2026</div>
@@ -137,9 +142,11 @@ export default async function TopCasinoPage() {
           {/* Rang 3 (Bronze) */}
           <div className="order-3 md:order-3 flex-1 max-w-[280px] w-full flex flex-col items-center">
             <div className="group w-full glass-panel border border-orange-700/40 bg-gradient-to-t from-orange-950/50 to-slate-800/80 p-6 rounded-t-3xl relative transform md:translate-y-12 shadow-[0_0_30px_rgba(194,65,12,0.15)] hover:translate-y-4 hover:shadow-[0_0_40px_rgba(194,65,12,0.3)] transition-all duration-500">
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full border-4 border-[#0a0a0f] flex flex-col items-center justify-center shadow-lg shadow-orange-500/30 animate-[float_4s_ease-in-out_infinite_1s] group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
-                <span className="text-2xl drop-shadow-md">🥉</span>
-                <span className="text-[10px] font-bold text-orange-950 tracking-wider drop-shadow-sm">3EME</span>
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-amber-600 to-amber-800 rounded-full border-4 border-[#0a0a0f] p-1 shadow-[0_0_30px_rgba(217,119,6,0.6)] animate-[float_4s_ease-in-out_infinite_1s] group-hover:scale-110 transition-transform duration-500 z-20 flex items-center justify-center">
+                <div className="w-full h-full rounded-full bg-surface relative overflow-hidden flex items-center justify-center">
+                  <Image src={casinos[2].logoUrl} alt={casinos[2].name} fill sizes="96px" className="object-contain p-2" unoptimized={casinos[2].logoUrl.endsWith('.gif')} priority />
+                </div>
+                <div className="absolute -bottom-3 px-3 py-1 rounded-full bg-amber-600 text-white font-black text-[10px] shadow-[0_0_15px_rgba(217,119,6,0.8)] border-2 border-[#0a0a0f]">3ÈME 🥉</div>
               </div>
               <div className="mt-8 text-center space-y-3">
                 <h3 className="font-display font-bold text-xl text-white flex items-center justify-center gap-2">
