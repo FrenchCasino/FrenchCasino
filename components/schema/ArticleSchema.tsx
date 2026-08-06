@@ -1,5 +1,7 @@
 import React from 'react'
-import { Article } from '@/lib/articles'
+import { ARTICLES_DB } from '@/lib/articles'
+
+export type Article = typeof ARTICLES_DB[0]
 
 interface ArticleSchemaProps {
   article: Article
