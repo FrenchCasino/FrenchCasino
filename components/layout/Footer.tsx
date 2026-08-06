@@ -21,7 +21,7 @@ export function Footer() {
       <ResponsibleGamingBanner />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
           
           {/* Col 1 & 2: Branding & Mission */}
           <div className="lg:col-span-2 space-y-4">
@@ -107,7 +107,46 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Col 5: Conformité Légale */}
+          {/* Col 5: Guides & SEO (Silo) */}
+          <div>
+            <h4 className="font-display font-semibold text-white text-sm tracking-wider uppercase mb-4">
+              Guides & Astuces
+            </h4>
+            <ul className="space-y-2.5 text-xs sm:text-sm">
+              <li>
+                <Link href="/wager-casino" className="hover:text-gold transition-colors">
+                  Le Wager Casino
+                </Link>
+              </li>
+              <li>
+                <Link href="/retrait-rapide" className="hover:text-gold transition-colors">
+                  Retrait Rapide
+                </Link>
+              </li>
+              <li>
+                <Link href="/max-bet-casino" className="hover:text-gold transition-colors">
+                  Règle du Max Bet
+                </Link>
+              </li>
+              <li>
+                <Link href="/casino-sans-kyc" className="hover:text-gold transition-colors">
+                  Casino sans KYC
+                </Link>
+              </li>
+              <li>
+                <Link href="/casino-fiable" className="hover:text-gold transition-colors">
+                  Casino Fiable
+                </Link>
+              </li>
+              <li>
+                <Link href="/methodologie" className="hover:text-gold transition-colors">
+                  Notre Méthodologie
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 6: Conformité Légale */}
           <div>
             <h4 className="font-display font-semibold text-white text-sm tracking-wider uppercase mb-4">
               Mentions Légales
