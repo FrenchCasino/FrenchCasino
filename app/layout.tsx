@@ -40,13 +40,18 @@ export const metadata: Metadata = {
   }
 };
 
+import { Inter, Outfit } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: 'swap' });
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: 'swap' });
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="dark">
+    <html lang="fr" className={`dark ${inter.variable} ${outfit.variable}`}>
       <body className="bg-transparent text-slate-100 min-h-screen flex flex-col antialiased selection:bg-primary/40 selection:text-white">
         {/* Subtle Animated Casino Background */}
         <div className="casino-bg-container">

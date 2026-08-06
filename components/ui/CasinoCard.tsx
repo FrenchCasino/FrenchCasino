@@ -49,6 +49,7 @@ export function CasinoCard({ casino, rank }: CasinoCardProps) {
                 className="object-contain p-1 drop-shadow-md rounded"
                 onError={() => setImgError(true)}
                 unoptimized={casino.logoUrl.endsWith('.gif')}
+                priority={rank !== undefined && rank <= 3}
               />
             ) : (
               <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-purple-800 to-indigo-950 p-1 rounded">
