@@ -145,18 +145,29 @@ export default function AdminStatsTab({
                   </div>
 
                   {/* Spacer on desktop */}
-                  <div className="hidden md:block flex-1"></div>
+                  <div className="hidden xl:block flex-1"></div>
 
-                  {/* Total Clicks BIG Display */}
-                  <div className="flex items-center gap-3 bg-[#0a0a0f] py-2 px-4 rounded-xl border border-slate-800 md:min-w-[150px]">
-                    <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
-                      <TrendingUp className="w-4 h-4 text-purple-400" />
+                  {/* Clicks Metrics Display */}
+                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 mt-4 md:mt-0 shrink-0">
+                    <div className="bg-[#0a0a0f] p-2 sm:p-2.5 rounded-xl border border-slate-800 min-w-[70px] text-center shadow-sm">
+                      <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Auj.</div>
+                      <div className="text-sm font-black font-mono text-white leading-none">{(aff.clicks_today || 0).toLocaleString()}</div>
                     </div>
-                    <div>
-                      <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Total Clics</div>
-                      <div className="text-2xl font-black font-mono text-white leading-none">
-                        {totalClicks.toLocaleString()}
-                      </div>
+                    <div className="bg-[#0a0a0f] p-2 sm:p-2.5 rounded-xl border border-slate-800 min-w-[70px] text-center shadow-sm">
+                      <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">7J</div>
+                      <div className="text-sm font-black font-mono text-slate-300 leading-none">{(aff.clicks_7d || 0).toLocaleString()}</div>
+                    </div>
+                    <div className="bg-[#0a0a0f] p-2 sm:p-2.5 rounded-xl border border-slate-800 min-w-[70px] text-center shadow-sm">
+                      <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">30J</div>
+                      <div className="text-sm font-black font-mono text-slate-300 leading-none">{(aff.clicks_30d || 0).toLocaleString()}</div>
+                    </div>
+                    <div className="bg-blue-500/10 p-2 sm:p-2.5 rounded-xl border border-blue-500/20 min-w-[75px] text-center shadow-sm">
+                      <div className="text-[9px] font-bold text-blue-400 uppercase tracking-widest mb-1" title="Se remet à zéro en fin de mois">Ce Mois</div>
+                      <div className="text-base font-black font-mono text-blue-100 leading-none">{(aff.clicks_month || 0).toLocaleString()}</div>
+                    </div>
+                    <div className="bg-purple-500/10 p-2 sm:p-2.5 rounded-xl border border-purple-500/20 min-w-[80px] text-center shadow-sm">
+                      <div className="text-[9px] font-bold text-purple-400 uppercase tracking-widest mb-1">Total</div>
+                      <div className="text-lg font-black font-mono text-white leading-none">{totalClicks.toLocaleString()}</div>
                     </div>
                   </div>
                 </div>

@@ -228,12 +228,39 @@ export default function AdminDashboardPage() {
       }
       
       const clickCountsByAff: Record<string, number> = {}
+      const clicksTodayByAff: Record<string, number> = {}
+      const clicks7dByAff: Record<string, number> = {}
+      const clicks30dByAff: Record<string, number> = {}
+      const clicksMonthByAff: Record<string, number> = {}
       const breakdownByAff: Record<string, Record<string, number>> = {}
 
       if (allClicks && allClicks.length > 0) {
+        const now = new Date()
+        const currentMonth = now.getMonth()
+        const currentYear = now.getFullYear()
+        
+        const dayStart = new Date(now)
+        dayStart.setHours(0,0,0,0)
+
+        const day7 = new Date(now)
+        day7.setDate(now.getDate() - 7)
+
+        const day30 = new Date(now)
+        day30.setDate(now.getDate() - 30)
+
         allClicks.forEach((c: any) => {
           if (c.affiliate_id) {
             clickCountsByAff[c.affiliate_id] = (clickCountsByAff[c.affiliate_id] || 0) + 1
+            
+            if (c.created_at) {
+              const clickDate = new Date(c.created_at)
+              if (clickDate >= dayStart) clicksTodayByAff[c.affiliate_id] = (clicksTodayByAff[c.affiliate_id] || 0) + 1
+              if (clickDate >= day7) clicks7dByAff[c.affiliate_id] = (clicks7dByAff[c.affiliate_id] || 0) + 1
+              if (clickDate >= day30) clicks30dByAff[c.affiliate_id] = (clicks30dByAff[c.affiliate_id] || 0) + 1
+              if (clickDate.getMonth() === currentMonth && clickDate.getFullYear() === currentYear) {
+                clicksMonthByAff[c.affiliate_id] = (clicksMonthByAff[c.affiliate_id] || 0) + 1
+              }
+            }
             
             const casinoKey = c.casino_slug || c.casino_id || 'général'
             if (!breakdownByAff[c.affiliate_id]) {
@@ -279,6 +306,10 @@ export default function AdminDashboardPage() {
           return {
             ...a,
             total_clicks: clickCountsByAff[a.id] || 0,
+            clicks_today: clicksTodayByAff[a.id] || 0,
+            clicks_7d: clicks7dByAff[a.id] || 0,
+            clicks_30d: clicks30dByAff[a.id] || 0,
+            clicks_month: clicksMonthByAff[a.id] || 0,
             solde_reel
           }
         })
