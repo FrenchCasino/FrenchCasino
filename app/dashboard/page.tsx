@@ -1093,8 +1093,13 @@ export default function DashboardPage() {
             </button>
 
             {showNotifDropdown && (
-              <div className="absolute right-0 mt-2.5 w-80 bg-[#0f0f15] border border-slate-800 rounded-2xl shadow-xl z-50 p-4 space-y-3 font-sans text-xs">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <>
+                <div 
+                  className="fixed inset-0 z-40 sm:hidden"
+                  onClick={() => setShowNotifDropdown(false)}
+                />
+                <div className="fixed left-4 right-4 top-20 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2.5 sm:w-80 bg-[#0f0f15] border border-slate-800 rounded-2xl shadow-2xl z-50 p-4 space-y-3 font-sans text-xs">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                   <span className="font-bold text-white text-sm">Notifications ({unreadNotifCount})</span>
                   {unreadNotifCount > 0 && (
                     <button
@@ -1132,6 +1137,7 @@ export default function DashboardPage() {
                   )}
                 </div>
               </div>
+              </>
             )}
           </div>
 
