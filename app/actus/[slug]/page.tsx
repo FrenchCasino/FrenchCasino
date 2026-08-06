@@ -5,6 +5,8 @@ import { ArrowLeft, Calendar, Clock, Newspaper } from 'lucide-react'
 
 import { PageHero } from '@/components/ui/PageHero'
 import { ARTICLES_DB } from '@/lib/articles'
+import { BreadcrumbSchema } from '@/components/schema/BreadcrumbSchema'
+import { ArticleSchema } from '@/components/schema/ArticleSchema'
 
 export function generateMetadata({ params }: { params: { slug: string } }) {
   const article = ARTICLES_DB.find((a) => a.slug === params.slug)
@@ -71,6 +73,17 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
           />
         </div>
       </article>
+
+      {/* SCHEMAS JSON-LD SEO */}
+      <BreadcrumbSchema 
+        items={[
+          { name: "Accueil", url: "https://frenchcasino.net/" },
+          { name: "Actualités", url: "https://frenchcasino.net/actus" },
+          { name: article.title, url: `https://frenchcasino.net/actus/${article.slug}` }
+        ]} 
+      />
+      <ArticleSchema article={article} />
+
     </>
   )
 }

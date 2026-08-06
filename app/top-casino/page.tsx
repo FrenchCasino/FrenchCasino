@@ -4,6 +4,7 @@ import { getCasinos, METHODOLOGIE_NOTATION } from '@/lib/data/casinos'
 import { FlagIcon } from '@/components/ui/FlagIcon'
 import { CasinoCard } from '@/components/ui/CasinoCard'
 import { Award, ShieldCheck, Check, Star, Lock, Zap } from 'lucide-react'
+import { ItemListSchema } from '@/components/schema/ItemListSchema'
 
 import { PageHero } from '@/components/ui/PageHero'
 
@@ -177,6 +178,9 @@ export default async function TopCasinoPage() {
           </div>
         </div>
       </div>
+
+      {/* SCHEMA JSON-LD SEO */}
+      <ItemListSchema casinos={casinos} />
 
       {/* Grille de Méthodologie */}
       <div className="space-y-6 mt-16 pt-8 border-t border-slate-800">

@@ -5,6 +5,8 @@ import { getCasinos } from '@/lib/data/casinos'
 import { Star, ShieldCheck, Zap, Gift, ExternalLink, Check, Clock, FileText, ArrowLeft } from 'lucide-react'
 import ReviewSection from '@/components/casino/ReviewSection'
 import { FlagIcon } from '@/components/ui/FlagIcon'
+import { BreadcrumbSchema } from '@/components/schema/BreadcrumbSchema'
+import { ReviewSchema } from '@/components/schema/ReviewSchema'
 
 interface Props {
   params: {
@@ -160,37 +162,14 @@ export default async function CasinoDetailPage({ params }: Props) {
       <ReviewSection casinoSlug={casino.slug} />
 
       {/* DONNÉES STRUCTURÉES DE REVUE CASINO JSON-LD */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Review",
-            "itemReviewed": {
-              "@type": "SoftwareApplication",
-              "name": casino.name,
-              "applicationCategory": "GameApplication",
-              "operatingSystem": "All"
-            },
-            "reviewRating": {
-              "@type": "Rating",
-              "ratingValue": casino.noteFiabilite.toFixed(1),
-              "bestRating": "5",
-              "worstRating": "1"
-            },
-            "author": {
-              "@type": "Organization",
-              "name": "FrenchCasino"
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "FrenchCasino",
-              "url": "https://frenchcasino.net"
-            },
-            "description": `Revue et test expert du casino ${casino.name}. Licence ${casino.licence}, support client et conditions de retrait analysés.`
-          })
-        }}
+      <BreadcrumbSchema 
+        items={[
+          { name: "Accueil", url: "https://frenchcasino.net/" },
+          { name: "Casinos", url: "https://frenchcasino.net/top-casino" },
+          { name: casino.name, url: `https://frenchcasino.net/casino/${casino.slug}` }
+        ]} 
       />
+      <ReviewSchema casino={casino} />
 
     </div>
   )

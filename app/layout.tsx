@@ -4,6 +4,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "sonner";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
+import { OrganizationSchema } from "@/components/schema/OrganizationSchema";
+import { WebSiteSchema } from "@/components/schema/WebSiteSchema";
 
 export const metadata: Metadata = {
   title: "FrenchCasino V2 — Le Comparateur & Guide Casino N°1 en France (2026)",
@@ -72,6 +74,11 @@ export default function RootLayout({
           <Footer />
         </div>
         <AnalyticsTracker />
+        
+        {/* Schémas JSON-LD globaux */}
+        <OrganizationSchema />
+        <WebSiteSchema />
+
         <Toaster
           theme="dark"
           position="bottom-right"

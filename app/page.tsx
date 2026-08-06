@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getCasinos, METHODOLOGIE_NOTATION } from '@/lib/data/casinos'
 import { CasinoCard } from '@/components/ui/CasinoCard'
 import { JackpotCounter } from '@/components/ui/JackpotCounter'
+import { FAQSchema, FAQItem } from '@/components/schema/FAQSchema'
 import { Metadata } from 'next'
 import {
   ShieldCheck,
@@ -28,6 +29,49 @@ export const metadata: Metadata = {
     canonical: 'https://frenchcasino.net/',
   }
 }
+
+const faqs: FAQItem[] = [
+  {
+    question: "Quel est le meilleur casino en ligne fiable en France ?",
+    answer: "Le meilleur casino en ligne fiable en France doit posséder une licence officielle (comme Curaçao eGaming ou MGA), offrir des délais de retrait rapides (moins de 24h) et des bonus avec des conditions de mise transparentes. Des plateformes comme Cresus Casino, SpinLynx ou MegaWin figurent en tête de notre classement 2026."
+  },
+  {
+    question: "Comment obtenir un bonus casino sans dépôt ?",
+    answer: "Les bonus sans dépôt sont des offres gratuites (free spins ou argent bonus) créditées dès l'inscription. Pour en bénéficier, inscrivez-vous via nos liens exclusifs. Les gains peuvent être retirés une fois que vous avez rempli les exigences de mise (wager)."
+  },
+  {
+    question: "Comment fonctionne le programme d'affiliation casino de FrenchCasino ?",
+    answer: "Notre programme d'affiliation permet aux créateurs de contenu de parrainer des joueurs sur des casinos certifiés. Vous touchez une commission fixe (CPA) de 20€ à 70€ par joueur qualifié. Paiements mensuels via IBAN ou Crypto."
+  },
+  {
+    question: "Qu'est-ce qu'un wager (exigence de mise) sur un bonus ?",
+    answer: "Le wager représente le nombre de fois que vous devez miser le montant du bonus (ou bonus + dépôt) avant de pouvoir retirer vos gains. Par exemple, avec un bonus de 100€ et un wager x30, vous devez miser 3000€ au total."
+  },
+  {
+    question: "Quels sont les moyens de paiement acceptés sur les casinos en ligne ?",
+    answer: "La plupart des casinos fiables acceptent les cartes bancaires (Visa, Mastercard), les virements bancaires instantanés, les portefeuilles électroniques (Skrill, Neteller) ainsi que les crypto-monnaies (Bitcoin, Ethereum, USDT) pour des retraits plus rapides."
+  },
+  {
+    question: "Comment vérifier qu'un casino possède une licence valide ?",
+    answer: "Vous pouvez vérifier la licence d'un casino en cherchant le logo de l'autorité de régulation (souvent Curaçao eGaming, Malta Gaming Authority, etc.) en bas de la page d'accueil du casino. Cliquez dessus pour vérifier le certificat officiel sur le site du régulateur."
+  },
+  {
+    question: "Est-il possible de jouer gratuitement aux machines à sous ?",
+    answer: "Oui, la grande majorité des casinos en ligne proposent un mode 'Démo' ou 'Argent virtuel' permettant de tester les machines à sous et les jeux de table gratuitement, sans même avoir besoin de créer un compte."
+  },
+  {
+    question: "Combien de temps prend un retrait des gains ?",
+    answer: "Les délais de retrait varient selon la méthode choisie. Les retraits en crypto-monnaies sont généralement traités en moins de 2 heures. Les virements bancaires peuvent prendre de 24 à 48 heures ouvrées sur les casinos de notre classement."
+  },
+  {
+    question: "Qu'est-ce que la procédure KYC (Know Your Customer) ?",
+    answer: "Le KYC est une vérification d'identité obligatoire exigée par la loi pour lutter contre le blanchiment d'argent et la fraude. Vous devrez fournir une pièce d'identité et un justificatif de domicile avant de pouvoir retirer vos gains pour la première fois."
+  },
+  {
+    question: "Peut-on gagner de l'argent réel sans effectuer de dépôt ?",
+    answer: "Oui, grâce aux bonus sans dépôt (free spins ou argent offert à l'inscription). Cependant, pour retirer l'argent gagné avec ces bonus, vous devrez respecter les conditions de mise (wager) et souvent effectuer un petit dépôt de vérification."
+  }
+]
 
 export default async function HomePage() {
   const casinos = await getCasinos()
@@ -292,87 +336,21 @@ export default async function HomePage() {
         </div>
 
         <div className="space-y-6">
-          <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2">
-            <h3 className="font-display font-bold text-white text-base">
-              Quel est le meilleur casino en ligne fiable en France ?
-            </h3>
-            <p className="text-slate-400 text-xs leading-relaxed">
-              Le meilleur casino en ligne fiable en France doit posséder une licence officielle (comme Curaçao eGaming ou MGA), offrir des délais de retrait rapides (moins de 24h) et des bonus avec des conditions de mise (wager) transparentes. Des plateformes comme Cresus Casino, SpinLynx ou MegaWin figurent en tête de notre classement 2026 pour leur fiabilité.
-            </p>
-          </div>
-
-          <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2">
-            <h3 className="font-display font-bold text-white text-base">
-              Comment obtenir un bonus casino sans dépôt ?
-            </h3>
-            <p className="text-slate-400 text-xs leading-relaxed">
-              Les bonus sans dépôt sont des offres gratuites (free spins ou argent bonus) créditées dès l'inscription. Pour en bénéficier, il suffit de s'inscrire via nos liens exclusifs sur FrenchCasino.net. Les gains issus de ces bonus peuvent être retirés une fois que vous avez rempli les exigences de mise (wager) spécifiées par le casino.
-            </p>
-          </div>
-
-          <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2">
-            <h3 className="font-display font-bold text-white text-base">
-              Comment fonctionne le programme d'affiliation casino de FrenchCasino ?
-            </h3>
-            <p className="text-slate-400 text-xs leading-relaxed">
-              Notre programme d'affiliation permet aux créateurs de contenu, influenceurs et webmasters de parrainer des joueurs sur des casinos certifiés. Vous touchez une commission fixe (CPA) de 20€ à 70€ par joueur qualifié. Les paiements sont effectués mensuellement via Virement bancaire (IBAN) ou Crypto-monnaies (USDT).
-            </p>
-          </div>
+          {faqs.map((faq, idx) => (
+            <div key={idx} className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2">
+              <h3 className="font-display font-bold text-white text-base">
+                {faq.question}
+              </h3>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                {faq.answer}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* SCHEMA JSON-LD SEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "FrenchCasino",
-            "url": "https://frenchcasino.net",
-            "potentialAction": {
-              "@type": "SearchAction",
-              "target": "https://frenchcasino.net/top-casino?q={search_term_string}",
-              "query-input": "required name=search_term_string"
-            }
-          })
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": [
-              {
-                "@type": "Question",
-                "name": "Quel est le meilleur casino en ligne fiable en France ?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Le meilleur casino en ligne fiable en France doit posséder une licence officielle, offrir des délais de retrait rapides et des bonus avec des conditions transparentes. Des plateformes comme Cresus Casino, SpinLynx ou MegaWin figurent en tête de notre classement 2026."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Comment obtenir un bonus casino sans dépôt ?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Les bonus sans dépôt sont des offres gratuites créditées dès l'inscription. Pour en bénéficier, inscrivez-vous via nos liens exclusifs sur FrenchCasino.net."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Comment fonctionne le programme d'affiliation casino de FrenchCasino ?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Notre programme d'affiliation permet aux créateurs de contenu de parrainer des joueurs sur des casinos certifiés et de toucher une commission fixe (CPA) de 20€ à 70€ par joueur."
-                }
-              }
-            ]
-          })
-        }}
-      />
+      <FAQSchema items={faqs} />
 
     </div>
   )
