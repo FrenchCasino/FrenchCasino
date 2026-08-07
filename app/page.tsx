@@ -141,12 +141,12 @@ export default async function HomePage() {
             {/* Right content (Image Banner) */}
             <div className="lg:col-span-5 relative w-full flex justify-center">
               <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full pointer-events-none" />
-              <div className="relative w-full max-w-[450px] aspect-[4/3] rounded-3xl overflow-hidden border border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.25)] group">
+              <div className="relative w-full max-w-[480px] aspect-[16/11] rounded-3xl overflow-hidden border border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.25)] group">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
                 <img
                   src="/casino_hero_banner.png"
                   alt="Casino en ligne fiable FrenchCasino 2026"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                 />
               </div>
             </div>
