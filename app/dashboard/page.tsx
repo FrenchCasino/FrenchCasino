@@ -707,6 +707,11 @@ export default function DashboardPage() {
     const { data: newTicket } = await supabase.from('tickets').insert([newTicketData]).select().single()
     
     if (newTicket) {
+      await supabase.from('ticket_messages').insert([{
+        ticket_id: newTicket.id,
+        sender_id: affiliateId,
+        message: ticketMessage
+      }])
       setTicketsList([newTicket, ...ticketsList])
     }
     
