@@ -650,7 +650,7 @@ export default function AdminDashboardPage() {
   const handleUpdateTicketStatus = async (id: string, newStatus: string) => {
     const oldTicket = tickets.find(t => t.id === id)
     const oldStatus = oldTicket?.statut
-    const { error } = await supabase.from('support_tickets').update({ statut: newStatus }).eq('id', id)
+    const { error } = await supabase.from('tickets').update({ statut: newStatus }).eq('id', id)
     if (!error) {
       setTickets(tickets.map(t => t.id === id ? { ...t, statut: newStatus } : t))
       setKpi(prev => ({
@@ -752,6 +752,7 @@ export default function AdminDashboardPage() {
             { id: 'payouts', label: 'Paiements & Exports', icon: CreditCard },
             { id: 'deposits', label: 'Dépôts Déclarés', icon: DollarSign },
             { id: 'refunds', label: 'Remboursements', icon: RefreshCw },
+            { id: 'support', label: 'Support Clients', icon: MessageSquare },
             { id: 'logs', label: 'Logs & Alertes', icon: FileText },
           ].map(tab => {
             const Icon = tab.icon
