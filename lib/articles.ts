@@ -101,5 +101,80 @@ export const ARTICLES_DB = [
       <h2>Conclusion</h2>
       <p>Les litiges sont souvent dus à des malentendus ou des erreurs techniques. La patience, la courtoisie et le respect strict des Termes & Conditions sont vos meilleurs alliés pour récupérer vos gains rapidement.</p>
     `
+  },
+  {
+    id: 4,
+    title: "Règle du Max Bet au Casino : Comment éviter d'annuler vos gains sous bonus",
+    slug: "max-bet-casino",
+    date: "06 Août 2026",
+    readTime: "5 min de lecture",
+    category: "Sécurité & Droits",
+    excerpt: "La règle de la mise maximale autorisée (Max Bet) est le piège n°1 des bonus. Apprenez comment jouer sans risquer d'invalider votre retrait.",
+    content: `
+      <h2>Qu'est-ce que la règle du Max Bet ?</h2>
+      <p>La règle du <strong>Max Bet</strong> (ou mise maximale) est une clause insérée dans les conditions générales d'utilisation des bonus par la quasi-totalité des casinos en ligne. Elle limite le montant maximum que vous pouvez parier sur un seul tour de jeu (spin de machine à sous, main de blackjack, ou tour de roulette) tant qu'un bonus est actif sur votre compte.</p>
+      
+      <h2>Pourquoi cette limite existe-t-elle ?</h2>
+      <p>Les casinos imposent cette règle pour empêcher les joueurs d'utiliser des stratégies à très haute mise pour compléter rapidement leur wager. En limitant la taille des paris, le casino équilibre les chances mathématiques et limite son exposition financière face à un gros coup de chance.</p>
+      
+      <h2>Quel est le montant standard du Max Bet ?</h2>
+      <p>Dans 90% des cas, le Max Bet sous bonus est fixé à :</p>
+      <ul>
+        <li><strong>5,00 €</strong> (ou 5$ / 5 CHF) par spin ou par tour.</li>
+        <li>Parfois, cette limite est exprimée en pourcentage, par exemple : <em>"pas plus de 10% du montant du bonus reçu"</em>.</li>
+      </ul>
+      
+      <h2>Les pièges les plus fréquents à éviter</h2>
+      <h3>1. L'achat de fonctionnalités (Bonus Buy)</h3>
+      <p>C'est l'erreur la plus classique. Sur beaucoup de machines à sous modernes, vous pouvez payer 100x votre mise pour obtenir directement les Tours Gratuits (Free Spins). Si votre mise de base est de 0,20€, l'achat de bonus coûte 20€. Pour le système de sécurité du casino, vous venez de faire une mise de 20€, ce qui dépasse largement le Max Bet de 5€. Vos gains seront instantanément annulés lors de la demande de retrait.</p>
+      
+      <h3>2. Le bouton "Gamble" ou doublement</h3>
+      <p>Certaines machines à sous classiques proposent une fonction de quitte ou double (pile ou face) après un gain. Si vous gagnez 4€ et décidez de le remettre en jeu via cette fonction, la transaction totale peut être comptabilisée comme une mise de 8€ par le serveur du jeu, enfreignant ainsi la règle du Max Bet.</p>
+      
+      <h3>3. Les mises incrémentales sur les jeux de table</h3>
+      <p>Au Blackjack ou à la Roulette, si vous placez une mise principale de 4€ et un side-bet de 2€, votre mise totale sur le tour est de 6€. Même si la mise principale est inférieure à 5€, le cumul des paris sur un même tour de table ne doit pas dépasser le plafond.</p>
+      
+      <h2>Comment vérifier vos limites de jeu ?</h2>
+      <p>Avant d'activer un bonus et de commencer à faire tourner les rouleaux, prenez 2 minutes pour lire les conditions des bonus. Cherchez la ligne mentionnant la <strong>"mise maximale autorisée"</strong> ou <strong>"maximum bet rule"</strong>. Si l'information n'est pas claire, demandez confirmation par écrit sur le Live Chat du casino et prenez une capture d'écran de leur réponse.</p>
+    `
+  },
+  {
+    id: 5,
+    title: "Comment repérer un casino en ligne fiable en 2026 et éviter les arnaques ?",
+    slug: "casino-fiable",
+    date: "02 Août 2026",
+    readTime: "6 min de lecture",
+    category: "Guide Stratégique",
+    excerpt: "Licences, audits de jeux, conditions de retraits cachées : notre check-list complète pour évaluer la sécurité d'un casino.",
+    content: `
+      <h2>L'importance de la sécurité dans les jeux en ligne</h2>
+      <p>Avec l'apparition de centaines de nouveaux sites chaque année, distinguer un casino en ligne fiable et sécurisé d'une plateforme douteuse est devenu un défi pour les joueurs. Voici la check-list incontournable de nos experts pour jouer en toute tranquillité.</p>
+      
+      <h2>1. La licence de jeu officielle</h2>
+      <p>Un casino fiable doit obligatoirement opérer sous une licence officielle reconnue par les autorités internationales de régulation. Les plus courantes en Europe sont :</p>
+      <ul>
+        <li><strong>Curacao eGaming :</strong> La licence la plus populaire pour les casinos crypto et internationaux. Elle garantit l'équité des générateurs de nombres aléatoires (RNG).</li>
+        <li><strong>Malta Gaming Authority (MGA) :</strong> Une licence extrêmement stricte en termes de protection des joueurs et de lutte contre l'addiction.</li>
+        <li><strong>Kahnawake Gaming Commission :</strong> Très réputée pour sa rigueur et sa gestion des litiges joueurs.</li>
+      </ul>
+      <p>Vérifiez toujours que le logo de l'autorité en bas du site est cliquable et renvoie vers un certificat de validité authentique sur le site officiel du régulateur.</p>
+      
+      <h2>2. Les conditions de retrait : lisez les petites lignes</h2>
+      <p>Un casino peut avoir un beau design mais cacher des clauses abusives dans ses Termes & Conditions. Méfiez-vous des plateformes qui imposent :</p>
+      <ul>
+        <li>Des limites de retrait hebdomadaires excessivement basses (ex: moins de 1 500 € par semaine).</li>
+        <li>L'obligation de rejouer votre dépôt initial plus de 3 fois sans bonus actif (la norme anti-blanchiment est de 1x).</li>
+        <li>Des frais de traitement élevés sur chaque demande de retrait.</li>
+      </ul>
+      
+      <h2>3. Des éditeurs de jeux certifiés</h2>
+      <p>Les jeux d'un casino fiable ne sont pas hébergés directement sur ses serveurs, mais chez les éditeurs de jeux (comme Pragmatic Play, Play'n GO, Hacksaw Gaming ou Evolution). C'est la garantie que le casino ne peut pas manipuler les taux de redistribution (RTP) des machines à sous.</p>
+      
+      <h2>4. L'historique et la réputation en ligne</h2>
+      <p>Avant de déposer, consultez les avis de la communauté. Recherchez le casino sur des forums spécialisés de confiance ou des guides indépendants comme <strong>FrenchCasino</strong>. Si une plateforme accumule des plaintes non résolues pour des retraits injustement bloqués, évitez-la à tout prix.</p>
+      
+      <h2>Conclusion</h2>
+      <p>La sécurité n'est pas un aspect sur lequel transiger. En choisissant l'un des casinos sélectionnés et testés par notre équipe, vous avez l'assurance de jouer sur une plateforme auditée, honnête et qui paie ses gagnants rapidement.</p>
+    `
   }
 ]
