@@ -58,6 +58,7 @@ export default function DashboardPage() {
   const [affiliateStatus, setAffiliateStatus] = useState<string>('pending')
   const [adminMessage, setAdminMessage] = useState<string | null>(null)
   const [cpaAmount, setCpaAmount] = useState<number>(0)
+  const [totalEarnedDB, setTotalEarnedDB] = useState<number>(0)
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean>(false)
   const [onboardingStep, setOnboardingStep] = useState<1 | 2>(1)
   const [casinosList, setCasinosList] = useState<any[]>([])
@@ -244,6 +245,7 @@ export default function DashboardPage() {
         setAffiliateStatus(affData.status)
         setAdminMessage(affData.admin_message || null)
         setCpaAmount(affData.commission_rate || 0)
+        setTotalEarnedDB(Number(affData.total_earned) || 0)
         
         if (profile?.role === 'admin') {
           setOnboardingCompleted(true)
@@ -445,9 +447,8 @@ export default function DashboardPage() {
         totalPaidOrPending += Number(p.montant_demande)
       }
     })
-    // Solde disponible = Total Validated commissions (past months) - payout requests
-    const pastValidCommsAmount = allValidCommsAmount - allMonthlyCommsAmount
-    setSoldeDisponible(Math.max(0, pastValidCommsAmount - totalPaidOrPending))
+    // Solde disponible = Total Earned (from DB profile) - payout requests
+    setSoldeDisponible(Math.max(0, totalEarnedDB - totalPaidOrPending))
 
     // Build Chart Data (Daily breakdown)
     const rangeDays = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 15
