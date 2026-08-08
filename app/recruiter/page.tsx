@@ -35,7 +35,7 @@ export default function RecruiterDashboard() {
   const [recruiterLink, setRecruiterLink] = useState('')
   const [activeTab, setActiveTab] = useState<'team' | 'stats' | 'earnings' | 'payout'>('team')
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'all'>('7d')
-  const [payoutAmount, setPayoutAmount] = useState('200')
+  const [payoutAmount, setPayoutAmount] = useState('300')
   const [payoutSuccess, setPayoutSuccess] = useState(false)
   const [payoutsList, setPayoutsList] = useState<any[]>([])
   const [soldeDisponible, setSoldeDisponible] = useState(0)
@@ -220,8 +220,8 @@ export default function RecruiterDashboard() {
   const handleRequestPayout = async (e: React.FormEvent) => {
     e.preventDefault()
     const amount = Number(payoutAmount)
-    if (amount < 200) {
-      toast.error('Le montant minimum de retrait est de 200 €.')
+    if (amount < 300) {
+      toast.error('Le montant minimum de retrait est de 300 €.')
       return
     }
     if (amount > soldeDisponible) {
@@ -261,7 +261,7 @@ Connectez-vous pour valider le virement.`
   const conversionRate = filteredClicksCount > 0 ? ((filteredCommsCount / filteredClicksCount) * 100).toFixed(1) : '0'
   const currentDay = new Date().getDate()
   const isPayoutWindow = currentDay >= 15 && currentDay <= 20
-  const canRequestPayout = isPayoutWindow && soldeDisponible >= 200
+  const canRequestPayout = isPayoutWindow && soldeDisponible >= 300
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -633,7 +633,7 @@ Connectez-vous pour valider le virement.`
           <div className="max-w-xl mx-auto glass-panel p-8 rounded-2xl border border-gold/30 space-y-6 animate-fadeIn">
             <div className="space-y-1">
               <h3 className="font-display font-bold text-xl text-white">Demande de Retrait (Recruteur)</h3>
-              <p className="text-xs text-slate-400">Solde minimum requis : 200.00 € (Votre solde actuel : {soldeDisponible.toFixed(2)} €)</p>
+              <p className="text-xs text-slate-400">Solde minimum requis : 300.00 € (Votre solde actuel : {soldeDisponible.toFixed(2)} €)</p>
             </div>
 
             {payoutSuccess && (
@@ -648,8 +648,8 @@ Connectez-vous pour valider le virement.`
                 <label className="text-xs font-semibold text-slate-300">Montant à retirer (€)</label>
                 <input
                   type="number"
-                  min="200"
-                  max={soldeDisponible > 0 ? soldeDisponible : 200}
+                  min="300"
+                  max={soldeDisponible > 0 ? soldeDisponible : 300}
                   required
                   value={payoutAmount}
                   onChange={e => setPayoutAmount(e.target.value)}
@@ -674,7 +674,7 @@ Connectez-vous pour valider le virement.`
                     : 'text-slate-400 bg-slate-800/80 cursor-not-allowed border border-slate-700'
                 }`}
               >
-                {canRequestPayout ? 'Confirmer la Demande' : (soldeDisponible < 200 && isPayoutWindow) ? 'Solde insuffisant' : 'Paiements fermés'}
+                {canRequestPayout ? 'Confirmer la Demande' : (soldeDisponible < 300 && isPayoutWindow) ? 'Solde insuffisant' : 'Paiements fermés'}
               </button>
               
               {!isPayoutWindow && (

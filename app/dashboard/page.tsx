@@ -590,8 +590,8 @@ export default function DashboardPage() {
     e.preventDefault()
     
     const amount = Number(payoutAmount)
-    if (amount < 200) {
-      toast.error('Le montant minimum de retrait est de 200 €.')
+    if (amount < 300) {
+      toast.error('Le montant minimum de retrait est de 300 €.')
       return
     }
     if (amount > soldeDisponible) {
@@ -1022,7 +1022,7 @@ export default function DashboardPage() {
 
   const currentDay = new Date().getDate()
   const isPayoutWindow = currentDay >= 15 && currentDay <= 20
-  const canRequestPayout = isPayoutWindow && soldeDisponible >= 200
+  const canRequestPayout = isPayoutWindow && soldeDisponible >= 300
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -1579,7 +1579,7 @@ export default function DashboardPage() {
           <div className="max-w-xl mx-auto glass-panel p-8 rounded-2xl border border-gold/30 space-y-6">
             <div className="space-y-1">
               <h3 className="font-display font-bold text-xl text-white">Formulaire de Demande de Retrait</h3>
-              <p className="text-xs text-slate-400">Solde minimum requis : 200.00 € (Votre solde actuel : {soldeDisponible.toFixed(2)} €)</p>
+              <p className="text-xs text-slate-400">Solde minimum requis : 300.00 € (Votre solde actuel : {soldeDisponible.toFixed(2)} €)</p>
             </div>
 
             {payoutSuccess && (
@@ -1594,7 +1594,7 @@ export default function DashboardPage() {
                 <label className="text-xs font-semibold text-slate-300">Montant à retirer (€)</label>
                 <input
                   type="number"
-                  min="200"
+                  min="300"
                   max={soldeDisponible}
                   required
                   value={payoutAmount}
@@ -1620,7 +1620,7 @@ export default function DashboardPage() {
                     : 'text-slate-400 bg-slate-800/80 cursor-not-allowed border border-slate-700'
                 }`}
               >
-                {canRequestPayout ? 'Confirmer la Demande de Paiement' : (soldeDisponible < 200 && isPayoutWindow) ? 'Solde insuffisant' : 'Paiements fermés'}
+                {canRequestPayout ? 'Confirmer la Demande de Paiement' : (soldeDisponible < 300 && isPayoutWindow) ? 'Solde insuffisant' : 'Paiements fermés'}
               </button>
               
               {!isPayoutWindow && (
@@ -1629,10 +1629,10 @@ export default function DashboardPage() {
                   <p>Les soldes disponibles peuvent être retirés uniquement <strong>entre le 15 et le 20 du mois</strong>. En dehors de cette période, les demandes sont bloquées pour comptabilité.</p>
                 </div>
               )}
-              {isPayoutWindow && soldeDisponible < 200 && (
+              {isPayoutWindow && soldeDisponible < 300 && (
                 <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                  <p>Votre solde débloqué est inférieur au minimum requis de <strong>200€</strong>.</p>
+                  <p>Votre solde débloqué est inférieur au minimum requis de <strong>300€</strong>.</p>
                 </div>
               )}
             </form>

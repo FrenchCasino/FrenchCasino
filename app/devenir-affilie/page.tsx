@@ -71,7 +71,7 @@ export default function DevenirAffiliePage() {
             </div>
             <h3 className="font-display font-bold text-lg text-white">Paiements Flexibles</h3>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Demandez le virement de vos commissions sur votre compte IBAN / BIC ou portefeuille Crypto dès 200€ de solde. Les paiements sont traités entre le 15 et le 20 de chaque mois.
+              Demandez le virement de vos commissions sur votre compte IBAN / BIC ou portefeuille Crypto dès 300€ de solde. Les paiements sont traités entre le 15 et le 20 de chaque mois.
             </p>
           </div>
 
